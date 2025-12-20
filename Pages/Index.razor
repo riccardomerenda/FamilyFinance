@@ -5,129 +5,351 @@
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 
-<h3>@L["DashboardTitle"]</h3>
-
-@if (_latest is null) { 
-    <div class="alert alert-warning">
-        @L["NoDataMessage"] <a href="snapshots/new">@L["CreateFirstSnapshot"]</a>.
+@if (_latest is null)
+{
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500/20 to-accent-500/20 flex items-center justify-center mb-6">
+            <svg class="w-12 h-12 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">@L["NoDataMessage"]</h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">@L["CreateFirstSnapshot"]</p>
+        <a href="snapshots/new" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            @L["NewSnapshot"]
+        </a>
     </div>
 }
-else {
-    <ul class="nav nav-tabs mb-3">
-        <li class="nav-item"><button class="nav-link @(Tab=="dash"?"active":"")" @onclick='()=>Tab="dash"'>@L["TabDashboard"]</button></li>
-        <li class="nav-item"><button class="nav-link @(Tab=="inv"?"active":"")" @onclick='()=>Tab="inv"'>@L["TabInvestments"]</button></li>
-        <li class="nav-item"><button class="nav-link @(Tab=="int"?"active":"")" @onclick='()=>Tab="int"'>@L["TabInterests"]</button></li>
-        <li class="nav-item"><button class="nav-link @(Tab=="exp"?"active":"")" @onclick='()=>Tab="exp"'>@L["TabExport"]</button></li>
-    </ul>
+else
+{
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button class="tab-btn @(Tab=="dash" ? "tab-btn-active" : "")" @onclick='() => Tab = "dash"'>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+            </svg>
+            @L["TabDashboard"]
+        </button>
+        <button class="tab-btn @(Tab=="inv" ? "tab-btn-active" : "")" @onclick='() => Tab = "inv"'>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+            @L["TabInvestments"]
+        </button>
+        <button class="tab-btn @(Tab=="int" ? "tab-btn-active" : "")" @onclick='() => Tab = "int"'>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            @L["TabInterests"]
+        </button>
+        <button class="tab-btn @(Tab=="exp" ? "tab-btn-active" : "")" @onclick='() => Tab = "exp"'>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            @L["TabExport"]
+        </button>
+    </div>
 
-    @if (Tab == "dash") {
-        <div class="row g-3 mb-4">
-            <div class="col-md-4"><div class="card p-3 shadow-sm border-primary"><h5>@L["CurrentTotal"]</h5><h2 class="text-primary">@_t.CurrentTotal.ToString("N0") €</h2><small class="text-muted">@L["LiquidityPlusInvestments"]</small></div></div>
-            <div class="col-md-4"><div class="card p-3 shadow-sm border-success"><h5>@L["Projected"]</h5><h2 class="text-success">@_t.ProjectedTotal.ToString("N0") €</h2><small class="text-muted">@L["IncludingCredits"]</small></div></div>
-            <div class="col-md-4"><div class="card p-3 shadow-sm"><h5>@L["NetWorthTotal"]</h5><h2>@_t.GrandTotal.ToString("N0") €</h2><small class="text-muted">@L["IncludingPension"]</small></div></div>
+    @if (Tab == "dash")
+    {
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Current Total -->
+            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["CurrentTotal"]</span>
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">@_t.CurrentTotal.ToString("N0") €</p>
+                <p class="text-xs text-gray-400 mt-1">@L["LiquidityPlusInvestments"]</p>
+            </div>
+
+            <!-- Projected -->
+            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["Projected"]</span>
+                    <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">@_t.ProjectedTotal.ToString("N0") €</p>
+                <p class="text-xs text-gray-400 mt-1">@L["IncludingCredits"]</p>
+            </div>
+
+            <!-- Net Worth -->
+            <div class="card-hover bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-6 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-primary-100">@L["NetWorthTotal"]</span>
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-3xl font-bold">@_t.GrandTotal.ToString("N0") €</p>
+                <p class="text-xs text-primary-200 mt-1">@L["IncludingPension"]</p>
+            </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card p-3 mb-3">
-                    <h6>@L["WealthTrend"]</h6>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Trend Chart -->
+            <div class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["WealthTrend"]</h3>
+                <div class="h-64">
                     <Chart CanvasId="trend" Config="@_trendConfig" />
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card p-3 mb-3">
-                    <h6>@L["Composition"]</h6>
+
+            <!-- Composition Chart -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Composition"]</h3>
+                <div class="h-64">
                     <Chart CanvasId="comp" Config="@_compConfig" />
                 </div>
             </div>
         </div>
-        
-        <div class="row">
-             <div class="col-md-6">
-                <h6>@L["PendingCredits"]</h6>
-                <ul class="list-group">
-                @foreach(var r in _latest.Receivables.Where(x=>x.Status == ReceivableStatus.Open)) {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        @r.Description
-                        <span class="badge bg-primary rounded-pill">@r.Amount.ToString("N0") €</span>
-                    </li>
-                }
-                </ul>
+
+        <!-- Pending Credits -->
+        @if (_latest.Receivables.Any(x => x.Status == ReceivableStatus.Open))
+        {
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["PendingCredits"]</h3>
+                <div class="space-y-3">
+                    @foreach (var r in _latest.Receivables.Where(x => x.Status == ReceivableStatus.Open))
+                    {
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">@r.Description</span>
+                            <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-sm font-semibold">
+                                @r.Amount.ToString("N0") €
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    @if (Tab == "inv")
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["TabInvestments"]</h3>
+                <div class="space-y-3">
+                    @foreach (var i in _latest.Investments)
+                    {
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-sm">
+                                    @i.Name[..Math.Min(2, i.Name.Length)]
+                                </div>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">@i.Name</span>
+                            </div>
+                            <span class="font-semibold text-gray-900 dark:text-white">@i.Value.ToString("N2") €</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Composition"]</h3>
+                <div class="h-80">
+                    <Chart CanvasId="invPie" Config="@_invPieConfig" />
+                </div>
             </div>
         </div>
     }
-    @if (Tab == "inv") {
-        <div class="row">
-            <div class="col-md-6">
-                <table class="table table-striped">
-                    <thead><tr><th>@L["Asset"]</th><th class="text-end">@L["Value"]</th></tr></thead>
-                    <tbody>@foreach(var i in _latest.Investments){<tr><td>@i.Name</td><td class="text-end">@i.Value.ToString("N2")</td></tr>}</tbody>
-                </table>
+
+    @if (Tab == "int")
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["AccumulatedInterests"]</h3>
+                <div class="space-y-3">
+                    @foreach (var l in _latest.Lines.Where(x => x.Account.IsInterest))
+                    {
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
+                            <span class="font-semibold text-green-600 dark:text-green-400">+@l.Amount.ToString("N2") €</span>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="col-md-6"><Chart CanvasId="invPie" Config="@_invPieConfig" /></div>
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <div class="h-80">
+                    <Chart CanvasId="intBar" Config="@_intBarConfig" />
+                </div>
+            </div>
         </div>
     }
-    @if (Tab == "int") {
-        <Chart CanvasId="intBar" Config="@_intBarConfig" />
-        <table class="table mt-3">
-            <thead><tr><th>@L["Account"]</th><th class="text-end">@L["AccumulatedInterests"]</th></tr></thead>
-            <tbody>@foreach(var l in _latest.Lines.Where(x=>x.Account.IsInterest)){<tr><td>@l.Account.Name</td><td class="text-end">@l.Amount.ToString("N2")</td></tr>}</tbody>
-        </table>
-    }
-    @if (Tab == "exp") {
-        <div class="card p-4">
-            <h5>@L["ExportData"]</h5>
-            <div class="mt-3">
-                <button class="btn btn-primary me-2" @onclick="ExportJson">@L["DownloadBackupJson"]</button>
-                <button class="btn btn-secondary" @onclick="ExportCsv">@L["DownloadCsvExcel"]</button>
+
+    @if (Tab == "exp")
+    {
+        <div class="max-w-lg">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">@L["ExportData"]</h3>
+                </div>
+                <div class="space-y-3">
+                    <button @onclick="ExportJson" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        @L["DownloadBackupJson"]
+                    </button>
+                    <button @onclick="ExportCsv" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        @L["DownloadCsvExcel"]
+                    </button>
+                </div>
             </div>
         </div>
     }
 }
 
+<style>
+    .tab-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.75rem;
+        color: #6b7280;
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+    
+    :global(.dark) .tab-btn {
+        background-color: #111827;
+        border-color: #374151;
+        color: #9ca3af;
+    }
+    
+    .tab-btn:hover {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+    
+    :global(.dark) .tab-btn:hover {
+        background-color: #1f2937;
+        color: #e5e7eb;
+    }
+    
+    .tab-btn-active {
+        background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+    }
+</style>
+
 @code {
     string Tab = "dash";
     Snapshot? _latest;
-    Totals _t = new(0,0,0,0,0,0,0,0);
-    object _trendConfig = new{}, _compConfig = new{}, _invPieConfig = new{}, _intBarConfig = new{};
+    Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0);
+    object _trendConfig = new { }, _compConfig = new { }, _invPieConfig = new { }, _intBarConfig = new { };
 
-    protected override async Task OnInitializedAsync() {
+    protected override async Task OnInitializedAsync()
+    {
         _latest = await Finance.GetLatestSnapshotAsync();
-        if (_latest != null) {
+        if (_latest != null)
+        {
             _t = await Finance.CalculateTotalsAsync(_latest);
             await BuildCharts();
         }
     }
 
-    async Task BuildCharts() {
+    async Task BuildCharts()
+    {
         var all = await Finance.GetSnapshotsAsync();
         var full = new List<(string d, decimal v)>();
-        foreach(var s in all.OrderBy(x=>x.SnapshotDate)) {
+        foreach (var s in all.OrderBy(x => x.SnapshotDate))
+        {
             var sn = await Finance.GetSnapshotAsync(s.Id);
             var t = await Finance.CalculateTotalsAsync(sn!);
             full.Add((s.SnapshotDate.ToString("MM/yy"), t.GrandTotal));
         }
 
-        _trendConfig = new { type="line", data=new{ labels=full.Select(x=>x.d), datasets=new[]{ new{ label=L["ChartTotal"].Value, data=full.Select(x=>x.v), borderColor="#36A2EB", tension=0.2 } } } };
-        _compConfig = new { type="doughnut", data=new{ labels=new[]{L["ChartLiquidity"].Value, L["ChartInvestments"].Value, L["ChartCredits"].Value, L["ChartPension"].Value}, datasets=new[]{ new{ data=new[]{_t.Liquidity, _t.Investments, _t.CreditsOpen, _t.PensionInsurance}, backgroundColor=new[]{"#FF6384","#36A2EB","#FFCE56","#4BC0C0"} } } } };
-        _invPieConfig = new { type="pie", data=new{ labels=_latest!.Investments.Select(x=>x.Name), datasets=new[]{ new{ data=_latest.Investments.Select(x=>x.Value) } } } };
+        _trendConfig = new
+        {
+            type = "line",
+            data = new
+            {
+                labels = full.Select(x => x.d),
+                datasets = new[] { new { label = L["ChartTotal"].Value, data = full.Select(x => x.v), borderColor = "#6366f1", backgroundColor = "rgba(99, 102, 241, 0.1)", fill = true, tension = 0.4 } }
+            },
+            options = new { responsive = true, maintainAspectRatio = false, plugins = new { legend = new { display = false } } }
+        };
         
-        var intLines = _latest.Lines.Where(l=>l.Account.IsInterest).ToList();
-        _intBarConfig = new { type="bar", data=new{ labels=intLines.Select(x=>x.Account.Name), datasets=new[]{ new{ label=L["ChartInterests"].Value, data=intLines.Select(x=>x.Amount) } } } };
+        _compConfig = new
+        {
+            type = "doughnut",
+            data = new
+            {
+                labels = new[] { L["ChartLiquidity"].Value, L["ChartInvestments"].Value, L["ChartCredits"].Value, L["ChartPension"].Value },
+                datasets = new[] { new { data = new[] { _t.Liquidity, _t.Investments, _t.CreditsOpen, _t.PensionInsurance }, backgroundColor = new[] { "#6366f1", "#06b6d4", "#f59e0b", "#10b981" } } }
+            },
+            options = new { responsive = true, maintainAspectRatio = false, plugins = new { legend = new { position = "bottom" } } }
+        };
+        
+        _invPieConfig = new
+        {
+            type = "pie",
+            data = new
+            {
+                labels = _latest!.Investments.Select(x => x.Name),
+                datasets = new[] { new { data = _latest.Investments.Select(x => x.Value), backgroundColor = new[] { "#6366f1", "#06b6d4", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6" } } }
+            },
+            options = new { responsive = true, maintainAspectRatio = false }
+        };
+
+        var intLines = _latest.Lines.Where(l => l.Account.IsInterest).ToList();
+        _intBarConfig = new
+        {
+            type = "bar",
+            data = new
+            {
+                labels = intLines.Select(x => x.Account.Name),
+                datasets = new[] { new { label = L["ChartInterests"].Value, data = intLines.Select(x => x.Amount), backgroundColor = "#10b981" } }
+            },
+            options = new { responsive = true, maintainAspectRatio = false }
+        };
     }
 
-    async Task ExportJson() {
+    async Task ExportJson()
+    {
         var all = await Finance.GetSnapshotsAsync();
         var data = new List<object>();
-        foreach(var s in all) { var snap = await Finance.GetSnapshotAsync(s.Id); if(snap != null) data.Add(snap); }
+        foreach (var s in all) { var snap = await Finance.GetSnapshotAsync(s.Id); if (snap != null) data.Add(snap); }
         var json = JsonSerializer.Serialize(data);
         await JS.InvokeVoidAsync("downloadFile", "backup.json", "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
     }
-    
-    async Task ExportCsv() {
+
+    async Task ExportCsv()
+    {
         var all = await Finance.GetSnapshotsAsync();
         var sb = new StringBuilder("Data,Liquidità,Investimenti,Crediti,Pensione,Totale\n");
-        foreach(var s in all) {
+        foreach (var s in all)
+        {
             var sn = await Finance.GetSnapshotAsync(s.Id);
             var t = await Finance.CalculateTotalsAsync(sn!);
             sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.Investments},{t.CreditsOpen},{t.PensionInsurance},{t.GrandTotal}");

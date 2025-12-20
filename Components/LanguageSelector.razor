@@ -1,23 +1,28 @@
 @using System.Globalization
 
-<div class="dropdown d-inline-block">
-    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        @GetCurrentFlag()
+<div class="relative" x-data="{ open: false }">
+    <button onclick="this.nextElementSibling.classList.toggle('hidden')" 
+            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 text-sm font-medium">
+        <span>@GetCurrentFlag()</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
     </button>
-    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-        <li><a class="dropdown-item" href="#" onclick="switchLanguage('it-IT'); return false;">🇮🇹 Italiano</a></li>
-        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en-US'); return false;">🇬🇧 English</a></li>
-    </ul>
+    <div class="hidden absolute right-0 mt-2 w-40 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 z-50 overflow-hidden">
+        <a href="#" onclick="switchLanguage('it-IT'); return false;" 
+           class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors @(IsItalian ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" : "")">
+            <span class="text-lg">🇮🇹</span>
+            <span>Italiano</span>
+        </a>
+        <a href="#" onclick="switchLanguage('en-US'); return false;" 
+           class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors @(!IsItalian ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" : "")">
+            <span class="text-lg">🇬🇧</span>
+            <span>English</span>
+        </a>
+    </div>
 </div>
 
-<script>
-    function switchLanguage(culture) {
-        var currentPath = window.location.pathname;
-        if (!currentPath || currentPath === '') currentPath = '/';
-        window.location.href = '/Culture/Set/' + culture + '?returnUrl=' + encodeURIComponent(currentPath);
-    }
-</script>
-
 @code {
-    private string GetCurrentFlag() => CultureInfo.CurrentUICulture.Name.StartsWith("it") ? "🇮🇹" : "🇬🇧";
+    private bool IsItalian => CultureInfo.CurrentUICulture.Name.StartsWith("it");
+    private string GetCurrentFlag() => IsItalian ? "🇮🇹 IT" : "🇬🇧 EN";
 }

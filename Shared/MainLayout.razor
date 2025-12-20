@@ -1,19 +1,140 @@
 ﻿@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResource> L
 
-<PageTitle>FamilyFinance</PageTitle>
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex lg:flex-col w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-200 dark:border-gray-800">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold gradient-text">FamilyFinance</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Wealth Manager</p>
+            </div>
         </div>
-
-        <article class="content px-4">
+        
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-item" ActiveClass="nav-item-active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span>@L["Dashboard"]</span>
+            </NavLink>
+            
+            <NavLink href="snapshots" class="nav-item" ActiveClass="nav-item-active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>@L["Snapshots"]</span>
+            </NavLink>
+            
+            <NavLink href="accounts" class="nav-item" ActiveClass="nav-item-active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
+                <span>@L["Accounts"]</span>
+            </NavLink>
+            
+            <NavLink href="goals" class="nav-item" ActiveClass="nav-item-active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span>@L["Goals"]</span>
+            </NavLink>
+        </nav>
+        
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+            <AppVersion />
+        </div>
+    </aside>
+    
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top bar -->
+        <header class="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            <!-- Mobile menu button -->
+            <button class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            
+            <div class="hidden lg:block">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">@L["DashboardTitle"]</h2>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <LanguageSelector />
+                <ThemeToggle />
+            </div>
+        </header>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+            <nav class="space-y-1">
+                <NavLink href="" Match="NavLinkMatch.All" class="mobile-nav-item">@L["Dashboard"]</NavLink>
+                <NavLink href="snapshots" class="mobile-nav-item">@L["Snapshots"]</NavLink>
+                <NavLink href="accounts" class="mobile-nav-item">@L["Accounts"]</NavLink>
+                <NavLink href="goals" class="mobile-nav-item">@L["Goals"]</NavLink>
+            </nav>
+        </div>
+        
+        <!-- Page content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-950">
             @Body
-        </article>
-    </main>
+        </main>
+    </div>
 </div>
+
+<style>
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        color: #6b7280;
+        transition: all 0.2s;
+    }
+    
+    .nav-item:hover {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+    
+    :global(.dark) .nav-item:hover {
+        background-color: #1f2937;
+        color: #e5e7eb;
+    }
+    
+    .nav-item-active, .nav-item.active {
+        background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+        color: white !important;
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+    }
+    
+    .mobile-nav-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        color: #6b7280;
+    }
+    
+    .mobile-nav-item:hover, .mobile-nav-item.active {
+        background-color: #f3f4f6;
+        color: #4f46e5;
+    }
+    
+    :global(.dark) .mobile-nav-item:hover, :global(.dark) .mobile-nav-item.active {
+        background-color: #1f2937;
+        color: #818cf8;
+    }
+</style>

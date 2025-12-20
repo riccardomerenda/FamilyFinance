@@ -2,41 +2,108 @@
 @inject AppDbContext Db
 @inject IStringLocalizer<SharedResource> L
 
-<h3>@L["AccountsManagement"]</h3>
-<button class="btn btn-sm btn-outline-secondary mb-3" @onclick="NewAccount">@L["NewAccount"]</button>
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["AccountsManagement"]</h1>
+    <button @onclick="NewAccount" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        @L["NewAccount"]
+    </button>
+</div>
 
-<table class="table table-sm">
-    <thead><tr><th>@L["Name"]</th><th>@L["Category"]</th><th>@L["IsInterest"]</th><th>@L["Actions"]</th></tr></thead>
-    <tbody>
-    @foreach(var a in _accounts) {
-        <tr>
-            <td>@a.Name</td><td>@a.Category</td><td>@(a.IsInterest ? L["Yes"] : L["No"])</td>
-            <td><button class="btn btn-sm btn-light" @onclick="()=>Edit(a)">@L["Edit"]</button></td>
-        </tr>
-    }
-    </tbody>
-</table>
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div class="divide-y divide-gray-200 dark:divide-gray-800">
+        @foreach (var a in _accounts)
+        {
+            <div class="flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl @GetCategoryColor(a.Category) flex items-center justify-center text-white font-bold">
+                        @a.Name[..Math.Min(2, a.Name.Length)]
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200">@a.Name</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">@a.Category</span>
+                            @if (a.IsInterest)
+                            {
+                                <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">@L["Interests"]</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <button @onclick="() => Edit(a)" class="px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
+                    @L["Edit"]
+                </button>
+            </div>
+        }
+    </div>
+</div>
 
-@if(_editing != null) {
-    <div class="card p-3" style="max-width:400px">
-        <h5>@L["EditAccount"]</h5>
-        <div class="mb-2"><label>@L["Name"]</label><InputText class="form-control" @bind-Value="_editing.Name" /></div>
-        <div class="mb-2"><label>@L["Cat"]</label><InputSelect class="form-select" @bind-Value="_editing.Category">
-            @foreach(var c in Enum.GetValues<AccountCategory>()){<option value="@c">@c</option>}
-        </InputSelect></div>
-        <div class="form-check mb-2"><InputCheckbox class="form-check-input" @bind-Value="_editing.IsInterest" /><label>@L["InterestAccount"]</label></div>
-        <button class="btn btn-success" @onclick="Save">@L["Save"]</button>
+<!-- Modal -->
+@if (_editing != null)
+{
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @onclick="() => _editing = null">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" @onclick:stopPropagation="true">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">@L["EditAccount"]</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Name"]</label>
+                    <InputText @bind-Value="_editing.Name" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Category"]</label>
+                    <InputSelect @bind-Value="_editing.Category" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500">
+                        @foreach (var c in Enum.GetValues<AccountCategory>())
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </InputSelect>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <InputCheckbox @bind-Value="_editing.IsInterest" class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500" />
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">@L["InterestAccount"]</label>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button @onclick="Save" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                    @L["Save"]
+                </button>
+                <button @onclick="() => _editing = null" class="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
     </div>
 }
 
 @code {
     List<Account> _accounts = new();
     Account? _editing;
-    protected override void OnInitialized() => _accounts = Db.Accounts.ToList();
+
+    protected override void OnInitialized() => _accounts = Db.Accounts.OrderBy(a => a.Category).ThenBy(a => a.Name).ToList();
+    
+    string GetCategoryColor(AccountCategory cat) => cat switch
+    {
+        AccountCategory.Liquidity => "bg-gradient-to-br from-blue-500 to-blue-600",
+        AccountCategory.Pension => "bg-gradient-to-br from-purple-500 to-purple-600",
+        AccountCategory.Insurance => "bg-gradient-to-br from-green-500 to-green-600",
+        _ => "bg-gradient-to-br from-gray-500 to-gray-600"
+    };
+
     void NewAccount() => _editing = new Account();
     void Edit(Account a) => _editing = a;
-    void Save() {
-        if(_editing!.Id==0) Db.Accounts.Add(_editing); else Db.Accounts.Update(_editing);
-        Db.SaveChanges(); _editing=null; OnInitialized();
+    
+    void Save()
+    {
+        if (_editing!.Id == 0) Db.Accounts.Add(_editing);
+        else Db.Accounts.Update(_editing);
+        Db.SaveChanges();
+        _editing = null;
+        OnInitialized();
     }
 }

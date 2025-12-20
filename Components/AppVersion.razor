@@ -1,6 +1,9 @@
 @using System.Reflection
 
-<span class="text-muted small">v@(Version)</span>
+<div class="flex items-center gap-2 text-xs text-gray-400">
+    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+    <span>v@(Version)</span>
+</div>
 
 @code {
     private string Version
@@ -10,8 +13,6 @@
             var version = Assembly.GetExecutingAssembly()
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion ?? "1.0.0";
-            
-            // Remove git hash if present (e.g., "1.0.0+abc123" -> "1.0.0")
             var plusIndex = version.IndexOf('+');
             return plusIndex > 0 ? version[..plusIndex] : version;
         }
