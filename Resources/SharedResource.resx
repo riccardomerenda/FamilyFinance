@@ -112,6 +112,15 @@
   <data name="Target" xml:space="preserve"><value>Target</value></data>
   <data name="DateExample" xml:space="preserve"><value>Data (es. 2026-12)</value></data>
 
+  <!-- Pension Tab -->
+  <data name="TabPension" xml:space="preserve"><value>Previdenza</value></data>
+  <data name="PensionFunds" xml:space="preserve"><value>Fondi Pensione</value></data>
+  <data name="InsurancePolicies" xml:space="preserve"><value>Polizze Assicurative</value></data>
+  <data name="TotalPensionInsurance" xml:space="preserve"><value>Totale Previdenza + Assicurazioni</value></data>
+  <data name="NoPensionAccounts" xml:space="preserve"><value>Nessun fondo pensione configurato</value></data>
+  <data name="NoInsuranceAccounts" xml:space="preserve"><value>Nessuna polizza configurata</value></data>
+  <data name="Total" xml:space="preserve"><value>Totale</value></data>
+
   <!-- Language -->
   <data name="Language" xml:space="preserve"><value>Lingua</value></data>
   <data name="Italian" xml:space="preserve"><value>Italiano</value></data>

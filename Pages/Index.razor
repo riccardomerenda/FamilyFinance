@@ -46,6 +46,12 @@ else
             </svg>
             @L["TabInterests"]
         </button>
+        <button class="tab-btn @(Tab=="pen" ? "tab-btn-active" : "")" @onclick='() => Tab = "pen"'>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            @L["TabPension"]
+        </button>
         <button class="tab-btn @(Tab=="exp" ? "tab-btn-active" : "")" @onclick='() => Tab = "exp"'>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -187,6 +193,93 @@ else
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
                 <div class="h-80">
                     <Chart CanvasId="intBar" Config="@_intBarConfig" />
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Tab == "pen")
+    {
+        var pensionLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Pension).ToList();
+        var insuranceLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Insurance).ToList();
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Pension -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["PensionFunds"]</h3>
+                </div>
+                @if (pensionLines.Any())
+                {
+                    <div class="space-y-3">
+                        @foreach (var l in pensionLines)
+                        {
+                            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
+                                <span class="font-semibold text-purple-600 dark:text-purple-400">@l.Amount.ToString("N2") €</span>
+                            </div>
+                        }
+                        <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800">
+                            <span class="font-bold text-gray-800 dark:text-gray-200">@L["Total"]</span>
+                            <span class="font-bold text-purple-600 dark:text-purple-400">@pensionLines.Sum(x => x.Amount).ToString("N2") €</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-gray-500 dark:text-gray-400 text-center py-8">@L["NoPensionAccounts"]</p>
+                }
+            </div>
+
+            <!-- Insurance -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["InsurancePolicies"]</h3>
+                </div>
+                @if (insuranceLines.Any())
+                {
+                    <div class="space-y-3">
+                        @foreach (var l in insuranceLines)
+                        {
+                            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
+                                <span class="font-semibold text-green-600 dark:text-green-400">@l.Amount.ToString("N2") €</span>
+                            </div>
+                        }
+                        <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
+                            <span class="font-bold text-gray-800 dark:text-gray-200">@L["Total"]</span>
+                            <span class="font-bold text-green-600 dark:text-green-400">@insuranceLines.Sum(x => x.Amount).ToString("N2") €</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-gray-500 dark:text-gray-400 text-center py-8">@L["NoInsuranceAccounts"]</p>
+                }
+            </div>
+        </div>
+
+        <!-- Total Summary Card -->
+        <div class="mt-6 bg-gradient-to-r from-purple-500 to-green-500 rounded-2xl p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-medium">@L["TotalPensionInsurance"]</p>
+                    <p class="text-3xl font-bold mt-1">@_t.PensionInsurance.ToString("N2") €</p>
+                </div>
+                <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
                 </div>
             </div>
         </div>

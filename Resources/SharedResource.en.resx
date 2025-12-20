@@ -112,6 +112,15 @@
   <data name="Target" xml:space="preserve"><value>Target</value></data>
   <data name="DateExample" xml:space="preserve"><value>Date (e.g. 2026-12)</value></data>
 
+  <!-- Pension Tab -->
+  <data name="TabPension" xml:space="preserve"><value>Pension</value></data>
+  <data name="PensionFunds" xml:space="preserve"><value>Pension Funds</value></data>
+  <data name="InsurancePolicies" xml:space="preserve"><value>Insurance Policies</value></data>
+  <data name="TotalPensionInsurance" xml:space="preserve"><value>Total Pension + Insurance</value></data>
+  <data name="NoPensionAccounts" xml:space="preserve"><value>No pension funds configured</value></data>
+  <data name="NoInsuranceAccounts" xml:space="preserve"><value>No insurance policies configured</value></data>
+  <data name="Total" xml:space="preserve"><value>Total</value></data>
+
   <!-- Language -->
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="Italian" xml:space="preserve"><value>Italiano</value></data>
