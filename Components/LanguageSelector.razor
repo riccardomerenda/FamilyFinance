@@ -36,8 +36,16 @@
 
     private string GetCultureChangeUrl(string cultureCode)
     {
-        var uri = new Uri(Nav.Uri);
-        var redirectUri = uri.PathAndQuery;
-        return $"/Culture/Set?culture={cultureCode}&redirectUri={Uri.EscapeDataString(redirectUri)}";
+        // Get current path from NavigationManager
+        var currentUri = Nav.ToAbsoluteUri(Nav.Uri);
+        var currentPath = currentUri.PathAndQuery;
+        
+        // Ensure it starts with /
+        if (string.IsNullOrEmpty(currentPath) || !currentPath.StartsWith('/'))
+        {
+            currentPath = "/";
+        }
+        
+        return $"/Culture/Set?culture={cultureCode}&redirectUri={Uri.EscapeDataString(currentPath)}";
     }
 }

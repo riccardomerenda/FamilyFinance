@@ -18,7 +18,12 @@ public class CultureController : Controller
             );
         }
 
+        // Fallback to home if redirectUri is invalid
+        if (string.IsNullOrWhiteSpace(redirectUri) || !redirectUri.StartsWith('/'))
+        {
+            redirectUri = "/";
+        }
+
         return LocalRedirect(redirectUri);
     }
 }
-
