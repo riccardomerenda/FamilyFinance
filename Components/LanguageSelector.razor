@@ -1,23 +1,23 @@
 @using System.Globalization
-@inject NavigationManager Nav
 
 <div class="dropdown d-inline-block">
     <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         @GetCurrentFlag()
     </button>
     <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-        <li><a class="dropdown-item" href="@GetUrl("it-IT")">🇮🇹 Italiano</a></li>
-        <li><a class="dropdown-item" href="@GetUrl("en-US")">🇬🇧 English</a></li>
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('it-IT'); return false;">🇮🇹 Italiano</a></li>
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en-US'); return false;">🇬🇧 English</a></li>
     </ul>
 </div>
 
+<script>
+    function switchLanguage(culture) {
+        var currentPath = window.location.pathname;
+        if (!currentPath || currentPath === '') currentPath = '/';
+        window.location.href = '/Culture/Set/' + culture + '?returnUrl=' + encodeURIComponent(currentPath);
+    }
+</script>
+
 @code {
     private string GetCurrentFlag() => CultureInfo.CurrentUICulture.Name.StartsWith("it") ? "🇮🇹" : "🇬🇧";
-
-    private string GetUrl(string culture)
-    {
-        var currentPath = new Uri(Nav.Uri).AbsolutePath;
-        if (string.IsNullOrEmpty(currentPath)) currentPath = "/";
-        return $"/Culture/Set/{culture}?returnUrl={Uri.EscapeDataString(currentPath)}";
-    }
 }
