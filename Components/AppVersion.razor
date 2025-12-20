@@ -1,0 +1,10 @@
+@using System.Reflection
+
+<span class="text-muted small">v@(Version)</span>
+
+@code {
+    private string Version => Assembly.GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion ?? "1.0.0";
+}
+

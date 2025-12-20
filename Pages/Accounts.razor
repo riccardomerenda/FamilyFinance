@@ -1,0 +1,42 @@
+@page "/accounts"
+@inject AppDbContext Db
+@inject IStringLocalizer<SharedResource> L
+
+<h3>@L["AccountsManagement"]</h3>
+<button class="btn btn-sm btn-outline-secondary mb-3" @onclick="NewAccount">@L["NewAccount"]</button>
+
+<table class="table table-sm">
+    <thead><tr><th>@L["Name"]</th><th>@L["Category"]</th><th>@L["IsInterest"]</th><th>@L["Actions"]</th></tr></thead>
+    <tbody>
+    @foreach(var a in _accounts) {
+        <tr>
+            <td>@a.Name</td><td>@a.Category</td><td>@(a.IsInterest ? L["Yes"] : L["No"])</td>
+            <td><button class="btn btn-sm btn-light" @onclick="()=>Edit(a)">@L["Edit"]</button></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if(_editing != null) {
+    <div class="card p-3" style="max-width:400px">
+        <h5>@L["EditAccount"]</h5>
+        <div class="mb-2"><label>@L["Name"]</label><InputText class="form-control" @bind-Value="_editing.Name" /></div>
+        <div class="mb-2"><label>@L["Cat"]</label><InputSelect class="form-select" @bind-Value="_editing.Category">
+            @foreach(var c in Enum.GetValues<AccountCategory>()){<option value="@c">@c</option>}
+        </InputSelect></div>
+        <div class="form-check mb-2"><InputCheckbox class="form-check-input" @bind-Value="_editing.IsInterest" /><label>@L["InterestAccount"]</label></div>
+        <button class="btn btn-success" @onclick="Save">@L["Save"]</button>
+    </div>
+}
+
+@code {
+    List<Account> _accounts = new();
+    Account? _editing;
+    protected override void OnInitialized() => _accounts = Db.Accounts.ToList();
+    void NewAccount() => _editing = new Account();
+    void Edit(Account a) => _editing = a;
+    void Save() {
+        if(_editing!.Id==0) Db.Accounts.Add(_editing); else Db.Accounts.Update(_editing);
+        Db.SaveChanges(); _editing=null; OnInitialized();
+    }
+}

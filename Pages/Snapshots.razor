@@ -1,0 +1,35 @@
+@page "/snapshots"
+@inject FinanceService Finance
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<h3>@L["SnapshotsHistory"]</h3>
+
+<button class="btn btn-primary mb-3" @onclick='() => Nav.NavigateTo("/snapshots/new")'>+ @L["NewSnapshot"]</button>
+
+@if (_items == null) { <p>@L["Loading"]</p> }
+else {
+    <table class="table table-hover">
+        <thead><tr><th>@L["Date"]</th><th>@L["Actions"]</th></tr></thead>
+        <tbody>
+            @foreach (var s in _items) {
+                <tr>
+                    <td>@s.SnapshotDate.ToString("dd MMMM yyyy")</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" @onclick='() => Nav.NavigateTo($"/snapshots/{s.Id}")'>@L["Open"]</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(s.Id)">@L["Delete"]</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Snapshot>? _items;
+    protected override async Task OnInitializedAsync() => _items = await Finance.GetSnapshotsAsync();
+    async Task Delete(int id) {
+        await Finance.DeleteSnapshotAsync(id);
+        _items = await Finance.GetSnapshotsAsync();
+    }
+}

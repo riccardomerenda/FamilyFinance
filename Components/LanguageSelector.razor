@@ -1,0 +1,49 @@
+@using FamilyFinance.Resources
+@inject IStringLocalizer<SharedResource> L
+@inject CultureService Culture
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="dropdown">
+    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        🌐 @GetCurrentLanguageName()
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        @foreach (var (code, name) in CultureService.SupportedCultures)
+        {
+            <li>
+                <button class="dropdown-item @(IsCurrentCulture(code) ? "active" : "")" 
+                        @onclick="() => ChangeLanguage(code)">
+                    @name
+                </button>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Culture.OnCultureChanged += StateHasChanged;
+    }
+
+    private string GetCurrentLanguageName()
+    {
+        var current = Culture.CurrentCulture.Name;
+        return CultureService.SupportedCultures.FirstOrDefault(c => c.Code == current).Name ?? "Italiano";
+    }
+
+    private bool IsCurrentCulture(string code) => Culture.CurrentCulture.Name == code;
+
+    private void ChangeLanguage(string cultureCode)
+    {
+        Culture.SetCulture(cultureCode);
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        Culture.OnCultureChanged -= StateHasChanged;
+    }
+}
+

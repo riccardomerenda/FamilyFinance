@@ -1,0 +1,10 @@
+@inject IJSRuntime JS
+<canvas id="@CanvasId" height="120"></canvas>
+@code {
+    [Parameter, EditorRequired] public string CanvasId { get; set; } = Guid.NewGuid().ToString("N");
+    [Parameter, EditorRequired] public object Config { get; set; } = default!;
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await JS.InvokeVoidAsync("chartInterop.render", CanvasId, Config);
+    }
+}
+

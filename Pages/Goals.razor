@@ -1,0 +1,56 @@
+@page "/goals"
+@inject FinanceService Finance
+@inject IStringLocalizer<SharedResource> L
+
+<h3>@L["FinancialGoals"]</h3>
+<button class="btn btn-primary mb-3" @onclick="NewGoal">@L["NewGoal"]</button>
+
+<div class="row">
+@foreach(var g in _goals) {
+    var curr = GetVal(g.Category);
+    var pct = g.Target>0 ? Math.Min(100, (curr/g.Target)*100) : 0;
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5>@g.Name</h5>
+                    <button class="btn btn-sm text-danger" @onclick="()=>Del(g.Id)">✕</button>
+                </div>
+                <div class="progress mb-2" style="height:10px"><div class="progress-bar bg-warning" style="width:@pct%"></div></div>
+                <small>@curr.ToString("N0") / @g.Target.ToString("N0") €</small>
+                <div class="text-muted small mt-1">@L["Deadline"] @g.Deadline</div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+@if(_editing!=null) {
+    <div class="card p-3 position-fixed top-50 start-50 translate-middle shadow" style="width:300px; z-index:1000">
+        <h5>@L["NewGoal"]</h5>
+        <input class="form-control mb-2" placeholder="@L["Name"]" @bind="_editing.Name" />
+        <input class="form-control mb-2" type="number" placeholder="@L["Target"]" @bind="_editing.Target" />
+        <input class="form-control mb-2" placeholder="@L["DateExample"]" @bind="_editing.Deadline" />
+        <select class="form-select mb-2" @bind="_editing.Category">
+             @foreach(var c in Enum.GetValues<GoalCategory>()){<option value="@c">@c</option>}
+        </select>
+        <button class="btn btn-success" @onclick="Save">@L["Save"]</button>
+    </div>
+}
+
+@code {
+    List<Goal> _goals = new();
+    Goal? _editing;
+    Totals? _t;
+    
+    protected override async Task OnInitializedAsync() {
+        _goals = await Finance.GetGoalsAsync();
+        var l = await Finance.GetLatestSnapshotAsync();
+        if(l!=null) _t = await Finance.CalculateTotalsAsync(l);
+    }
+    
+    decimal GetVal(GoalCategory c) => _t==null?0 : (c==GoalCategory.Liquidity?_t.Liquidity : (c==GoalCategory.Investments?_t.Investments : _t.GrandTotal));
+    void NewGoal() => _editing = new Goal();
+    async Task Save() { await Finance.SaveGoalAsync(_editing!); _editing=null; await OnInitializedAsync(); }
+    async Task Del(long id) { await Finance.DeleteGoalAsync(id); await OnInitializedAsync(); }
+}

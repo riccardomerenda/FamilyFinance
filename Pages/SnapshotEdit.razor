@@ -1,0 +1,133 @@
+@page "/snapshots/new"
+@page "/snapshots/{Id:int}"
+@inject FinanceService Finance
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+
+<h3>@(Id == null ? L["NewSnapshot"] : L["EditSnapshot"])</h3>
+
+@if (_loading) { <p>@L["Loading"]</p> }
+else {
+    <div class="row mb-3 align-items-center">
+        <div class="col-auto"><label>@L["ReferenceDate"]</label></div>
+        <div class="col-auto"><InputDate class="form-control" @bind-Value="_date" /></div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light"><strong>@L["AccountsAndLiquidity"]</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped m-0">
+                        @foreach(var r in _accRows) {
+                            <tr>
+                                <td class="align-middle ps-3">
+                                    @r.Name 
+                                    @if(r.IsInterest) { <span class="badge bg-secondary ms-1">@L["Interests"]</span> }
+                                </td>
+                                <td><InputNumber class="form-control text-end border-0" @bind-Value="r.Amount" /></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <strong>@L["InvestmentsDirecta"]</strong>
+                    <button class="btn btn-sm btn-outline-success" @onclick="AddInv">@L["AddAsset"]</button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm m-0">
+                        @foreach(var i in _invRows) { 
+                            <tr>
+                                <td><InputText class="form-control form-control-sm" placeholder="@L["AssetNamePlaceholder"]" @bind-Value="i.Name" /></td>
+                                <td><InputNumber class="form-control form-control-sm text-end" @bind-Value="i.Value" /></td>
+                                <td style="width:30px"><button class="btn btn-sm text-danger" @onclick="()=>_invRows.Remove(i)">✕</button></td>
+                            </tr> 
+                        }
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <strong>@L["CreditsToReceive"]</strong>
+                    <button class="btn btn-sm btn-outline-success" @onclick="AddRec">@L["AddCredit"]</button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm m-0">
+                        @foreach(var r in _recRows) { 
+                            <tr>
+                                <td><InputText class="form-control form-control-sm" placeholder="@L["DescriptionPlaceholder"]" @bind-Value="r.Desc" /></td>
+                                <td><InputNumber class="form-control form-control-sm text-end" style="width:100px" @bind-Value="r.Amount" /></td>
+                                <td style="width:30px"><button class="btn btn-sm text-danger" @onclick="()=>_recRows.Remove(r)">✕</button></td>
+                            </tr> 
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <button class="btn btn-success btn-lg" @onclick="Save">@L["SaveSnapshot"]</button>
+        <button class="btn btn-outline-secondary btn-lg ms-2" @onclick='()=>Nav.NavigateTo("/snapshots")'>@L["Cancel"]</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    bool _loading = true;
+    DateTime _date = DateTime.Today;
+    
+    class AccRow { public int Id; public string Name=""; public bool IsInterest; public decimal Amount; }
+    class InvRow { public string Name=""; public decimal Value; }
+    class RecRow { public string Desc=""; public decimal Amount; public ReceivableStatus Status; }
+
+    List<AccRow> _accRows = new();
+    List<InvRow> _invRows = new();
+    List<RecRow> _recRows = new();
+
+    protected override async Task OnInitializedAsync() {
+        var accounts = await Finance.GetActiveAccountsAsync();
+        
+        if (Id != null) {
+            // Edit existing
+            var s = await Finance.GetSnapshotAsync(Id.Value);
+            _date = s!.SnapshotDate.ToDateTime(TimeOnly.MinValue);
+            _accRows = accounts.Select(a => new AccRow { Id=a.Id, Name=a.Name, IsInterest=a.IsInterest, Amount=s.Lines.FirstOrDefault(l=>l.AccountId==a.Id)?.Amount ?? 0 }).ToList();
+            _invRows = s.Investments.Select(i => new InvRow { Name=i.Name, Value=i.Value }).ToList();
+            _recRows = s.Receivables.Select(r => new RecRow { Desc=r.Description, Amount=r.Amount, Status=r.Status }).ToList();
+        } else {
+            // New: auto-fill from last snapshot
+            var last = await Finance.GetLatestSnapshotAsync();
+            if (last != null) {
+                _accRows = accounts.Select(a => new AccRow { Id=a.Id, Name=a.Name, IsInterest=a.IsInterest, Amount=last.Lines.FirstOrDefault(l=>l.AccountId==a.Id)?.Amount ?? 0 }).ToList();
+                _invRows = last.Investments.Select(i => new InvRow { Name=i.Name, Value=i.Value }).ToList();
+                _recRows = last.Receivables.Where(r=>r.Status==ReceivableStatus.Open).Select(r => new RecRow { Desc=r.Description, Amount=r.Amount, Status=r.Status }).ToList();
+            } else {
+                // First time usage
+                _accRows = accounts.Select(a => new AccRow { Id=a.Id, Name=a.Name, IsInterest=a.IsInterest, Amount=0 }).ToList();
+                _invRows.Add(new InvRow { Name="VWCE", Value=0 });
+                _invRows.Add(new InvRow { Name="XEON", Value=0 });
+            }
+        }
+        _loading = false;
+    }
+
+    void AddInv() => _invRows.Add(new InvRow());
+    void AddRec() => _recRows.Add(new RecRow());
+
+    async Task Save() {
+        var dateOnly = DateOnly.FromDateTime(_date);
+        var accs = _accRows.Select(r => (r.Id, r.Amount)).ToList();
+        var invs = _invRows.Select(r => (r.Name, r.Value)).ToList();
+        var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
+        
+        await Finance.SaveSnapshotAsync(Id, dateOnly, accs, invs, recs);
+        Nav.NavigateTo("/");
+    }
+}

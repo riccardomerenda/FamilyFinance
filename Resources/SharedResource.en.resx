@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- Navigation -->
+  <data name="AppName" xml:space="preserve"><value>FamilyFinance</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Snapshots" xml:space="preserve"><value>Snapshots</value></data>
+  <data name="Accounts" xml:space="preserve"><value>Accounts</value></data>
+  <data name="Goals" xml:space="preserve"><value>Goals</value></data>
+
+  <!-- Dashboard -->
+  <data name="DashboardTitle" xml:space="preserve"><value>Wealth Dashboard</value></data>
+  <data name="NoDataMessage" xml:space="preserve"><value>No data available.</value></data>
+  <data name="CreateFirstSnapshot" xml:space="preserve"><value>Create the first Snapshot</value></data>
+  <data name="TabDashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="TabInvestments" xml:space="preserve"><value>Investments</value></data>
+  <data name="TabInterests" xml:space="preserve"><value>Interests</value></data>
+  <data name="TabExport" xml:space="preserve"><value>Export</value></data>
+  <data name="CurrentTotal" xml:space="preserve"><value>Current Total</value></data>
+  <data name="LiquidityPlusInvestments" xml:space="preserve"><value>Liquidity + Investments</value></data>
+  <data name="Projected" xml:space="preserve"><value>Projected</value></data>
+  <data name="IncludingCredits" xml:space="preserve"><value>Incl. Expected Credits</value></data>
+  <data name="NetWorthTotal" xml:space="preserve"><value>Total Net Worth</value></data>
+  <data name="IncludingPension" xml:space="preserve"><value>Incl. Pension</value></data>
+  <data name="WealthTrend" xml:space="preserve"><value>Wealth Trend</value></data>
+  <data name="Composition" xml:space="preserve"><value>Composition</value></data>
+  <data name="PendingCredits" xml:space="preserve"><value>Pending Credits</value></data>
+  <data name="Asset" xml:space="preserve"><value>Asset</value></data>
+  <data name="Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Account" xml:space="preserve"><value>Account</value></data>
+  <data name="AccumulatedInterests" xml:space="preserve"><value>Accumulated Interests</value></data>
+  <data name="ExportData" xml:space="preserve"><value>Export Data</value></data>
+  <data name="DownloadBackupJson" xml:space="preserve"><value>Download JSON Backup</value></data>
+  <data name="DownloadCsvExcel" xml:space="preserve"><value>Download CSV for Excel</value></data>
+
+  <!-- Chart Labels -->
+  <data name="ChartTotal" xml:space="preserve"><value>Total</value></data>
+  <data name="ChartLiquidity" xml:space="preserve"><value>Liquidity</value></data>
+  <data name="ChartInvestments" xml:space="preserve"><value>Investments</value></data>
+  <data name="ChartCredits" xml:space="preserve"><value>Credits</value></data>
+  <data name="ChartPension" xml:space="preserve"><value>Pension</value></data>
+  <data name="ChartInterests" xml:space="preserve"><value>Interests</value></data>
+
+  <!-- Snapshots -->
+  <data name="SnapshotsHistory" xml:space="preserve"><value>Snapshots History</value></data>
+  <data name="NewSnapshot" xml:space="preserve"><value>New Snapshot</value></data>
+  <data name="EditSnapshot" xml:space="preserve"><value>Edit Snapshot</value></data>
+  <data name="Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="ReferenceDate" xml:space="preserve"><value>Reference Date:</value></data>
+  <data name="AccountsAndLiquidity" xml:space="preserve"><value>Accounts &amp; Liquidity</value></data>
+  <data name="Interests" xml:space="preserve"><value>Interests</value></data>
+  <data name="InvestmentsDirecta" xml:space="preserve"><value>Investments (Directa)</value></data>
+  <data name="AddAsset" xml:space="preserve"><value>+ Asset</value></data>
+  <data name="AssetNamePlaceholder" xml:space="preserve"><value>Name (e.g. VWCE)</value></data>
+  <data name="CreditsToReceive" xml:space="preserve"><value>Credits (Money to receive)</value></data>
+  <data name="AddCredit" xml:space="preserve"><value>+ Credit</value></data>
+  <data name="DescriptionPlaceholder" xml:space="preserve"><value>Description</value></data>
+  <data name="SaveSnapshot" xml:space="preserve"><value>💾 Save Snapshot</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+
+  <!-- Accounts Management -->
+  <data name="AccountsManagement" xml:space="preserve"><value>Accounts Management</value></data>
+  <data name="NewAccount" xml:space="preserve"><value>New Account</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="IsInterest" xml:space="preserve"><value>Interest?</value></data>
+  <data name="EditAccount" xml:space="preserve"><value>Edit Account</value></data>
+  <data name="Cat" xml:space="preserve"><value>Cat</value></data>
+  <data name="InterestAccount" xml:space="preserve"><value>Interest Account</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="No" xml:space="preserve"><value>No</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+
+  <!-- Goals -->
+  <data name="FinancialGoals" xml:space="preserve"><value>Financial Goals</value></data>
+  <data name="NewGoal" xml:space="preserve"><value>+ New Goal</value></data>
+  <data name="Deadline" xml:space="preserve"><value>Deadline:</value></data>
+  <data name="Target" xml:space="preserve"><value>Target</value></data>
+  <data name="DateExample" xml:space="preserve"><value>Date (e.g. 2026-12)</value></data>
+
+  <!-- Language -->
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Italian" xml:space="preserve"><value>Italiano</value></data>
+  <data name="English" xml:space="preserve"><value>English</value></data>
+</root>
+
