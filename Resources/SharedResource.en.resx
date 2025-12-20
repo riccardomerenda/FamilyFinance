@@ -139,6 +139,11 @@
   <data name="GoalCatLiquidity" xml:space="preserve"><value>Liquidity</value></data>
   <data name="GoalCatInvestments" xml:space="preserve"><value>Investments</value></data>
   <data name="GoalCatGrandTotal" xml:space="preserve"><value>Total Net Worth</value></data>
+  <data name="AllocatedAmount" xml:space="preserve"><value>Allocated Amount</value></data>
+  <data name="TotalWealth" xml:space="preserve"><value>Total Wealth</value></data>
+  <data name="TotalAllocated" xml:space="preserve"><value>Total Allocated</value></data>
+  <data name="Unallocated" xml:space="preserve"><value>Unallocated</value></data>
+  <data name="TotalTargets" xml:space="preserve"><value>Total Targets</value></data>
 
   <!-- Pension Tab -->
   <data name="TabPension" xml:space="preserve"><value>Pension</value></data>

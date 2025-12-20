@@ -12,6 +12,34 @@
     </button>
 </div>
 
+@if (_goals.Any())
+{
+    <!-- Allocation Summary -->
+    var totalAllocated = _goals.Sum(g => g.AllocatedAmount);
+    var totalTargets = _goals.Sum(g => g.Target);
+    var totalWealth = _t?.ProjectedTotal ?? 0;
+    var unallocated = totalWealth - totalAllocated;
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["TotalWealth"]</p>
+            <p class="text-xl font-bold text-gray-900 dark:text-white">@totalWealth.ToString("N0") €</p>
+        </div>
+        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["TotalAllocated"]</p>
+            <p class="text-xl font-bold text-primary-600 dark:text-primary-400">@totalAllocated.ToString("N0") €</p>
+        </div>
+        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["Unallocated"]</p>
+            <p class="text-xl font-bold @(unallocated >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">@unallocated.ToString("N0") €</p>
+        </div>
+        <div class="@(totalAllocated >= totalTargets ? "bg-green-500" : "bg-amber-500") rounded-xl p-4 text-white">
+            <p class="text-xs text-white/80 mb-1">@L["TotalTargets"]</p>
+            <p class="text-xl font-bold">@totalTargets.ToString("N0") €</p>
+        </div>
+    </div>
+}
+
 @if (!_goals.Any())
 {
     <div class="text-center py-16">
@@ -28,15 +56,11 @@ else
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var g in _goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
         {
-            var curr = GetVal(g.Category);
-            var pct = g.Target > 0 ? Math.Min(100, (curr / g.Target) * 100) : 0;
-            var missing = Math.Max(0, g.Target - curr);
+            var pct = g.ProgressPercent;
             var monthsLeft = GetMonthsUntilDeadline(g.Deadline);
-            var monthlyNeeded = monthsLeft > 0 && missing > 0 ? missing / monthsLeft : 0;
-            var isCompleted = pct >= 100;
-            var priorityColor = g.Priority == GoalPriority.High ? "red" : g.Priority == GoalPriority.Medium ? "amber" : "gray";
+            var monthlyNeeded = monthsLeft > 0 && g.Missing > 0 ? g.Missing / monthsLeft : 0;
 
-            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 @(isCompleted ? "ring-2 ring-green-500" : "")">
+            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 @(g.IsCompleted ? "ring-2 ring-green-500" : "")">
                 <!-- Header with Priority Badge -->
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
@@ -46,9 +70,6 @@ else
                                   g.Priority == GoalPriority.Medium ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : 
                                   "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400")">
                                 @L[$"Priority{g.Priority}"]
-                            </span>
-                            <span class="px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 rounded-full">
-                                @L[$"GoalCat{g.Category}"]
                             </span>
                         </div>
                         <h3 class="font-bold text-gray-800 dark:text-gray-200 text-lg">@g.Name</h3>
@@ -71,20 +92,20 @@ else
                 <div class="mb-4">
                     <div class="flex items-center justify-between text-sm mb-1">
                         <span class="text-gray-500 dark:text-gray-400">@L["Progress"]</span>
-                        <span class="font-semibold @(isCompleted ? "text-green-500" : "text-gray-700 dark:text-gray-300")">@pct.ToString("N0")%</span>
+                        <span class="font-semibold @(g.IsCompleted ? "text-green-500" : "text-gray-700 dark:text-gray-300")">@pct.ToString("N0")%</span>
                     </div>
                     <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-500 @(isCompleted ? "bg-green-500" : pct >= 50 ? "bg-amber-500" : "bg-primary-500")" style="width: @pct%"></div>
+                        <div class="h-full rounded-full transition-all duration-500 @(g.IsCompleted ? "bg-green-500" : pct >= 50 ? "bg-amber-500" : "bg-primary-500")" style="width: @pct%"></div>
                     </div>
                 </div>
 
-                <!-- Current vs Target -->
+                <!-- Allocated vs Target -->
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">@curr.ToString("N0") €</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">@g.AllocatedAmount.ToString("N0") €</p>
                         <p class="text-sm text-gray-500 dark:text-gray-400">@L["GoalOf"] @g.Target.ToString("N0") €</p>
                     </div>
-                    @if (isCompleted)
+                    @if (g.IsCompleted)
                     {
                         <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                             <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,12 +116,12 @@ else
                 </div>
 
                 <!-- Missing Amount & Monthly Projection -->
-                @if (!isCompleted)
+                @if (!g.IsCompleted)
                 {
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">@L["MissingAmount"]</span>
-                            <span class="font-semibold text-gray-700 dark:text-gray-300">@missing.ToString("N0") €</span>
+                            <span class="font-semibold text-gray-700 dark:text-gray-300">@g.Missing.ToString("N0") €</span>
                         </div>
                         
                         @if (!string.IsNullOrEmpty(g.Deadline))
@@ -167,9 +188,14 @@ else
                         <input type="number" @bind="_editing.Target" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Deadline"]</label>
-                        <input @bind="_editing.Deadline" placeholder="2026-12" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["AllocatedAmount"] (€)</label>
+                        <input type="number" @bind="_editing.AllocatedAmount" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
                     </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Deadline"]</label>
+                    <input @bind="_editing.Deadline" placeholder="2026-12" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
                 </div>
                 
                 <div>
@@ -189,16 +215,6 @@ else
                             </button>
                         }
                     </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Category"]</label>
-                    <select @bind="_editing.Category" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500">
-                        @foreach (var c in Enum.GetValues<GoalCategory>())
-                        {
-                            <option value="@c">@L[$"GoalCat{c}"]</option>
-                        }
-                    </select>
                 </div>
             </div>
 
@@ -225,8 +241,6 @@ else
         var l = await Finance.GetLatestSnapshotAsync();
         if (l != null) _t = await Finance.CalculateTotalsAsync(l);
     }
-
-    decimal GetVal(GoalCategory c) => _t == null ? 0 : (c == GoalCategory.Liquidity ? _t.Liquidity : (c == GoalCategory.Investments ? _t.InvestmentsValue : _t.GrandTotal));
     
     int GetMonthsUntilDeadline(string deadline)
     {
@@ -244,7 +258,7 @@ else
     }
     
     void NewGoal() => _editing = new Goal();
-    void Edit(Goal g) => _editing = new Goal { Id = g.Id, Name = g.Name, Target = g.Target, Deadline = g.Deadline, Priority = g.Priority, Category = g.Category };
+    void Edit(Goal g) => _editing = new Goal { Id = g.Id, Name = g.Name, Target = g.Target, AllocatedAmount = g.AllocatedAmount, Deadline = g.Deadline, Priority = g.Priority, Category = g.Category };
     
     async Task Save() 
     { 
