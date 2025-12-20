@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<InvestmentAsset> InvestmentAssets => Set<InvestmentAsset>();
     public DbSet<Receivable> Receivables => Set<Receivable>();
     public DbSet<Goal> Goals => Set<Goal>();
+    public DbSet<Portfolio> Portfolios => Set<Portfolio>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

@@ -5,6 +5,10 @@ public class InvestmentAsset
     public int Id { get; set; }
     public int SnapshotId { get; set; }
     public Snapshot Snapshot { get; set; } = default!;
+    
+    public int? PortfolioId { get; set; }
+    public Portfolio? Portfolio { get; set; }
+    
     public string Broker { get; set; } = "Directa";
     public string Name { get; set; } = ""; // Es: VWCE
     public decimal CostBasis { get; set; } // Costo di carico (quanto investito)

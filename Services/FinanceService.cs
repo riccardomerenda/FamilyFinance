@@ -9,20 +9,21 @@ public class FinanceService
     private readonly AppDbContext _db;
     public FinanceService(AppDbContext db) => _db = db;
 
+    // Snapshots
     public async Task<List<Snapshot>> GetSnapshotsAsync()
         => await _db.Snapshots.OrderByDescending(s => s.SnapshotDate).ToListAsync();
 
     public async Task<Snapshot?> GetSnapshotAsync(int id)
         => await _db.Snapshots
             .Include(s => s.Lines).ThenInclude(l => l.Account)
-            .Include(s => s.Investments)
+            .Include(s => s.Investments).ThenInclude(i => i.Portfolio)
             .Include(s => s.Receivables)
             .FirstOrDefaultAsync(s => s.Id == id);
 
     public async Task<Snapshot?> GetLatestSnapshotAsync()
         => await _db.Snapshots
             .Include(s => s.Lines).ThenInclude(l => l.Account)
-            .Include(s => s.Investments)
+            .Include(s => s.Investments).ThenInclude(i => i.Portfolio)
             .Include(s => s.Receivables)
             .OrderByDescending(s => s.SnapshotDate)
             .FirstOrDefaultAsync();
@@ -50,7 +51,7 @@ public class FinanceService
     }
 
     public async Task SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount)> accountAmounts,
-        List<(string Name, decimal CostBasis, decimal Value)> investments,
+        List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)> investments,
         List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
     {
         Snapshot snapshot;
@@ -73,7 +74,14 @@ public class FinanceService
         // Replace Investments & Receivables
         _db.InvestmentAssets.RemoveRange(snapshot.Investments);
         snapshot.Investments = investments.Where(x => !string.IsNullOrWhiteSpace(x.Name))
-            .Select(x => new InvestmentAsset { SnapshotId = snapshot.Id, Broker = "Directa", Name = x.Name.Trim(), CostBasis = x.CostBasis, Value = x.Value }).ToList();
+            .Select(x => new InvestmentAsset { 
+                SnapshotId = snapshot.Id, 
+                Broker = "Directa", 
+                Name = x.Name.Trim(), 
+                CostBasis = x.CostBasis, 
+                Value = x.Value,
+                PortfolioId = x.PortfolioId
+            }).ToList();
 
         _db.Receivables.RemoveRange(snapshot.Receivables);
         snapshot.Receivables = receivables.Where(r => !string.IsNullOrWhiteSpace(r.Description))
@@ -87,6 +95,38 @@ public class FinanceService
         if(s != null) { _db.Snapshots.Remove(s); await _db.SaveChangesAsync(); }
     }
 
+    // Portfolios
+    public async Task<List<Portfolio>> GetPortfoliosAsync()
+        => await _db.Portfolios.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
+
+    public async Task<Portfolio?> GetPortfolioAsync(int id)
+        => await _db.Portfolios.FirstOrDefaultAsync(p => p.Id == id);
+
+    public async Task SavePortfolioAsync(Portfolio portfolio)
+    {
+        if (portfolio.Id == 0)
+        {
+            portfolio.CreatedAt = DateTime.UtcNow;
+            _db.Portfolios.Add(portfolio);
+        }
+        else
+        {
+            _db.Portfolios.Update(portfolio);
+        }
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeletePortfolioAsync(int id)
+    {
+        var p = await _db.Portfolios.FirstOrDefaultAsync(x => x.Id == id);
+        if (p != null)
+        {
+            p.IsActive = false; // Soft delete
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    // Goals
     public async Task<List<Goal>> GetGoalsAsync() => await _db.Goals.OrderByDescending(g => g.Id).ToListAsync();
     public async Task SaveGoalAsync(Goal goal) {
         if (goal.Id == 0) { goal.Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); _db.Goals.Add(goal); }
@@ -97,4 +137,3 @@ public class FinanceService
         var g = await _db.Goals.FirstOrDefaultAsync(x=>x.Id==id); if(g!=null){_db.Goals.Remove(g); await _db.SaveChangesAsync();}
     }
 }
-

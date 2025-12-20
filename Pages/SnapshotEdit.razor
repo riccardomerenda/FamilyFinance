@@ -4,7 +4,7 @@
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
             @(Id == null ? L["NewSnapshot"] : L["EditSnapshot"])
@@ -31,111 +31,152 @@
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
                     <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["AccountsAndLiquidity"]</h2>
                 </div>
-                <div class="divide-y divide-gray-200 dark:divide-gray-800">
+                <div class="divide-y divide-gray-200 dark:divide-gray-800 max-h-96 overflow-y-auto">
                     @foreach (var r in _accRows)
                     {
                         <div class="flex items-center justify-between p-4">
                             <div class="flex items-center gap-3">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">@r.Name</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">@r.Name</span>
                                 @if (r.IsInterest)
                                 {
                                     <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">@L["Interests"]</span>
                                 }
                             </div>
-                            <InputNumber @bind-Value="r.Amount" class="w-32 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                            <InputNumber @bind-Value="r.Amount" class="w-28 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 text-sm" />
                         </div>
                     }
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <!-- Investments -->
-                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
-                        <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h2>
-                        <button @onclick="AddInv" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">@L["AddAsset"]</button>
-                    </div>
-                    <div class="p-4 space-y-4">
-                        <!-- Header -->
-                        <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-1">
-                            <div class="col-span-4">@L["AssetName"]</div>
-                            <div class="col-span-3 text-right">@L["CostBasis"]</div>
-                            <div class="col-span-3 text-right">@L["CurrentValue"]</div>
-                            <div class="col-span-2"></div>
-                        </div>
-                        @foreach (var i in _invRows)
-                        {
-                            <div class="grid grid-cols-12 gap-2 items-center">
-                                <div class="col-span-4">
-                                    <InputText @bind-Value="i.Name" placeholder="@L["AssetNamePlaceholder"]" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                                </div>
-                                <div class="col-span-3">
-                                    <InputNumber @bind-Value="i.CostBasis" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                                </div>
-                                <div class="col-span-3">
-                                    <InputNumber @bind-Value="i.Value" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                                </div>
-                                <div class="col-span-2 flex items-center justify-end gap-1">
-                                    @{
-                                        var gl = i.Value - i.CostBasis;
-                                        var pct = i.CostBasis > 0 ? (gl / i.CostBasis) * 100 : 0;
-                                    }
-                                    @if (i.CostBasis > 0)
-                                    {
-                                        <span class="text-xs font-medium @(gl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                            @(gl >= 0 ? "+" : "")@pct.ToString("N2")%
-                                        </span>
-                                    }
-                                    <button @onclick="() => _invRows.Remove(i)" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                        <!-- Totals Row -->
-                        @if (_invRows.Any())
-                        {
-                            var totalCost = _invRows.Sum(x => x.CostBasis);
-                            var totalValue = _invRows.Sum(x => x.Value);
-                            var totalGl = totalValue - totalCost;
-                            var totalPct = totalCost > 0 ? (totalGl / totalCost) * 100 : 0;
-                            <div class="grid grid-cols-12 gap-2 items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-                                <div class="col-span-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">@L["Total"]</div>
-                                <div class="col-span-3 text-right font-semibold text-gray-700 dark:text-gray-300 text-sm">@totalCost.ToString("N2") €</div>
-                                <div class="col-span-3 text-right font-semibold text-gray-700 dark:text-gray-300 text-sm">@totalValue.ToString("N2") €</div>
-                                <div class="col-span-2 text-right">
-                                    <span class="text-sm font-bold @(totalGl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                        @(totalGl >= 0 ? "+" : "")@totalGl.ToString("N2") €
-                                    </span>
-                                </div>
-                            </div>
-                        }
-                    </div>
+            <!-- Credits -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                    <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["CreditsToReceive"]</h2>
+                    <button @onclick="AddRec" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">@L["AddCredit"]</button>
                 </div>
+                <div class="p-4 space-y-3 max-h-64 overflow-y-auto">
+                    @foreach (var r in _recRows)
+                    {
+                        <div class="flex items-center gap-3">
+                            <InputText @bind-Value="r.Desc" placeholder="@L["DescriptionPlaceholder"]" class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
+                            <InputNumber @bind-Value="r.Amount" class="w-24 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
+                            <button @onclick="() => _recRows.Remove(r)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
 
-                <!-- Credits -->
-                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
-                        <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["CreditsToReceive"]</h2>
-                        <button @onclick="AddRec" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">@L["AddCredit"]</button>
-                    </div>
-                    <div class="p-4 space-y-3">
-                        @foreach (var r in _recRows)
-                        {
-                            <div class="flex items-center gap-3">
-                                <InputText @bind-Value="r.Desc" placeholder="@L["DescriptionPlaceholder"]" class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
-                                <InputNumber @bind-Value="r.Amount" class="w-28 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
-                                <button @onclick="() => _recRows.Remove(r)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Investments -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden mt-6">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h2>
+                <button @onclick="AddInv" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">@L["AddAsset"]</button>
+            </div>
+            <div class="p-4">
+                <!-- Header -->
+                <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-1 mb-2">
+                    <div class="col-span-2">@L["Portfolio"]</div>
+                    <div class="col-span-3">@L["AssetName"]</div>
+                    <div class="col-span-2 text-right">@L["CostBasis"]</div>
+                    <div class="col-span-2 text-right">@L["CurrentValue"]</div>
+                    <div class="col-span-2 text-right">@L["GainLoss"]</div>
+                    <div class="col-span-1"></div>
+                </div>
+                
+                <div class="space-y-2">
+                    @foreach (var i in _invRows)
+                    {
+                        var gl = i.Value - i.CostBasis;
+                        var pct = i.CostBasis > 0 ? (gl / i.CostBasis) * 100 : 0;
+                        var portfolioColor = _portfolios.FirstOrDefault(p => p.Id == i.PortfolioId)?.Color ?? "#6b7280";
+                        
+                        <div class="grid grid-cols-12 gap-2 items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <div class="col-span-2">
+                                <select @bind="i.PortfolioId" class="w-full px-2 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs" style="border-left: 3px solid @portfolioColor">
+                                    <option value="">@L["NoPortfolio"]</option>
+                                    @foreach (var p in _portfolios)
+                                    {
+                                        <option value="@p.Id">@p.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-span-3">
+                                <InputText @bind-Value="i.Name" placeholder="@L["AssetNamePlaceholder"]" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
+                            </div>
+                            <div class="col-span-2">
+                                <InputNumber @bind-Value="i.CostBasis" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
+                            </div>
+                            <div class="col-span-2">
+                                <InputNumber @bind-Value="i.Value" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
+                            </div>
+                            <div class="col-span-2 text-right">
+                                @if (i.CostBasis > 0)
+                                {
+                                    <span class="text-sm font-medium @(gl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                        @(gl >= 0 ? "+" : "")@pct.ToString("N2")%
+                                    </span>
+                                }
+                            </div>
+                            <div class="col-span-1 flex justify-end">
+                                <button @onclick="() => _invRows.Remove(i)" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </button>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
+
+                <!-- Totals by Portfolio -->
+                @if (_invRows.Any())
+                {
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                        @foreach (var group in _invRows.GroupBy(x => x.PortfolioId))
+                        {
+                            var portfolio = _portfolios.FirstOrDefault(p => p.Id == group.Key);
+                            var totalCost = group.Sum(x => x.CostBasis);
+                            var totalValue = group.Sum(x => x.Value);
+                            var totalGl = totalValue - totalCost;
+                            var totalPct = totalCost > 0 ? (totalGl / totalCost) * 100 : 0;
+                            var color = portfolio?.Color ?? "#6b7280";
+                            
+                            <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: @(color)10; border-left: 3px solid @color">
+                                <span class="font-medium text-sm text-gray-700 dark:text-gray-300">
+                                    @(portfolio?.Name ?? L["NoPortfolio"])
+                                </span>
+                                <div class="flex items-center gap-4 text-sm">
+                                    <span class="text-gray-500 dark:text-gray-400">@totalCost.ToString("N0") € → @totalValue.ToString("N0") €</span>
+                                    <span class="font-bold @(totalGl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                        @(totalGl >= 0 ? "+" : "")@totalGl.ToString("N0") € (@(totalPct >= 0 ? "+" : "")@totalPct.ToString("N2")%)
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                        
+                        <!-- Grand Total -->
+                        @{
+                            var grandCost = _invRows.Sum(x => x.CostBasis);
+                            var grandValue = _invRows.Sum(x => x.Value);
+                            var grandGl = grandValue - grandCost;
+                            var grandPct = grandCost > 0 ? (grandGl / grandCost) * 100 : 0;
+                        }
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                            <span class="font-bold text-gray-800 dark:text-gray-200">@L["Total"]</span>
+                            <div class="flex items-center gap-4">
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">@grandCost.ToString("N0") € → @grandValue.ToString("N0") €</span>
+                                <span class="font-bold text-lg @(grandGl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                    @(grandGl >= 0 ? "+" : "")@grandGl.ToString("N0") € (@(grandPct >= 0 ? "+" : "")@grandPct.ToString("N2")%)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -158,9 +199,10 @@
     [Parameter] public int? Id { get; set; }
     bool _loading = true;
     DateTime _date = DateTime.Today;
+    List<Portfolio> _portfolios = new();
 
     class AccRow { public int Id; public string Name = ""; public bool IsInterest; public decimal Amount; }
-    class InvRow { public string Name = ""; public decimal CostBasis; public decimal Value; }
+    class InvRow { public string Name = ""; public decimal CostBasis; public decimal Value; public int? PortfolioId; }
     class RecRow { public string Desc = ""; public decimal Amount; public ReceivableStatus Status; }
 
     List<AccRow> _accRows = new();
@@ -170,13 +212,14 @@
     protected override async Task OnInitializedAsync()
     {
         var accounts = await Finance.GetActiveAccountsAsync();
+        _portfolios = await Finance.GetPortfoliosAsync();
 
         if (Id != null)
         {
             var s = await Finance.GetSnapshotAsync(Id.Value);
             _date = s!.SnapshotDate.ToDateTime(TimeOnly.MinValue);
             _accRows = accounts.Select(a => new AccRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Amount = s.Lines.FirstOrDefault(l => l.AccountId == a.Id)?.Amount ?? 0 }).ToList();
-            _invRows = s.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value }).ToList();
+            _invRows = s.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }).ToList();
             _recRows = s.Receivables.Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
         }
         else
@@ -185,7 +228,7 @@
             if (last != null)
             {
                 _accRows = accounts.Select(a => new AccRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Amount = last.Lines.FirstOrDefault(l => l.AccountId == a.Id)?.Amount ?? 0 }).ToList();
-                _invRows = last.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value }).ToList();
+                _invRows = last.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }).ToList();
                 _recRows = last.Receivables.Where(r => r.Status == ReceivableStatus.Open).Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
             }
             else
@@ -205,7 +248,7 @@
     {
         var dateOnly = DateOnly.FromDateTime(_date);
         var accs = _accRows.Select(r => (r.Id, r.Amount)).ToList();
-        var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value)).ToList();
+        var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value, r.PortfolioId)).ToList();
         var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
 
         await Finance.SaveSnapshotAsync(Id, dateOnly, accs, invs, recs);

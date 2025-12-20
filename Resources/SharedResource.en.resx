@@ -128,6 +128,22 @@
   <data name="NoInsuranceAccounts" xml:space="preserve"><value>No insurance policies configured</value></data>
   <data name="Total" xml:space="preserve"><value>Total</value></data>
 
+  <!-- Portfolios -->
+  <data name="Portfolios" xml:space="preserve"><value>Portfolios</value></data>
+  <data name="PortfoliosManagement" xml:space="preserve"><value>Portfolios Management</value></data>
+  <data name="NewPortfolio" xml:space="preserve"><value>New Portfolio</value></data>
+  <data name="EditPortfolio" xml:space="preserve"><value>Edit Portfolio</value></data>
+  <data name="NoPortfoliosMessage" xml:space="preserve"><value>No portfolios created.</value></data>
+  <data name="CreateFirstPortfolio" xml:space="preserve"><value>Create first portfolio</value></data>
+  <data name="TimeHorizon" xml:space="preserve"><value>Time Horizon</value></data>
+  <data name="TargetYear" xml:space="preserve"><value>Target Year</value></data>
+  <data name="Years" xml:space="preserve"><value>years</value></data>
+  <data name="Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Icon" xml:space="preserve"><value>Icon</value></data>
+  <data name="Portfolio" xml:space="preserve"><value>Portfolio</value></data>
+  <data name="NoPortfolio" xml:space="preserve"><value>No portfolio</value></data>
+  <data name="AllPortfolios" xml:space="preserve"><value>All Portfolios</value></data>
+
   <!-- Language -->
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="Italian" xml:space="preserve"><value>Italiano</value></data>
