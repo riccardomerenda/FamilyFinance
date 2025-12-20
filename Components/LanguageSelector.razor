@@ -1,28 +1,78 @@
 @using System.Globalization
+@inject NavigationManager Nav
 
-<div class="relative" x-data="{ open: false }">
-    <button onclick="this.nextElementSibling.classList.toggle('hidden')" 
-            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 text-sm font-medium">
-        <span>@GetCurrentFlag()</span>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div class="relative">
+    <button @onclick="Toggle" @onclick:stopPropagation="true"
+            class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+        <span class="text-base">@GetCurrentFlag()</span>
+        <span class="font-semibold">@GetCurrentCode()</span>
+        <svg class="w-4 h-4 transition-transform duration-200 @(_isOpen ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
         </svg>
     </button>
-    <div class="hidden absolute right-0 mt-2 w-40 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 z-50 overflow-hidden">
-        <a href="#" onclick="switchLanguage('it-IT'); return false;" 
-           class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors @(IsItalian ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" : "")">
-            <span class="text-lg">🇮🇹</span>
-            <span>Italiano</span>
-        </a>
-        <a href="#" onclick="switchLanguage('en-US'); return false;" 
-           class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors @(!IsItalian ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" : "")">
-            <span class="text-lg">🇬🇧</span>
-            <span>English</span>
-        </a>
-    </div>
+    
+    @if (_isOpen)
+    {
+        <div class="absolute right-0 mt-2 w-44 rounded-2xl bg-white dark:bg-gray-800 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700 z-50 overflow-hidden animate-fade-in">
+            <div class="p-2">
+                <a href="/Culture/Set/it-IT?returnUrl=@Uri.EscapeDataString(Nav.Uri)"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200
+                          @(IsItalian ? "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300" : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300")">
+                    <span class="text-xl">🇮🇹</span>
+                    <div class="flex-1">
+                        <p class="font-medium">Italiano</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Italian</p>
+                    </div>
+                    @if (IsItalian)
+                    {
+                        <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    }
+                </a>
+                
+                <a href="/Culture/Set/en-US?returnUrl=@Uri.EscapeDataString(Nav.Uri)"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200
+                          @(!IsItalian ? "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300" : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300")">
+                    <span class="text-xl">🇬🇧</span>
+                    <div class="flex-1">
+                        <p class="font-medium">English</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Inglese</p>
+                    </div>
+                    @if (!IsItalian)
+                    {
+                        <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    }
+                </a>
+            </div>
+        </div>
+    }
 </div>
 
+@if (_isOpen)
+{
+    <div class="fixed inset-0 z-40" @onclick="Close"></div>
+}
+
+<style>
+    @@keyframes fade-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.15s ease-out;
+    }
+</style>
+
 @code {
+    private bool _isOpen;
+    
     private bool IsItalian => CultureInfo.CurrentUICulture.Name.StartsWith("it");
-    private string GetCurrentFlag() => IsItalian ? "🇮🇹 IT" : "🇬🇧 EN";
+    private string GetCurrentFlag() => IsItalian ? "🇮🇹" : "🇬🇧";
+    private string GetCurrentCode() => IsItalian ? "IT" : "EN";
+    
+    private void Toggle() => _isOpen = !_isOpen;
+    private void Close() => _isOpen = false;
 }
