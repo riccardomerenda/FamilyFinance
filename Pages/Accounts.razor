@@ -32,9 +32,14 @@
                         </div>
                     </div>
                 </div>
-                <button @onclick="() => Edit(a)" class="px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
-                    @L["Edit"]
-                </button>
+                <div class="flex items-center gap-2">
+                    <button @onclick="() => Edit(a)" class="px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
+                        @L["Edit"]
+                    </button>
+                    <button @onclick="() => Delete(a)" class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                        @L["Delete"]
+                    </button>
+                </div>
             </div>
         }
     </div>
@@ -97,6 +102,13 @@
 
     void NewAccount() => _editing = new Account();
     void Edit(Account a) => _editing = a;
+    
+    void Delete(Account a)
+    {
+        Db.Accounts.Remove(a);
+        Db.SaveChanges();
+        OnInitialized();
+    }
     
     void Save()
     {
