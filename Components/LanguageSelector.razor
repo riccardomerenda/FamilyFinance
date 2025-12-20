@@ -1,17 +1,17 @@
 @using System.Globalization
 @inject NavigationManager Nav
 
-<div class="dropdown">
-    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        🌐 @GetCurrentLanguageName()
+<div class="dropdown d-inline-block">
+    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        🌐 @GetCurrentLanguageFlag()
     </button>
-    <ul class="dropdown-menu dropdown-menu-end">
+    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
         @foreach (var culture in SupportedCultures)
         {
             <li>
                 <a class="dropdown-item @(IsCurrentCulture(culture.Code) ? "active" : "")" 
                    href="@GetCultureChangeUrl(culture.Code)">
-                    @culture.Name
+                    @culture.Flag @culture.Name
                 </a>
             </li>
         }
@@ -19,19 +19,20 @@
 </div>
 
 @code {
-    private static readonly (string Code, string Name)[] SupportedCultures = new[]
+    private static readonly (string Code, string Name, string Flag)[] SupportedCultures = new[]
     {
-        ("it-IT", "🇮🇹 Italiano"),
-        ("en-US", "🇬🇧 English")
+        ("it-IT", "Italiano", "🇮🇹"),
+        ("en-US", "English", "🇬🇧")
     };
 
-    private string GetCurrentLanguageName()
+    private string GetCurrentLanguageFlag()
     {
-        var current = CultureInfo.CurrentCulture.Name;
-        return SupportedCultures.FirstOrDefault(c => c.Code == current).Name ?? "🇮🇹 Italiano";
+        var current = CultureInfo.CurrentUICulture.Name;
+        var culture = SupportedCultures.FirstOrDefault(c => c.Code == current);
+        return culture.Flag ?? "🇮🇹";
     }
 
-    private bool IsCurrentCulture(string code) => CultureInfo.CurrentCulture.Name == code;
+    private bool IsCurrentCulture(string code) => CultureInfo.CurrentUICulture.Name == code;
 
     private string GetCultureChangeUrl(string cultureCode)
     {

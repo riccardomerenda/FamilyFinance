@@ -7,11 +7,15 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure supported cultures
-var supportedCultures = new[] { "it-IT", "en-US" };
+var supportedCultures = new[] 
+{ 
+    new CultureInfo("it-IT"),
+    new CultureInfo("en-US") 
+};
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddControllers(); // For CultureController
+builder.Services.AddControllers();
 
 // Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -19,10 +23,14 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 // Configure request localization
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    options.SetDefaultCulture("it-IT");
-    options.AddSupportedCultures(supportedCultures);
-    options.AddSupportedUICultures(supportedCultures);
-    options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+    options.DefaultRequestCulture = new RequestCulture("it-IT");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    
+    // Cookie provider should be first
+    options.RequestCultureProviders.Clear();
+    options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+    options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
 });
 
 // Database SQLite
@@ -45,7 +53,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseRequestLocalization();
 
-app.MapControllers(); // Map CultureController
+app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
