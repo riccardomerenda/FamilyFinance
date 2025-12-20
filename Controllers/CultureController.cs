@@ -8,22 +8,38 @@ public class CultureController : Controller
 {
     public IActionResult Set(string culture, string? redirectUri)
     {
+        // Clean the culture parameter (remove any trailing ? or whitespace)
+        culture = culture?.Trim().TrimEnd('?') ?? "it-IT";
+        
         if (!string.IsNullOrWhiteSpace(culture))
         {
-            HttpContext.Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(
-                    new RequestCulture(culture, culture)),
-                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-            );
+            try
+            {
+                HttpContext.Response.Cookies.Append(
+                    CookieRequestCultureProvider.DefaultCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(
+                        new RequestCulture(culture, culture)),
+                    new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+                );
+            }
+            catch
+            {
+                // Invalid culture, use default
+                culture = "it-IT";
+                HttpContext.Response.Cookies.Append(
+                    CookieRequestCultureProvider.DefaultCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(
+                        new RequestCulture(culture, culture)),
+                    new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+                );
+            }
         }
 
-        // Try to get redirect URL from parameter first, then from Referer header
+        // Try to get redirect URL from Referer header
         var returnUrl = redirectUri;
         
         if (string.IsNullOrWhiteSpace(returnUrl))
         {
-            // Fallback to Referer header
             var referer = Request.Headers.Referer.ToString();
             if (!string.IsNullOrEmpty(referer) && Uri.TryCreate(referer, UriKind.Absolute, out var refererUri))
             {
