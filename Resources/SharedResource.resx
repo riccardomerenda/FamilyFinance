@@ -47,9 +47,10 @@
   <data name="TabExport" xml:space="preserve"><value>Export</value></data>
   <data name="CurrentTotal" xml:space="preserve"><value>Totale Corrente</value></data>
   <data name="LiquidityPlusInvestments" xml:space="preserve"><value>Liquidità + Investimenti</value></data>
+  <data name="LiquidityPlusInvestmentsCredits" xml:space="preserve"><value>Liquidità + Investimenti + Crediti</value></data>
   <data name="Projected" xml:space="preserve"><value>In Previsione</value></data>
   <data name="IncludingCredits" xml:space="preserve"><value>Incl. Crediti Attesi</value></data>
-  <data name="NetWorthTotal" xml:space="preserve"><value>Net Worth Totale</value></data>
+  <data name="NetWorthTotal" xml:space="preserve"><value>Patrimonio Netto</value></data>
   <data name="IncludingPension" xml:space="preserve"><value>Incl. Previdenza</value></data>
   <data name="WealthTrend" xml:space="preserve"><value>Andamento Patrimonio</value></data>
   <data name="Composition" xml:space="preserve"><value>Composizione</value></data>

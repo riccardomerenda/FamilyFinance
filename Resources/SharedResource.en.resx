@@ -47,6 +47,7 @@
   <data name="TabExport" xml:space="preserve"><value>Export</value></data>
   <data name="CurrentTotal" xml:space="preserve"><value>Current Total</value></data>
   <data name="LiquidityPlusInvestments" xml:space="preserve"><value>Liquidity + Investments</value></data>
+  <data name="LiquidityPlusInvestmentsCredits" xml:space="preserve"><value>Liquidity + Investments + Credits</value></data>
   <data name="Projected" xml:space="preserve"><value>Projected</value></data>
   <data name="IncludingCredits" xml:space="preserve"><value>Incl. Expected Credits</value></data>
   <data name="NetWorthTotal" xml:space="preserve"><value>Total Net Worth</value></data>
