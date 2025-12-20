@@ -36,21 +36,29 @@ public class FinanceService
         var lines = snapshot.Lines;
         var liquidity = lines.Where(l => l.Account.Category == AccountCategory.Liquidity).Sum(l => l.Amount);
         var interestLiquidity = lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount);
-        var pensionInsurance = lines.Where(l => l.Account.Category is AccountCategory.Pension or AccountCategory.Insurance).Sum(l => l.Amount);
+        
+        // Pension & Insurance with performance tracking
+        var pensionLines = lines.Where(l => l.Account.Category is AccountCategory.Pension or AccountCategory.Insurance);
+        var pensionInsuranceValue = pensionLines.Sum(l => l.Amount);
+        var pensionInsuranceContrib = pensionLines.Sum(l => l.ContributionBasis);
+        var pensionInsuranceGainLoss = pensionInsuranceValue - pensionInsuranceContrib;
+        
+        // Investments
         var investmentsValue = snapshot.Investments.Sum(i => i.Value);
         var investmentsCost = snapshot.Investments.Sum(i => i.CostBasis);
         var investmentsGainLoss = investmentsValue - investmentsCost;
+        
         var creditsOpen = snapshot.Receivables.Where(r => r.Status == ReceivableStatus.Open).Sum(r => r.Amount);
 
         var currentTotal = liquidity + investmentsValue;
         return Task.FromResult(new Totals(
             liquidity, investmentsValue, investmentsCost, investmentsGainLoss, 
-            creditsOpen, pensionInsurance, currentTotal, 
-            currentTotal + creditsOpen, currentTotal + creditsOpen + pensionInsurance, 
+            creditsOpen, pensionInsuranceValue, pensionInsuranceContrib, pensionInsuranceGainLoss,
+            currentTotal, currentTotal + creditsOpen, currentTotal + creditsOpen + pensionInsuranceValue, 
             interestLiquidity));
     }
 
-    public async Task SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount)> accountAmounts,
+    public async Task SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
         List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)> investments,
         List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
     {
@@ -65,10 +73,10 @@ public class FinanceService
         }
 
         // Upsert Lines
-        foreach (var (accountId, amount) in accountAmounts) {
+        foreach (var (accountId, amount, contribBasis) in accountAmounts) {
             var existing = snapshot.Lines.FirstOrDefault(l => l.AccountId == accountId);
-            if (existing is null) snapshot.Lines.Add(new SnapshotLine { SnapshotId = snapshot.Id, AccountId = accountId, Amount = amount });
-            else existing.Amount = amount;
+            if (existing is null) snapshot.Lines.Add(new SnapshotLine { SnapshotId = snapshot.Id, AccountId = accountId, Amount = amount, ContributionBasis = contribBasis });
+            else { existing.Amount = amount; existing.ContributionBasis = contribBasis; }
         }
 
         // Replace Investments & Receivables

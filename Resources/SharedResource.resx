@@ -76,6 +76,8 @@
   <data name="GainLoss" xml:space="preserve"><value>Guadagno/Perdita</value></data>
   <data name="Performance" xml:space="preserve"><value>Performance</value></data>
   <data name="AssetName" xml:space="preserve"><value>Nome Asset</value></data>
+  <data name="Contributions" xml:space="preserve"><value>Contributi Versati</value></data>
+  <data name="AccountName" xml:space="preserve"><value>Nome Conto</value></data>
 
   <!-- Snapshots -->
   <data name="SnapshotsHistory" xml:space="preserve"><value>Storico Snapshots</value></data>

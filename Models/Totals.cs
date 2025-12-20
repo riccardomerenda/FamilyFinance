@@ -6,7 +6,9 @@ public record Totals(
     decimal InvestmentsCost,       // Costo di carico totale
     decimal InvestmentsGainLoss,   // Guadagno/Perdita totale
     decimal CreditsOpen,
-    decimal PensionInsurance,
+    decimal PensionInsuranceValue,     // Valore corrente previdenza
+    decimal PensionInsuranceContrib,   // Contributi versati previdenza
+    decimal PensionInsuranceGainLoss,  // Guadagno/Perdita previdenza
     decimal CurrentTotal,
     decimal ProjectedTotal,
     decimal GrandTotal,
@@ -14,5 +16,6 @@ public record Totals(
 )
 {
     public decimal InvestmentsGainLossPercent => InvestmentsCost > 0 ? (InvestmentsGainLoss / InvestmentsCost) * 100 : 0;
+    public decimal PensionInsuranceGainLossPercent => PensionInsuranceContrib > 0 ? (PensionInsuranceGainLoss / PensionInsuranceContrib) * 100 : 0;
 };
 
