@@ -1,49 +1,42 @@
-@using FamilyFinance.Resources
-@inject IStringLocalizer<SharedResource> L
-@inject CultureService Culture
+@using System.Globalization
 @inject NavigationManager Nav
-@implements IDisposable
 
 <div class="dropdown">
     <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         🌐 @GetCurrentLanguageName()
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
-        @foreach (var (code, name) in CultureService.SupportedCultures)
+        @foreach (var culture in SupportedCultures)
         {
             <li>
-                <button class="dropdown-item @(IsCurrentCulture(code) ? "active" : "")" 
-                        @onclick="() => ChangeLanguage(code)">
-                    @name
-                </button>
+                <a class="dropdown-item @(IsCurrentCulture(culture.Code) ? "active" : "")" 
+                   href="@GetCultureChangeUrl(culture.Code)">
+                    @culture.Name
+                </a>
             </li>
         }
     </ul>
 </div>
 
 @code {
-    protected override void OnInitialized()
+    private static readonly (string Code, string Name)[] SupportedCultures = new[]
     {
-        Culture.OnCultureChanged += StateHasChanged;
-    }
+        ("it-IT", "🇮🇹 Italiano"),
+        ("en-US", "🇬🇧 English")
+    };
 
     private string GetCurrentLanguageName()
     {
-        var current = Culture.CurrentCulture.Name;
-        return CultureService.SupportedCultures.FirstOrDefault(c => c.Code == current).Name ?? "Italiano";
+        var current = CultureInfo.CurrentCulture.Name;
+        return SupportedCultures.FirstOrDefault(c => c.Code == current).Name ?? "🇮🇹 Italiano";
     }
 
-    private bool IsCurrentCulture(string code) => Culture.CurrentCulture.Name == code;
+    private bool IsCurrentCulture(string code) => CultureInfo.CurrentCulture.Name == code;
 
-    private void ChangeLanguage(string cultureCode)
+    private string GetCultureChangeUrl(string cultureCode)
     {
-        Culture.SetCulture(cultureCode);
-        Nav.NavigateTo(Nav.Uri, forceLoad: true);
-    }
-
-    public void Dispose()
-    {
-        Culture.OnCultureChanged -= StateHasChanged;
+        var uri = new Uri(Nav.Uri);
+        var redirectUri = uri.PathAndQuery;
+        return $"/Culture/Set?culture={cultureCode}&redirectUri={Uri.EscapeDataString(redirectUri)}";
     }
 }
-

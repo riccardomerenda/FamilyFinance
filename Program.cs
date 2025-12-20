@@ -1,27 +1,29 @@
 using System.Globalization;
 using FamilyFinance.Data;
 using FamilyFinance.Services;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure supported cultures
 var supportedCultures = new[] { "it-IT", "en-US" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture("it-IT")
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-
-// Set default culture
-var it = new CultureInfo("it-IT");
-CultureInfo.DefaultThreadCurrentCulture = it;
-CultureInfo.DefaultThreadCurrentUICulture = it;
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddControllers(); // For CultureController
 
 // Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Configure request localization
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.SetDefaultCulture("it-IT");
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
+    options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+});
 
 // Database SQLite
 builder.Services.AddDbContext<AppDbContext>(opt =>
@@ -29,7 +31,6 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 // Services
 builder.Services.AddScoped<FinanceService>();
-builder.Services.AddScoped<CultureService>();
 
 var app = builder.Build();
 
@@ -42,8 +43,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseRequestLocalization(localizationOptions);
+app.UseRequestLocalization();
 
+app.MapControllers(); // Map CultureController
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
