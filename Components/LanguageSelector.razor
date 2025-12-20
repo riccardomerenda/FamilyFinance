@@ -1,4 +1,5 @@
 @using System.Globalization
+@using System.Web
 @inject NavigationManager Nav
 
 <div class="dropdown d-inline-block">
@@ -36,16 +37,7 @@
 
     private string GetCultureChangeUrl(string cultureCode)
     {
-        // Get current path from NavigationManager
-        var currentUri = Nav.ToAbsoluteUri(Nav.Uri);
-        var currentPath = currentUri.PathAndQuery;
-        
-        // Ensure it starts with /
-        if (string.IsNullOrEmpty(currentPath) || !currentPath.StartsWith('/'))
-        {
-            currentPath = "/";
-        }
-        
-        return $"/Culture/Set?culture={cultureCode}&redirectUri={Uri.EscapeDataString(currentPath)}";
+        // Simple approach: just pass culture, let controller use Referer header
+        return $"/Culture/Set?culture={cultureCode}";
     }
 }

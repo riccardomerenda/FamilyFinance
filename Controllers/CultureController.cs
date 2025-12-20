@@ -6,7 +6,7 @@ namespace FamilyFinance.Controllers;
 [Route("[controller]/[action]")]
 public class CultureController : Controller
 {
-    public IActionResult Set(string culture, string redirectUri)
+    public IActionResult Set(string culture, string? redirectUri)
     {
         if (!string.IsNullOrWhiteSpace(culture))
         {
@@ -18,12 +18,25 @@ public class CultureController : Controller
             );
         }
 
-        // Fallback to home if redirectUri is invalid
-        if (string.IsNullOrWhiteSpace(redirectUri) || !redirectUri.StartsWith('/'))
+        // Try to get redirect URL from parameter first, then from Referer header
+        var returnUrl = redirectUri;
+        
+        if (string.IsNullOrWhiteSpace(returnUrl))
         {
-            redirectUri = "/";
+            // Fallback to Referer header
+            var referer = Request.Headers.Referer.ToString();
+            if (!string.IsNullOrEmpty(referer) && Uri.TryCreate(referer, UriKind.Absolute, out var refererUri))
+            {
+                returnUrl = refererUri.PathAndQuery;
+            }
         }
 
-        return LocalRedirect(redirectUri);
+        // Final fallback to home
+        if (string.IsNullOrWhiteSpace(returnUrl) || !returnUrl.StartsWith('/'))
+        {
+            returnUrl = "/";
+        }
+
+        return Redirect(returnUrl);
     }
 }
