@@ -28,6 +28,8 @@ public class FinanceService
             .OrderByDescending(s => s.SnapshotDate)
             .FirstOrDefaultAsync();
 
+    public async Task<List<Account>> GetAccountsAsync() => await _db.Accounts.OrderBy(a => a.Category).ThenBy(a => a.Name).ToListAsync();
+    
     public async Task<List<Account>> GetActiveAccountsAsync()
         => await _db.Accounts.Where(a => a.IsActive).OrderBy(a => a.Category).ThenBy(a => a.Name).ToListAsync();
 

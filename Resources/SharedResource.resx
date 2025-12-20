@@ -62,6 +62,18 @@
   <data name="ExportData" xml:space="preserve"><value>Esporta Dati</value></data>
   <data name="DownloadBackupJson" xml:space="preserve"><value>Scarica Backup JSON</value></data>
   <data name="DownloadCsvExcel" xml:space="preserve"><value>Scarica CSV Excel</value></data>
+  <data name="FullBackup" xml:space="preserve"><value>Backup Completo</value></data>
+  <data name="FullBackupDesc" xml:space="preserve"><value>Tutti i dati in formato JSON</value></data>
+  <data name="SnapshotsCsv" xml:space="preserve"><value>Storico Patrimonio</value></data>
+  <data name="SnapshotsCsvDesc" xml:space="preserve"><value>Andamento mensile in CSV</value></data>
+  <data name="InvestmentsCsv" xml:space="preserve"><value>Storico Investimenti</value></data>
+  <data name="InvestmentsCsvDesc" xml:space="preserve"><value>Dettaglio asset per mese</value></data>
+  <data name="GoalsCsv" xml:space="preserve"><value>Obiettivi</value></data>
+  <data name="GoalsCsvDesc" xml:space="preserve"><value>Stato degli obiettivi</value></data>
+  <data name="DownloadJson" xml:space="preserve"><value>Scarica JSON</value></data>
+  <data name="DownloadCsv" xml:space="preserve"><value>Scarica CSV</value></data>
+  <data name="ExportTip" xml:space="preserve"><value>💡 Suggerimento</value></data>
+  <data name="ExportTipDesc" xml:space="preserve"><value>Il backup completo JSON può essere usato per ripristinare tutti i dati. I file CSV sono ideali per analisi in Excel o Google Sheets.</value></data>
   
   <!-- Chart Labels -->
   <data name="ChartTotal" xml:space="preserve"><value>Totale</value></data>

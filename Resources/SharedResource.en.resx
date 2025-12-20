@@ -62,6 +62,18 @@
   <data name="ExportData" xml:space="preserve"><value>Export Data</value></data>
   <data name="DownloadBackupJson" xml:space="preserve"><value>Download JSON Backup</value></data>
   <data name="DownloadCsvExcel" xml:space="preserve"><value>Download CSV for Excel</value></data>
+  <data name="FullBackup" xml:space="preserve"><value>Full Backup</value></data>
+  <data name="FullBackupDesc" xml:space="preserve"><value>All data in JSON format</value></data>
+  <data name="SnapshotsCsv" xml:space="preserve"><value>Wealth History</value></data>
+  <data name="SnapshotsCsvDesc" xml:space="preserve"><value>Monthly trend in CSV</value></data>
+  <data name="InvestmentsCsv" xml:space="preserve"><value>Investments History</value></data>
+  <data name="InvestmentsCsvDesc" xml:space="preserve"><value>Asset details per month</value></data>
+  <data name="GoalsCsv" xml:space="preserve"><value>Goals</value></data>
+  <data name="GoalsCsvDesc" xml:space="preserve"><value>Goals status export</value></data>
+  <data name="DownloadJson" xml:space="preserve"><value>Download JSON</value></data>
+  <data name="DownloadCsv" xml:space="preserve"><value>Download CSV</value></data>
+  <data name="ExportTip" xml:space="preserve"><value>💡 Tip</value></data>
+  <data name="ExportTipDesc" xml:space="preserve"><value>The full JSON backup can be used to restore all data. CSV files are perfect for analysis in Excel or Google Sheets.</value></data>
 
   <!-- Chart Labels -->
   <data name="ChartTotal" xml:space="preserve"><value>Total</value></data>

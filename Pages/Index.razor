@@ -432,29 +432,103 @@ else
 
     @if (Tab == "exp")
     {
-        <div class="max-w-lg">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Full Backup -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200">@L["FullBackup"]</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">@L["FullBackupDesc"]</p>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">@L["ExportData"]</h3>
-                </div>
-                <div class="space-y-3">
-                    <button @onclick="ExportJson" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                    <button @onclick="ExportFullBackup" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        @L["DownloadBackupJson"]
+                        @L["DownloadJson"]
                     </button>
-                    <button @onclick="ExportCsv" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                </div>
+
+                <!-- Snapshots CSV -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200">@L["SnapshotsCsv"]</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">@L["SnapshotsCsvDesc"]</p>
+                        </div>
+                    </div>
+                    <button @onclick="ExportCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        @L["DownloadCsvExcel"]
+                        @L["DownloadCsv"]
                     </button>
+                </div>
+
+                <!-- Investments CSV -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200">@L["InvestmentsCsv"]</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">@L["InvestmentsCsvDesc"]</p>
+                        </div>
+                    </div>
+                    <button @onclick="ExportInvestmentsCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-xl transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        @L["DownloadCsv"]
+                    </button>
+                </div>
+
+                <!-- Goals CSV -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200">@L["GoalsCsv"]</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">@L["GoalsCsvDesc"]</p>
+                        </div>
+                    </div>
+                    <button @onclick="ExportGoalsCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        @L["DownloadCsv"]
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Export Info -->
+            <div class="mt-6 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <p class="font-medium text-gray-700 dark:text-gray-300 mb-1">@L["ExportTip"]</p>
+                        <p>@L["ExportTipDesc"]</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -582,25 +656,91 @@ else
         };
     }
 
-    async Task ExportJson()
+    async Task ExportFullBackup()
     {
-        var all = await Finance.GetSnapshotsAsync();
-        var data = new List<object>();
-        foreach (var s in all) { var snap = await Finance.GetSnapshotAsync(s.Id); if (snap != null) data.Add(snap); }
-        var json = JsonSerializer.Serialize(data);
-        await JS.InvokeVoidAsync("downloadFile", "backup.json", "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
+        var snapshots = await Finance.GetSnapshotsAsync();
+        var fullSnapshots = new List<object>();
+        foreach (var s in snapshots) 
+        { 
+            var snap = await Finance.GetSnapshotAsync(s.Id); 
+            if (snap != null) fullSnapshots.Add(snap); 
+        }
+        
+        var accounts = await Finance.GetAccountsAsync();
+        var goals = await Finance.GetGoalsAsync();
+        var portfolios = await Finance.GetPortfoliosAsync();
+        
+        var backup = new 
+        { 
+            ExportDate = DateTime.UtcNow,
+            Version = "1.0",
+            Accounts = accounts,
+            Portfolios = portfolios,
+            Goals = goals,
+            Snapshots = fullSnapshots
+        };
+        
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(backup, options);
+        var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
     }
 
     async Task ExportCsv()
     {
         var all = await Finance.GetSnapshotsAsync();
-        var sb = new StringBuilder("Data,Liquidità,Investimenti,Crediti,Pensione,Totale\n");
-        foreach (var s in all)
+        var sb = new StringBuilder();
+        sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
+        
+        foreach (var s in all.OrderBy(x => x.SnapshotDate))
         {
             var sn = await Finance.GetSnapshotAsync(s.Id);
             var t = await Finance.CalculateTotalsAsync(sn!);
-            sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.InvestmentsValue},{t.CreditsOpen},{t.PensionInsuranceValue},{t.GrandTotal}");
+            sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.InterestLiquidity},{t.InvestmentsCost},{t.InvestmentsValue},{t.InvestmentsGainLoss},{t.CreditsOpen},{t.PensionInsuranceContrib},{t.PensionInsuranceValue},{t.PensionInsuranceGainLoss},{t.CurrentTotal},{t.ProjectedTotal},{t.GrandTotal}");
         }
-        await JS.InvokeVoidAsync("downloadFile", "export.csv", "text/csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+        
+        var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
+        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+    }
+
+    async Task ExportInvestmentsCsv()
+    {
+        var all = await Finance.GetSnapshotsAsync();
+        var sb = new StringBuilder();
+        sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
+        
+        foreach (var s in all.OrderBy(x => x.SnapshotDate))
+        {
+            var sn = await Finance.GetSnapshotAsync(s.Id);
+            if (sn == null) continue;
+            
+            foreach (var inv in sn.Investments)
+            {
+                var gl = inv.Value - inv.CostBasis;
+                var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
+                var portfolioName = inv.Portfolio?.Name ?? "Non categorizzato";
+                sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{portfolioName},{inv.Name},{inv.CostBasis},{inv.Value},{gl},{pct:F2}");
+            }
+        }
+        
+        var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
+        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+    }
+
+    async Task ExportGoalsCsv()
+    {
+        var goals = await Finance.GetGoalsAsync();
+        var sb = new StringBuilder();
+        sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
+        
+        foreach (var g in goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
+        {
+            var completed = g.IsCompleted ? "Sì" : "No";
+            var priority = g.Priority.ToString();
+            sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.Deadline},{priority},{completed}");
+        }
+        
+        var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
+        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
     }
 }
