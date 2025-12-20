@@ -117,10 +117,28 @@
 
   <!-- Goals -->
   <data name="FinancialGoals" xml:space="preserve"><value>Financial Goals</value></data>
-  <data name="NewGoal" xml:space="preserve"><value>+ New Goal</value></data>
-  <data name="Deadline" xml:space="preserve"><value>Deadline:</value></data>
+  <data name="NewGoal" xml:space="preserve"><value>New Goal</value></data>
+  <data name="EditGoal" xml:space="preserve"><value>Edit Goal</value></data>
+  <data name="Deadline" xml:space="preserve"><value>Deadline</value></data>
   <data name="Target" xml:space="preserve"><value>Target</value></data>
   <data name="DateExample" xml:space="preserve"><value>Date (e.g. 2026-12)</value></data>
+  <data name="NoGoalsMessage" xml:space="preserve"><value>No goals yet. Create your first financial goal!</value></data>
+  <data name="Progress" xml:space="preserve"><value>Progress</value></data>
+  <data name="GoalOf" xml:space="preserve"><value>of</value></data>
+  <data name="MissingAmount" xml:space="preserve"><value>Missing</value></data>
+  <data name="TimeRemaining" xml:space="preserve"><value>Time remaining</value></data>
+  <data name="Months" xml:space="preserve"><value>months</value></data>
+  <data name="Month" xml:space="preserve"><value>month</value></data>
+  <data name="MonthlyNeeded" xml:space="preserve"><value>Monthly needed</value></data>
+  <data name="DeadlineReached" xml:space="preserve"><value>Deadline reached!</value></data>
+  <data name="GoalCompleted" xml:space="preserve"><value>Goal completed!</value></data>
+  <data name="Priority" xml:space="preserve"><value>Priority</value></data>
+  <data name="PriorityHigh" xml:space="preserve"><value>High</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Medium</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Low</value></data>
+  <data name="GoalCatLiquidity" xml:space="preserve"><value>Liquidity</value></data>
+  <data name="GoalCatInvestments" xml:space="preserve"><value>Investments</value></data>
+  <data name="GoalCatGrandTotal" xml:space="preserve"><value>Total Net Worth</value></data>
 
   <!-- Pension Tab -->
   <data name="TabPension" xml:space="preserve"><value>Pension</value></data>

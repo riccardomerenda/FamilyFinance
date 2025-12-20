@@ -117,10 +117,28 @@
 
   <!-- Goals -->
   <data name="FinancialGoals" xml:space="preserve"><value>Obiettivi Finanziari</value></data>
-  <data name="NewGoal" xml:space="preserve"><value>+ Nuovo Obiettivo</value></data>
-  <data name="Deadline" xml:space="preserve"><value>Scadenza:</value></data>
-  <data name="Target" xml:space="preserve"><value>Target</value></data>
+  <data name="NewGoal" xml:space="preserve"><value>Nuovo Obiettivo</value></data>
+  <data name="EditGoal" xml:space="preserve"><value>Modifica Obiettivo</value></data>
+  <data name="Deadline" xml:space="preserve"><value>Scadenza</value></data>
+  <data name="Target" xml:space="preserve"><value>Obiettivo</value></data>
   <data name="DateExample" xml:space="preserve"><value>Data (es. 2026-12)</value></data>
+  <data name="NoGoalsMessage" xml:space="preserve"><value>Nessun obiettivo. Crea il tuo primo obiettivo finanziario!</value></data>
+  <data name="Progress" xml:space="preserve"><value>Progresso</value></data>
+  <data name="GoalOf" xml:space="preserve"><value>di</value></data>
+  <data name="MissingAmount" xml:space="preserve"><value>Mancano</value></data>
+  <data name="TimeRemaining" xml:space="preserve"><value>Tempo rimasto</value></data>
+  <data name="Months" xml:space="preserve"><value>mesi</value></data>
+  <data name="Month" xml:space="preserve"><value>mese</value></data>
+  <data name="MonthlyNeeded" xml:space="preserve"><value>Da mettere al mese</value></data>
+  <data name="DeadlineReached" xml:space="preserve"><value>Scadenza raggiunta!</value></data>
+  <data name="GoalCompleted" xml:space="preserve"><value>Obiettivo raggiunto!</value></data>
+  <data name="Priority" xml:space="preserve"><value>Priorità</value></data>
+  <data name="PriorityHigh" xml:space="preserve"><value>Alta</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Media</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Bassa</value></data>
+  <data name="GoalCatLiquidity" xml:space="preserve"><value>Liquidità</value></data>
+  <data name="GoalCatInvestments" xml:space="preserve"><value>Investimenti</value></data>
+  <data name="GoalCatGrandTotal" xml:space="preserve"><value>Patrimonio Totale</value></data>
 
   <!-- Pension Tab -->
   <data name="TabPension" xml:space="preserve"><value>Previdenza</value></data>
