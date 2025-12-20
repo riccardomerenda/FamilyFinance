@@ -144,6 +144,8 @@
   <data name="TotalAllocated" xml:space="preserve"><value>Total Allocated</value></data>
   <data name="Unallocated" xml:space="preserve"><value>Unallocated</value></data>
   <data name="TotalTargets" xml:space="preserve"><value>Total Targets</value></data>
+  <data name="ShowMonthlyTarget" xml:space="preserve"><value>Show monthly target</value></data>
+  <data name="ShowMonthlyTargetHint" xml:space="preserve"><value>Calculate monthly amount needed</value></data>
 
   <!-- Pension Tab -->
   <data name="TabPension" xml:space="preserve"><value>Pension</value></data>

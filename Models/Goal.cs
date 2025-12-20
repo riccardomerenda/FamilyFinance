@@ -9,6 +9,7 @@ public class Goal
     public string Deadline { get; set; } = ""; 
     public GoalPriority Priority { get; set; } = GoalPriority.Medium;
     public GoalCategory Category { get; set; } = GoalCategory.Liquidity;
+    public bool ShowMonthlyTarget { get; set; } = true; // Mostra proiezione mensile
     
     // Calculated properties
     public decimal Missing => Math.Max(0, Target - AllocatedAmount);

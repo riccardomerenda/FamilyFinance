@@ -150,6 +150,7 @@ public class FinanceService
                 existing.Deadline = goal.Deadline;
                 existing.Priority = goal.Priority;
                 existing.Category = goal.Category;
+                existing.ShowMonthlyTarget = goal.ShowMonthlyTarget;
             }
         }
         await _db.SaveChangesAsync();
