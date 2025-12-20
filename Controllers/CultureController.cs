@@ -7,7 +7,7 @@ namespace FamilyFinance.Controllers;
 public class CultureController : Controller
 {
     [HttpGet("Set/{culture}")]
-    public IActionResult Set(string culture)
+    public IActionResult Set(string culture, [FromQuery] string? returnUrl)
     {
         // Validate culture
         if (culture != "it-IT" && culture != "en-US")
@@ -26,17 +26,12 @@ public class CultureController : Controller
             }
         );
 
-        // Get redirect URL from Referer, but NOT if it's the Culture controller itself
-        var referer = Request.Headers.Referer.ToString();
-        var returnUrl = "/";
-        
-        if (!string.IsNullOrEmpty(referer) && 
-            Uri.TryCreate(referer, UriKind.Absolute, out var refererUri) &&
-            !refererUri.AbsolutePath.StartsWith("/Culture"))
+        // Use returnUrl if provided and valid, otherwise go home
+        if (!string.IsNullOrEmpty(returnUrl) && returnUrl.StartsWith("/") && !returnUrl.StartsWith("/Culture"))
         {
-            returnUrl = refererUri.AbsolutePath;
+            return Redirect(returnUrl);
         }
 
-        return Redirect(returnUrl);
+        return Redirect("/");
     }
 }

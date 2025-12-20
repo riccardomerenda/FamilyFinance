@@ -6,14 +6,18 @@
         @GetCurrentFlag()
     </button>
     <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-        <li><a class="dropdown-item" href="/Culture/Set/it-IT">Italiano</a></li>
-        <li><a class="dropdown-item" href="/Culture/Set/en-US">English</a></li>
+        <li><a class="dropdown-item" href="@GetUrl("it-IT")">🇮🇹 Italiano</a></li>
+        <li><a class="dropdown-item" href="@GetUrl("en-US")">🇬🇧 English</a></li>
     </ul>
 </div>
 
 @code {
-    private string GetCurrentFlag()
+    private string GetCurrentFlag() => CultureInfo.CurrentUICulture.Name.StartsWith("it") ? "🇮🇹" : "🇬🇧";
+
+    private string GetUrl(string culture)
     {
-        return CultureInfo.CurrentUICulture.Name.StartsWith("it") ? "IT" : "EN";
+        var currentPath = new Uri(Nav.Uri).AbsolutePath;
+        if (string.IsNullOrEmpty(currentPath)) currentPath = "/";
+        return $"/Culture/Set/{culture}?returnUrl={Uri.EscapeDataString(currentPath)}";
     }
 }
