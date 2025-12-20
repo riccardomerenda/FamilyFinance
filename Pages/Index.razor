@@ -172,44 +172,51 @@ else
             </div>
         </div>
 
-        <!-- Portfolio Cards -->
-        <div class="space-y-6">
+        <!-- Portfolio Cards (Collapsible) -->
+        <div class="space-y-3">
             @foreach (var group in _latest.Investments.GroupBy(i => i.Portfolio).OrderBy(g => g.Key?.Name ?? "zzz"))
             {
                 var portfolio = group.Key;
+                var portfolioId = portfolio?.Id;
+                var isExpanded = _expandedPortfolios.Contains(portfolioId);
                 var pCost = group.Sum(x => x.CostBasis);
                 var pValue = group.Sum(x => x.Value);
                 var pGl = pValue - pCost;
                 var pPct = pCost > 0 ? (pGl / pCost) * 100 : 0;
                 var color = portfolio?.Color ?? "#6b7280";
+                var assetCount = group.Count();
                 
                 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <!-- Portfolio Header -->
-                    <div class="p-4 flex items-center justify-between" style="background: linear-gradient(135deg, @(color)20, @(color)05)">
+                    <!-- Portfolio Header (Clickable) -->
+                    <button @onclick="() => TogglePortfolio(portfolioId)" class="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors cursor-pointer" style="background: linear-gradient(135deg, @(color)15, transparent)">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white" style="background-color: @color">
+                            <!-- Expand/Collapse Arrow -->
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800 transition-transform duration-200 @(isExpanded ? "rotate-90" : "")">
+                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" style="background-color: @color">
                                 @if (portfolio != null)
                                 {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                                     </svg>
                                 }
                                 else
                                 {
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                     </svg>
                                 }
                             </div>
-                            <div>
+                            <div class="text-left">
                                 <h3 class="font-bold text-gray-800 dark:text-gray-200">@(portfolio?.Name ?? L["NoPortfolio"])</h3>
-                                @if (portfolio?.TimeHorizonYears != null || portfolio?.TargetYear != null)
-                                {
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        @if (portfolio.TimeHorizonYears != null) { <span>@portfolio.TimeHorizonYears @L["Years"]</span> }
-                                        @if (portfolio.TargetYear != null) { <span>→ @portfolio.TargetYear</span> }
-                                    </p>
-                                }
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    @assetCount asset@(assetCount != 1 ? "s" : "")
+                                    @if (portfolio?.TimeHorizonYears != null) { <span class="mx-1">•</span><span>@portfolio.TimeHorizonYears @L["Years"]</span> }
+                                    @if (portfolio?.TargetYear != null) { <span>→ @portfolio.TargetYear</span> }
+                                </p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -218,31 +225,34 @@ else
                                 @(pGl >= 0 ? "+" : "")@pGl.ToString("N0") € (@(pPct >= 0 ? "+" : "")@pPct.ToString("N2")%)
                             </p>
                         </div>
-                    </div>
+                    </button>
                     
-                    <!-- Assets List -->
-                    <div class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @foreach (var i in group)
-                        {
-                            <div class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background-color: @color">
-                                        @i.Name[..Math.Min(2, i.Name.Length)]
+                    <!-- Assets List (Collapsible) -->
+                    @if (isExpanded)
+                    {
+                        <div class="border-t border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800 bg-gray-50/50 dark:bg-gray-800/20">
+                            @foreach (var i in group)
+                            {
+                                <div class="p-4 flex items-center justify-between hover:bg-white dark:hover:bg-gray-800/50 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background-color: @color">
+                                            @i.Name[..Math.Min(2, i.Name.Length)]
+                                        </div>
+                                        <div>
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">@i.Name</span>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">@L["CostBasis"]: @i.CostBasis.ToString("N2") €</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700 dark:text-gray-300">@i.Name</span>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">@L["CostBasis"]: @i.CostBasis.ToString("N2") €</p>
+                                    <div class="text-right">
+                                        <p class="font-semibold text-gray-900 dark:text-white">@i.Value.ToString("N2") €</p>
+                                        <p class="text-sm @(i.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                            @(i.GainLoss >= 0 ? "+" : "")@i.GainLoss.ToString("N2") € (@(i.GainLossPercent >= 0 ? "+" : "")@i.GainLossPercent.ToString("N2")%)
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <p class="font-semibold text-gray-900 dark:text-white">@i.Value.ToString("N2") €</p>
-                                    <p class="text-sm @(i.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                        @(i.GainLoss >= 0 ? "+" : "")@i.GainLoss.ToString("N2") € (@(i.GainLossPercent >= 0 ? "+" : "")@i.GainLossPercent.ToString("N2")%)
-                                    </p>
-                                </div>
-                            </div>
-                        }
-                    </div>
+                            }
+                        </div>
+                    }
                 </div>
             }
         </div>
@@ -487,6 +497,15 @@ else
     Snapshot? _latest;
     Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     object _trendConfig = new { }, _compConfig = new { }, _invPieConfig = new { }, _intBarConfig = new { };
+    HashSet<int?> _expandedPortfolios = new(); // Track expanded portfolios (null = "No Portfolio")
+    
+    void TogglePortfolio(int? portfolioId)
+    {
+        if (_expandedPortfolios.Contains(portfolioId))
+            _expandedPortfolios.Remove(portfolioId);
+        else
+            _expandedPortfolios.Add(portfolioId);
+    }
 
     protected override async Task OnInitializedAsync()
     {
