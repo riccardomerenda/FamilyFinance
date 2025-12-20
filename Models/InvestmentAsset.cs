@@ -7,6 +7,11 @@ public class InvestmentAsset
     public Snapshot Snapshot { get; set; } = default!;
     public string Broker { get; set; } = "Directa";
     public string Name { get; set; } = ""; // Es: VWCE
-    public decimal Value { get; set; }
+    public decimal CostBasis { get; set; } // Costo di carico (quanto investito)
+    public decimal Value { get; set; } // Valore corrente di mercato
+    
+    // Calculated properties
+    public decimal GainLoss => Value - CostBasis;
+    public decimal GainLossPercent => CostBasis > 0 ? (GainLoss / CostBasis) * 100 : 0;
 }
 

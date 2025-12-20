@@ -70,6 +70,13 @@
   <data name="ChartPension" xml:space="preserve"><value>Pension</value></data>
   <data name="ChartInterests" xml:space="preserve"><value>Interests</value></data>
 
+  <!-- Investment Tracking -->
+  <data name="CostBasis" xml:space="preserve"><value>Cost Basis</value></data>
+  <data name="CurrentValue" xml:space="preserve"><value>Current Value</value></data>
+  <data name="GainLoss" xml:space="preserve"><value>Gain/Loss</value></data>
+  <data name="Performance" xml:space="preserve"><value>Performance</value></data>
+  <data name="AssetName" xml:space="preserve"><value>Asset Name</value></data>
+
   <!-- Snapshots -->
   <data name="SnapshotsHistory" xml:space="preserve"><value>Snapshots History</value></data>
   <data name="NewSnapshot" xml:space="preserve"><value>New Snapshot</value></data>

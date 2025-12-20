@@ -128,7 +128,7 @@ else
         if (l != null) _t = await Finance.CalculateTotalsAsync(l);
     }
 
-    decimal GetVal(GoalCategory c) => _t == null ? 0 : (c == GoalCategory.Liquidity ? _t.Liquidity : (c == GoalCategory.Investments ? _t.Investments : _t.GrandTotal));
+    decimal GetVal(GoalCategory c) => _t == null ? 0 : (c == GoalCategory.Liquidity ? _t.Liquidity : (c == GoalCategory.Investments ? _t.InvestmentsValue : _t.GrandTotal));
     void NewGoal() => _editing = new Goal();
     async Task Save() { await Finance.SaveGoalAsync(_editing!); _editing = null; await OnInitializedAsync(); }
     async Task Del(long id) { await Finance.DeleteGoalAsync(id); await OnInitializedAsync(); }

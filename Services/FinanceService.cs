@@ -36,15 +36,21 @@ public class FinanceService
         var liquidity = lines.Where(l => l.Account.Category == AccountCategory.Liquidity).Sum(l => l.Amount);
         var interestLiquidity = lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount);
         var pensionInsurance = lines.Where(l => l.Account.Category is AccountCategory.Pension or AccountCategory.Insurance).Sum(l => l.Amount);
-        var investments = snapshot.Investments.Sum(i => i.Value);
+        var investmentsValue = snapshot.Investments.Sum(i => i.Value);
+        var investmentsCost = snapshot.Investments.Sum(i => i.CostBasis);
+        var investmentsGainLoss = investmentsValue - investmentsCost;
         var creditsOpen = snapshot.Receivables.Where(r => r.Status == ReceivableStatus.Open).Sum(r => r.Amount);
 
-        var currentTotal = liquidity + investments;
-        return Task.FromResult(new Totals(liquidity, investments, creditsOpen, pensionInsurance, currentTotal, currentTotal + creditsOpen, currentTotal + creditsOpen + pensionInsurance, interestLiquidity));
+        var currentTotal = liquidity + investmentsValue;
+        return Task.FromResult(new Totals(
+            liquidity, investmentsValue, investmentsCost, investmentsGainLoss, 
+            creditsOpen, pensionInsurance, currentTotal, 
+            currentTotal + creditsOpen, currentTotal + creditsOpen + pensionInsurance, 
+            interestLiquidity));
     }
 
     public async Task SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount)> accountAmounts,
-        List<(string Name, decimal Value)> investments,
+        List<(string Name, decimal CostBasis, decimal Value)> investments,
         List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
     {
         Snapshot snapshot;
@@ -67,7 +73,7 @@ public class FinanceService
         // Replace Investments & Receivables
         _db.InvestmentAssets.RemoveRange(snapshot.Investments);
         snapshot.Investments = investments.Where(x => !string.IsNullOrWhiteSpace(x.Name))
-            .Select(x => new InvestmentAsset { SnapshotId = snapshot.Id, Broker = "Directa", Name = x.Name.Trim(), Value = x.Value }).ToList();
+            .Select(x => new InvestmentAsset { SnapshotId = snapshot.Id, Broker = "Directa", Name = x.Name.Trim(), CostBasis = x.CostBasis, Value = x.Value }).ToList();
 
         _db.Receivables.RemoveRange(snapshot.Receivables);
         snapshot.Receivables = receivables.Where(r => !string.IsNullOrWhiteSpace(r.Description))
