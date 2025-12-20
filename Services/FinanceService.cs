@@ -137,8 +137,21 @@ public class FinanceService
     // Goals
     public async Task<List<Goal>> GetGoalsAsync() => await _db.Goals.OrderByDescending(g => g.Id).ToListAsync();
     public async Task SaveGoalAsync(Goal goal) {
-        if (goal.Id == 0) { goal.Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); _db.Goals.Add(goal); }
-        else _db.Goals.Update(goal);
+        if (goal.Id == 0) { 
+            goal.Id = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); 
+            _db.Goals.Add(goal); 
+        }
+        else {
+            var existing = await _db.Goals.FindAsync(goal.Id);
+            if (existing != null) {
+                existing.Name = goal.Name;
+                existing.Target = goal.Target;
+                existing.AllocatedAmount = goal.AllocatedAmount;
+                existing.Deadline = goal.Deadline;
+                existing.Priority = goal.Priority;
+                existing.Category = goal.Category;
+            }
+        }
         await _db.SaveChangesAsync();
     }
     public async Task DeleteGoalAsync(long id) {
