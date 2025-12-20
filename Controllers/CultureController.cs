@@ -3,54 +3,38 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FamilyFinance.Controllers;
 
-[Route("[controller]/[action]")]
+[Route("[controller]")]
 public class CultureController : Controller
 {
-    public IActionResult Set(string culture, string? redirectUri)
+    [HttpGet("Set/{culture}")]
+    public IActionResult Set(string culture)
     {
-        // Clean the culture parameter (remove any trailing ? or whitespace)
-        culture = culture?.Trim().TrimEnd('?') ?? "it-IT";
-        
-        if (!string.IsNullOrWhiteSpace(culture))
+        // Validate culture
+        if (culture != "it-IT" && culture != "en-US")
         {
-            try
-            {
-                HttpContext.Response.Cookies.Append(
-                    CookieRequestCultureProvider.DefaultCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(
-                        new RequestCulture(culture, culture)),
-                    new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-                );
-            }
-            catch
-            {
-                // Invalid culture, use default
-                culture = "it-IT";
-                HttpContext.Response.Cookies.Append(
-                    CookieRequestCultureProvider.DefaultCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(
-                        new RequestCulture(culture, culture)),
-                    new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-                );
-            }
+            culture = "it-IT";
         }
 
-        // Try to get redirect URL from Referer header
-        var returnUrl = redirectUri;
-        
-        if (string.IsNullOrWhiteSpace(returnUrl))
-        {
-            var referer = Request.Headers.Referer.ToString();
-            if (!string.IsNullOrEmpty(referer) && Uri.TryCreate(referer, UriKind.Absolute, out var refererUri))
-            {
-                returnUrl = refererUri.PathAndQuery;
+        // Set culture cookie
+        HttpContext.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture, culture)),
+            new CookieOptions 
+            { 
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                IsEssential = true
             }
-        }
+        );
 
-        // Final fallback to home
-        if (string.IsNullOrWhiteSpace(returnUrl) || !returnUrl.StartsWith('/'))
+        // Get redirect URL from Referer, but NOT if it's the Culture controller itself
+        var referer = Request.Headers.Referer.ToString();
+        var returnUrl = "/";
+        
+        if (!string.IsNullOrEmpty(referer) && 
+            Uri.TryCreate(referer, UriKind.Absolute, out var refererUri) &&
+            !refererUri.AbsolutePath.StartsWith("/Culture"))
         {
-            returnUrl = "/";
+            returnUrl = refererUri.AbsolutePath;
         }
 
         return Redirect(returnUrl);
