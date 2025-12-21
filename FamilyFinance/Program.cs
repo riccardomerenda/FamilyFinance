@@ -94,6 +94,9 @@ builder.Services.AddSingleton<LogService>();
 // Legacy facade (will be removed after full migration)
 builder.Services.AddScoped<FinanceService>();
 
+// Demo data seeder
+builder.Services.AddScoped<DemoDataSeeder>();
+
 var app = builder.Build();
 
 // Ensure database is created and apply migrations
@@ -101,6 +104,13 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    
+    // Seed demo data in production
+    if (!app.Environment.IsDevelopment())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+        await seeder.SeedDemoDataAsync();
+    }
 }
 
 if (!app.Environment.IsDevelopment())

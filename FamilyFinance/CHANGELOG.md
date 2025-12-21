@@ -7,6 +7,39 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.7.0] - 2025-12-21
+
+### 🎮 Demo Mode
+
+Nuova modalità demo per mostrare l'applicazione senza permettere registrazioni pubbliche.
+
+### Aggiunto
+
+#### Account Demo
+- **Utente demo** pre-configurato con dati realistici di esempio
+- **Credenziali demo**: `demo@familyfinance.app` / `demo2024`
+- **Seed automatico** in produzione con 6 mesi di dati storici
+
+#### Dati Demo Inclusi
+- 4 conti (corrente, deposito, pensione, assicurazione)
+- 3 portafogli investimenti (PAC, Crypto, Dividendi)
+- 5 obiettivi finanziari con progressi diversi
+- 6 categorie budget con spese mensili
+- 6 snapshot storici con trend di crescita
+
+#### UI Demo Mode
+- **Banner demo** nella pagina di login con credenziali
+- **Banner persistente** nell'app per utenti demo
+- **Pulsante "Richiedi Accesso"** con link a LinkedIn
+- **Link al repository GitHub** nel footer
+
+#### Sicurezza
+- Registrazione pubblica disabilitata in produzione
+- Pagina Setup accessibile solo in development
+- Form pre-compilato con credenziali demo
+
+---
+
 ## [2.6.1] - 2025-12-21
 
 ### 🐛 Bug Fixes
