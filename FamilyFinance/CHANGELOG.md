@@ -7,6 +7,22 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.6.1] - 2025-12-21
+
+### 🐛 Bug Fixes
+
+#### Mobile Navigation
+- **Menu si chiude al click**: Il menu mobile ora si chiude automaticamente quando si seleziona una voce di navigazione
+- **Icona dinamica**: L'icona hamburger cambia in X quando il menu è aperto
+- **Refactoring**: Sostituito JavaScript inline con Blazor state management
+
+#### Session Persistence
+- **Sessioni persistenti**: Gli utenti rimangono loggati dopo i deploy
+- **Data Protection Keys**: Le chiavi di crittografia ora sono salvate su volume persistente (`/app/data/keys`)
+- **Niente più logout forzati** ad ogni riavvio del container
+
+---
+
 ## [2.6.0] - 2025-12-21
 
 ### ☁️ Cloud Deployment - Fly.io
