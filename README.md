@@ -78,7 +78,7 @@ A comprehensive **family wealth management application** built with Blazor Serve
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/FamilyBalance.git
+git clone https://github.com/riccardomerenda/FamilyBalance.git
 cd FamilyBalance
 
 # Run the application
@@ -206,7 +206,7 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/FamilyBalance.git
+git clone https://github.com/riccardomerenda/FamilyBalance.git
 cd FamilyBalance
 
 # Create a branch
@@ -257,5 +257,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  <sub>Made with ☕ by <a href="https://github.com/YOUR_USERNAME">Your Name</a></sub>
+  <sub>Made with ☕ by <a href="https://github.com/riccardomerenda">Riccardo Merenda</a></sub>
 </p>
