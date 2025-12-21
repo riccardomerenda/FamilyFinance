@@ -7,6 +7,26 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.7.1] - 2025-12-21
+
+### 📜 Privacy Policy
+
+Aggiunta pagina Privacy Policy per conformità GDPR.
+
+### Aggiunto
+- **Pagina Privacy Policy** (`/privacy`) con informativa completa
+- Dettaglio cookie tecnici utilizzati (solo essenziali)
+- Informazioni sui dati raccolti e finalità
+- Diritti GDPR dell'utente
+- Nota sulla modalità demo
+- Link al codice open-source
+
+### UI
+- Link Privacy Policy nel footer della pagina login
+- Link Privacy Policy nella sidebar dell'app
+
+---
+
 ## [2.7.0] - 2025-12-21
 
 ### 🎮 Demo Mode
