@@ -1,0 +1,43 @@
+@inject IStringLocalizer<SharedResource> L
+
+<div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Breakdown"]</h3>
+    <div class="space-y-4">
+        <BreakdownRow 
+            Label="@L["Liquidity"]" 
+            Value="@Totals.Liquidity" 
+            Color="text-blue-500" 
+            BgColor="bg-blue-100 dark:bg-blue-900/30" 
+            Icon="wallet" />
+        
+        <BreakdownRow 
+            Label="@L["Investments"]" 
+            Value="@Totals.InvestmentsValue" 
+            Color="text-cyan-500" 
+            BgColor="bg-cyan-100 dark:bg-cyan-900/30" 
+            Icon="chart"
+            GainLoss="@Totals.InvestmentsGainLoss"
+            CostBasis="@Totals.InvestmentsCost" />
+        
+        <BreakdownRow 
+            Label="@L["Credits"]" 
+            Value="@Totals.CreditsOpen" 
+            Color="text-amber-500" 
+            BgColor="bg-amber-100 dark:bg-amber-900/30" 
+            Icon="clock" />
+        
+        <BreakdownRow 
+            Label="@L["PensionInsurance"]" 
+            Value="@Totals.PensionInsuranceValue" 
+            Color="text-emerald-500" 
+            BgColor="bg-emerald-100 dark:bg-emerald-900/30" 
+            Icon="shield"
+            GainLoss="@Totals.PensionInsuranceGainLoss"
+            CostBasis="@Totals.PensionInsuranceContrib" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Totals Totals { get; set; } = null!;
+}
+

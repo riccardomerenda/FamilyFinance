@@ -1,6 +1,9 @@
 @page "/portfolios"
+@using System.Security.Claims
 @inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@attribute [Authorize]
 
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["PortfoliosManagement"]</h1>
@@ -157,6 +160,7 @@ else
 @code {
     List<Portfolio> _portfolios = new();
     Portfolio? _editing;
+    int _familyId;
     
     static readonly string[] _colors = { "#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6" };
     static readonly Dictionary<string, RenderFragment> _icons = new()
@@ -169,11 +173,21 @@ else
         ["globe"] = @<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
     };
 
-    protected override async Task OnInitializedAsync() => _portfolios = await Finance.GetPortfoliosAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
+    }
     
     RenderFragment GetIcon(string icon) => _icons.GetValueOrDefault(icon, _icons["chart"]);
     
-    void NewPortfolio() => _editing = new Portfolio();
+    void NewPortfolio() => _editing = new Portfolio { FamilyId = _familyId };
     void Edit(Portfolio p) => _editing = p;
     
     async Task Save()
@@ -181,13 +195,13 @@ else
         if (string.IsNullOrWhiteSpace(_editing?.Name)) return;
         await Finance.SavePortfolioAsync(_editing!);
         _editing = null;
-        _portfolios = await Finance.GetPortfoliosAsync();
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
     }
     
     async Task Delete(int id)
     {
         await Finance.DeletePortfolioAsync(id);
-        _portfolios = await Finance.GetPortfoliosAsync();
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
     }
 }
 

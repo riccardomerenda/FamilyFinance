@@ -1,7 +1,10 @@
 @page "/snapshots"
+@using System.Security.Claims
 @inject FinanceService Finance
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@attribute [Authorize]
 
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["SnapshotsHistory"]</h1>
@@ -62,12 +65,23 @@ else
 
 @code {
     List<Snapshot>? _items;
+    int _familyId;
     
-    protected override async Task OnInitializedAsync() => _items = await Finance.GetSnapshotsAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+        _items = await Finance.GetSnapshotsAsync(_familyId);
+    }
     
     async Task Delete(int id)
     {
         await Finance.DeleteSnapshotAsync(id);
-        _items = await Finance.GetSnapshotsAsync();
+        _items = await Finance.GetSnapshotsAsync(_familyId);
     }
 }

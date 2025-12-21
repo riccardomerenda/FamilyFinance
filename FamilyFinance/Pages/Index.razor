@@ -1037,7 +1037,7 @@ else
     HashSet<int?> _expandedPortfolios = new(); // Track expanded portfolios (null = "No Portfolio")
     
     // Budget state
-    FinanceService.BudgetSummary? _budgetSummary;
+    BudgetSummary? _budgetSummary;
     
     // Import state
     ImportPreview? _importPreview;
@@ -1069,7 +1069,7 @@ else
             }
         }
         
-        _latest = await Finance.GetLatestSnapshotAsync();
+        _latest = await Finance.GetLatestSnapshotAsync(_familyId);
         if (_latest != null)
         {
             _t = await Finance.CalculateTotalsAsync(_latest);
@@ -1080,7 +1080,7 @@ else
 
     async Task BuildCharts()
     {
-        var all = await Finance.GetSnapshotsAsync();
+        var all = await Finance.GetSnapshotsAsync(_familyId);
         var full = new List<(string d, decimal v)>();
         foreach (var s in all.OrderBy(x => x.SnapshotDate))
         {
@@ -1139,7 +1139,7 @@ else
     {
         try
         {
-            var snapshots = await Finance.GetSnapshotsAsync();
+            var snapshots = await Finance.GetSnapshotsAsync(_familyId);
             var fullSnapshots = new List<object>();
             foreach (var s in snapshots) 
             { 
@@ -1158,9 +1158,9 @@ else
                 }
             }
             
-            var accounts = await Finance.GetAccountsAsync();
-            var goals = await Finance.GetGoalsAsync();
-            var portfolios = await Finance.GetPortfoliosAsync();
+            var accounts = await Finance.GetAccountsAsync(_familyId);
+            var goals = await Finance.GetGoalsAsync(_familyId);
+            var portfolios = await Finance.GetPortfoliosAsync(_familyId);
             var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
             
             var backup = new 
@@ -1189,7 +1189,7 @@ else
     {
         try
         {
-            var all = await Finance.GetSnapshotsAsync();
+            var all = await Finance.GetSnapshotsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
             
@@ -1213,7 +1213,7 @@ else
     {
         try
         {
-            var all = await Finance.GetSnapshotsAsync();
+            var all = await Finance.GetSnapshotsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
             
@@ -1244,7 +1244,7 @@ else
     {
         try
         {
-            var goals = await Finance.GetGoalsAsync();
+            var goals = await Finance.GetGoalsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
             
@@ -1296,7 +1296,7 @@ else
                 return;
             }
 
-            _importPreview = await Finance.PreviewImportAsync(backup);
+            _importPreview = await Finance.PreviewImportAsync(backup, _familyId);
         }
         catch (JsonException ex)
         {
@@ -1325,7 +1325,7 @@ else
             // Refresh data
             if (_importResult.Success)
             {
-                _latest = await Finance.GetLatestSnapshotAsync();
+                _latest = await Finance.GetLatestSnapshotAsync(_familyId);
                 if (_latest != null)
                 {
                     _t = await Finance.CalculateTotalsAsync(_latest);

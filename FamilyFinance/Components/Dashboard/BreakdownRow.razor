@@ -1,0 +1,52 @@
+@inject IStringLocalizer<SharedResource> L
+
+<div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg @BgColor flex items-center justify-center">
+            @switch (Icon)
+            {
+                case "wallet":
+                    <svg class="w-5 h-5 @Color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    break;
+                case "chart":
+                    <svg class="w-5 h-5 @Color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    break;
+                case "clock":
+                    <svg class="w-5 h-5 @Color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    break;
+                case "shield":
+                    <svg class="w-5 h-5 @Color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    break;
+            }
+        </div>
+        <div>
+            <span class="text-sm text-gray-600 dark:text-gray-400">@Label</span>
+            @if (CostBasis.HasValue && GainLoss.HasValue)
+            {
+                <p class="text-xs @(GainLoss.Value >= 0 ? "text-green-500" : "text-red-500")">
+                    @(GainLoss.Value >= 0 ? "+" : "")@GainLoss.Value.ToString("N0") € (@((GainLoss.Value / (CostBasis.Value == 0 ? 1 : CostBasis.Value) * 100).ToString("F1"))%)
+                </p>
+            }
+        </div>
+    </div>
+    <span class="font-semibold text-gray-800 dark:text-gray-200">@Value.ToString("N0") €</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter] public decimal Value { get; set; }
+    [Parameter] public string Color { get; set; } = "text-gray-500";
+    [Parameter] public string BgColor { get; set; } = "bg-gray-100";
+    [Parameter] public string Icon { get; set; } = "wallet";
+    [Parameter] public decimal? GainLoss { get; set; }
+    [Parameter] public decimal? CostBasis { get; set; }
+}
+

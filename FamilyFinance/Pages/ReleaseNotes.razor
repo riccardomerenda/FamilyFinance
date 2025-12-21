@@ -99,6 +99,35 @@
     {
         new ReleaseInfo
         {
+            Version = "2.2.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🏗️",
+            IsMajor = true,
+            Title = "Refactoring Architettura",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔧", "Architettura Servizi", new List<string>
+                {
+                    "Nuove interfacce service (ISnapshotService, IAccountService, etc.)",
+                    "Servizi domain-specific per ogni area funzionale",
+                    "FinanceService come facade per retrocompatibilità"
+                }),
+                new("🧩", "Componenti Dashboard", new List<string>
+                {
+                    "Nuovi componenti riutilizzabili (NetWorthCards, Charts, etc.)",
+                    "Migliore separazione delle responsabilità",
+                    "Codice più manutenibile e testabile"
+                }),
+                new("🗑️", "Pulizia Codice", new List<string>
+                {
+                    "Rimossi file demo (Counter, FetchData, Weather)",
+                    "Rimossi commenti superflui",
+                    "Multi-tenancy enforced con familyId obbligatorio"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.1.1",
             Date = new DateTime(2025, 12, 21),
             Emoji = "🔧",
@@ -224,6 +253,35 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "2.2.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🏗️",
+            IsMajor = true,
+            Title = "Architecture Refactoring",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔧", "Service Architecture", new List<string>
+                {
+                    "New service interfaces (ISnapshotService, IAccountService, etc.)",
+                    "Domain-specific services for each functional area",
+                    "FinanceService as facade for backward compatibility"
+                }),
+                new("🧩", "Dashboard Components", new List<string>
+                {
+                    "New reusable components (NetWorthCards, Charts, etc.)",
+                    "Better separation of concerns",
+                    "More maintainable and testable code"
+                }),
+                new("🗑️", "Code Cleanup", new List<string>
+                {
+                    "Removed demo files (Counter, FetchData, Weather)",
+                    "Removed unnecessary comments",
+                    "Multi-tenancy enforced with required familyId"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.1.1",

@@ -388,8 +388,8 @@
             if (user != null) _familyId = user.FamilyId;
         }
         
-        var accounts = await Finance.GetActiveAccountsAsync();
-        _portfolios = await Finance.GetPortfoliosAsync();
+        var accounts = await Finance.GetActiveAccountsAsync(_familyId);
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
         
         // Load budget categories
         var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
@@ -432,7 +432,7 @@
         }
         else
         {
-            var last = await Finance.GetLatestSnapshotAsync();
+            var last = await Finance.GetLatestSnapshotAsync(_familyId);
             if (last != null)
             {
                 _accRows = accounts.Select(a => {
@@ -467,7 +467,7 @@
         var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value, r.PortfolioId)).ToList();
         var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
 
-        var snapshotId = await Finance.SaveSnapshotAsync(Id, dateOnly, accs, invs, recs);
+        var snapshotId = await Finance.SaveSnapshotAsync(_familyId, Id, dateOnly, accs, invs, recs);
         
         // Save expenses
         if (_expenseRows.Any())

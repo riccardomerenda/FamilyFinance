@@ -1,6 +1,9 @@
 @page "/goals"
+@using System.Security.Claims
 @inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@attribute [Authorize]
 
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["FinancialGoals"]</h1>
@@ -249,11 +252,19 @@ else
     List<Goal> _goals = new();
     Goal? _editing;
     Totals? _t;
+    int _familyId;
 
     protected override async Task OnInitializedAsync()
     {
-        _goals = await Finance.GetGoalsAsync();
-        var l = await Finance.GetLatestSnapshotAsync();
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+        _goals = await Finance.GetGoalsAsync(_familyId);
+        var l = await Finance.GetLatestSnapshotAsync(_familyId);
         if (l != null) _t = await Finance.CalculateTotalsAsync(l);
     }
     
@@ -272,8 +283,8 @@ else
         return 0;
     }
     
-    void NewGoal() => _editing = new Goal();
-    void Edit(Goal g) => _editing = new Goal { Id = g.Id, Name = g.Name, Target = g.Target, AllocatedAmount = g.AllocatedAmount, Deadline = g.Deadline, Priority = g.Priority, Category = g.Category, ShowMonthlyTarget = g.ShowMonthlyTarget };
+    void NewGoal() => _editing = new Goal { FamilyId = _familyId };
+    void Edit(Goal g) => _editing = new Goal { Id = g.Id, Name = g.Name, Target = g.Target, AllocatedAmount = g.AllocatedAmount, Deadline = g.Deadline, Priority = g.Priority, Category = g.Category, ShowMonthlyTarget = g.ShowMonthlyTarget, FamilyId = g.FamilyId };
     
     async Task Save() 
     { 

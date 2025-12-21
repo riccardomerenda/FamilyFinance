@@ -2,6 +2,7 @@ using System.Globalization;
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
+using FamilyFinance.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -69,10 +70,18 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-// Services
-builder.Services.AddScoped<FinanceService>();
+// Services - Interfaces and Implementations
+builder.Services.AddScoped<ISnapshotService, SnapshotService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IGoalService, GoalService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
+builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<IImportExportService, ImportExportService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<LogService>();
+
+// Legacy facade (will be removed after full migration)
+builder.Services.AddScoped<FinanceService>();
 
 var app = builder.Build();
 

@@ -7,7 +7,7 @@ public class Account
     public AccountCategory Category { get; set; }
     public string Owner { get; set; } = "Famiglia";
     public bool IsActive { get; set; } = true;
-    public bool IsInterest { get; set; } = false; // Se true, appare nel tab Interessi
+    public bool IsInterest { get; set; } = false;
     
     // Family ownership
     public int FamilyId { get; set; }

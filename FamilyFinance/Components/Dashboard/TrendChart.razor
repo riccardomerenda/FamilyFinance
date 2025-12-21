@@ -1,0 +1,13 @@
+@inject IStringLocalizer<SharedResource> L
+
+<div class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["WealthTrend"]</h3>
+    <div class="h-64">
+        <Chart CanvasId="trend" Config="@Config" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public object Config { get; set; } = null!;
+}
+

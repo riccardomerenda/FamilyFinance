@@ -5,11 +5,11 @@ public class Goal
     public long Id { get; set; }
     public string Name { get; set; } = "";
     public decimal Target { get; set; }
-    public decimal AllocatedAmount { get; set; } // Importo allocato manualmente
+    public decimal AllocatedAmount { get; set; }
     public string Deadline { get; set; } = ""; 
     public GoalPriority Priority { get; set; } = GoalPriority.Medium;
     public GoalCategory Category { get; set; } = GoalCategory.Liquidity;
-    public bool ShowMonthlyTarget { get; set; } = true; // Mostra proiezione mensile
+    public bool ShowMonthlyTarget { get; set; } = true;
     
     // Family ownership
     public int FamilyId { get; set; }

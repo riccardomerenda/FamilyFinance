@@ -7,6 +7,35 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.2.0] - 2025-12-21
+
+### 🏗️ Refactoring - Architettura Servizi
+
+Ristrutturazione completa dell'architettura per migliorare manutenibilità e testabilità.
+
+### Aggiunto
+
+#### Architettura
+- **Interfacce Service**: `ISnapshotService`, `IAccountService`, `IGoalService`, `IPortfolioService`, `IBudgetService`, `IImportExportService`
+- **Servizi Domain-Specific**: Ogni dominio ha il proprio servizio dedicato
+- **Componenti Dashboard**: Nuovi componenti riutilizzabili (`NetWorthCards`, `TrendChart`, `CompositionChart`, `BreakdownCard`, `BudgetSummaryCard`, `GoalsSummaryCard`)
+
+#### Multi-tenancy
+- Tutti i metodi ora richiedono `familyId` per isolamento dati completo
+- Filtri automatici per famiglia in tutte le query
+
+### Rimosso
+- File demo: `Counter.razor`, `FetchData.razor`, `WeatherForecast.cs`, `WeatherForecastService.cs`
+- Commenti superflui in italiano nel codice
+- Cartella vuota `Pages/Auth/`
+
+### Modificato
+- `FinanceService` ora è un facade che delega ai servizi specifici
+- `Program.cs` con nuova registrazione DI per interfacce e implementazioni
+- `_Imports.razor` include nuovi namespace
+
+---
+
 ## [2.1.1] - 2025-12-21
 
 ### 🔧 Fix - Export/Import Budget & Spese
