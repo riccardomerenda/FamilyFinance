@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using System.Text
 @using System.Text.Json
+@using System.IO
+@using Microsoft.AspNetCore.Components.Forms
 @inject FinanceService Finance
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
@@ -433,6 +435,183 @@ else
     @if (Tab == "exp")
     {
         <div class="max-w-4xl mx-auto">
+            <!-- Import Section -->
+            <div class="mb-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">@L["ImportData"]</h3>
+                        <p class="text-emerald-100 text-sm">@L["ImportDataDesc"]</p>
+                    </div>
+                </div>
+                
+                @if (_importPreview == null && _importResult == null)
+                {
+                    <label class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        @L["SelectBackupFile"]
+                        <InputFile OnChange="OnFileSelected" accept=".json" class="hidden" />
+                    </label>
+                }
+                
+                @if (_importPreview != null)
+                {
+                    <!-- Preview -->
+                    <div class="bg-white/10 rounded-xl p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-medium">@L["BackupPreview"]</span>
+                            @if (_importPreview.ExportDate.HasValue)
+                            {
+                                <span class="text-sm text-emerald-200">@_importPreview.ExportDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                            }
+                        </div>
+                        
+                        @if (!_importPreview.IsValid)
+                        {
+                            <div class="bg-red-500/20 border border-red-300/30 rounded-lg p-3 text-sm">
+                                ⚠️ @_importPreview.Error
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                <div class="bg-white/10 rounded-lg p-3">
+                                    <p class="text-emerald-200">@L["Accounts"]</p>
+                                    <p class="text-lg font-bold">@_importPreview.TotalAccounts</p>
+                                    <p class="text-xs text-emerald-200">
+                                        <span class="text-green-300">+@_importPreview.NewAccounts @L["New"]</span>
+                                        @if (_importPreview.ExistingAccounts > 0) { <span> · @_importPreview.ExistingAccounts @L["Existing"]</span> }
+                                    </p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-3">
+                                    <p class="text-emerald-200">@L["Portfolios"]</p>
+                                    <p class="text-lg font-bold">@_importPreview.TotalPortfolios</p>
+                                    <p class="text-xs text-emerald-200">
+                                        <span class="text-green-300">+@_importPreview.NewPortfolios @L["New"]</span>
+                                        @if (_importPreview.ExistingPortfolios > 0) { <span> · @_importPreview.ExistingPortfolios @L["Existing"]</span> }
+                                    </p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-3">
+                                    <p class="text-emerald-200">@L["Goals"]</p>
+                                    <p class="text-lg font-bold">@_importPreview.TotalGoals</p>
+                                    <p class="text-xs text-emerald-200">
+                                        <span class="text-green-300">+@_importPreview.NewGoals @L["New"]</span>
+                                        @if (_importPreview.ExistingGoals > 0) { <span> · @_importPreview.ExistingGoals @L["Existing"]</span> }
+                                    </p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-3">
+                                    <p class="text-emerald-200">@L["Snapshots"]</p>
+                                    <p class="text-lg font-bold">@_importPreview.TotalSnapshots</p>
+                                    <p class="text-xs text-emerald-200">
+                                        <span class="text-green-300">+@_importPreview.NewSnapshots @L["New"]</span>
+                                        @if (_importPreview.ExistingSnapshots > 0) { <span> · @_importPreview.ExistingSnapshots @L["Existing"]</span> }
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Import Options -->
+                            <div class="mt-4 space-y-3">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" @bind="_replaceExisting" class="w-5 h-5 rounded border-white/30 bg-white/10 text-emerald-400 focus:ring-emerald-400" />
+                                    <span class="text-sm">@L["ReplaceExisting"]</span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        @if (_importPreview.IsValid)
+                        {
+                            <button @onclick="ExecuteImport" disabled="@_isImporting" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all disabled:opacity-50">
+                                @if (_isImporting)
+                                {
+                                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>@L["Importing"]...</span>
+                                }
+                                else
+                                {
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>@L["ConfirmImport"]</span>
+                                }
+                            </button>
+                        }
+                        <button @onclick="CancelImport" class="px-4 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all">
+                            @L["Cancel"]
+                        </button>
+                    </div>
+                }
+                
+                @if (_importResult != null)
+                {
+                    <!-- Result -->
+                    <div class="@(_importResult.Success ? "bg-white/10" : "bg-red-500/20") rounded-xl p-4">
+                        @if (_importResult.Success)
+                        {
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-green-400 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">@L["ImportSuccess"]</p>
+                                    <p class="text-sm text-emerald-200">@L["ImportSuccessDesc"]</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 text-center text-sm">
+                                <div class="bg-white/10 rounded-lg p-2">
+                                    <p class="text-lg font-bold">@_importResult.AccountsImported</p>
+                                    <p class="text-xs text-emerald-200">@L["Accounts"]</p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-2">
+                                    <p class="text-lg font-bold">@_importResult.PortfoliosImported</p>
+                                    <p class="text-xs text-emerald-200">@L["Portfolios"]</p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-2">
+                                    <p class="text-lg font-bold">@_importResult.GoalsImported</p>
+                                    <p class="text-xs text-emerald-200">@L["Goals"]</p>
+                                </div>
+                                <div class="bg-white/10 rounded-lg p-2">
+                                    <p class="text-lg font-bold">@_importResult.SnapshotsImported</p>
+                                    <p class="text-xs text-emerald-200">@L["Snapshots"]</p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">@L["ImportError"]</p>
+                                    <p class="text-sm">@_importResult.Error</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <button @onclick="ResetImport" class="mt-3 w-full px-4 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all">
+                        @L["Close"]
+                    </button>
+                }
+            </div>
+            
+            <!-- Export Section Header -->
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">@L["ExportData"]</h2>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Full Backup -->
                 <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
@@ -581,6 +760,12 @@ else
     object _trendConfig = new { }, _compConfig = new { }, _invPieConfig = new { }, _intBarConfig = new { };
     HashSet<int?> _expandedPortfolios = new(); // Track expanded portfolios (null = "No Portfolio")
     
+    // Import state
+    ImportPreview? _importPreview;
+    ImportResult? _importResult;
+    bool _replaceExisting = false;
+    bool _isImporting = false;
+    
     void TogglePortfolio(int? portfolioId)
     {
         if (_expandedPortfolios.Contains(portfolioId))
@@ -658,89 +843,218 @@ else
 
     async Task ExportFullBackup()
     {
-        var snapshots = await Finance.GetSnapshotsAsync();
-        var fullSnapshots = new List<object>();
-        foreach (var s in snapshots) 
-        { 
-            var snap = await Finance.GetSnapshotAsync(s.Id); 
-            if (snap != null) fullSnapshots.Add(snap); 
+        try
+        {
+            var snapshots = await Finance.GetSnapshotsAsync();
+            var fullSnapshots = new List<object>();
+            foreach (var s in snapshots) 
+            { 
+                var snap = await Finance.GetSnapshotAsync(s.Id); 
+                if (snap != null)
+                {
+                    fullSnapshots.Add(new
+                    {
+                        snap.Id,
+                        Date = snap.SnapshotDate.ToString("yyyy-MM-dd"),
+                        Lines = snap.Lines.Select(l => new { l.AccountId, AccountName = l.Account.Name, l.Amount, l.ContributionBasis }),
+                        Investments = snap.Investments.Select(i => new { i.Name, i.CostBasis, i.Value, i.PortfolioId, PortfolioName = i.Portfolio?.Name }),
+                        Receivables = snap.Receivables.Select(r => new { r.Description, r.Amount, Status = r.Status.ToString() })
+                    });
+                }
+            }
+            
+            var accounts = await Finance.GetAccountsAsync();
+            var goals = await Finance.GetGoalsAsync();
+            var portfolios = await Finance.GetPortfoliosAsync();
+            
+            var backup = new 
+            { 
+                ExportDate = DateTime.UtcNow,
+                Version = "1.0",
+                Accounts = accounts.Select(a => new { a.Id, a.Name, Category = a.Category.ToString(), a.Owner, a.IsInterest, a.IsActive }),
+                Portfolios = portfolios.Select(p => new { p.Id, p.Name, p.Description, p.TimeHorizonYears, p.TargetYear, p.Color, p.IsActive }),
+                Goals = goals.Select(g => new { g.Id, g.Name, g.Target, g.AllocatedAmount, g.Deadline, Priority = g.Priority.ToString(), Category = g.Category.ToString(), g.ShowMonthlyTarget }),
+                Snapshots = fullSnapshots
+            };
+            
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(backup, options);
+            var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+            await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
         }
-        
-        var accounts = await Finance.GetAccountsAsync();
-        var goals = await Finance.GetGoalsAsync();
-        var portfolios = await Finance.GetPortfoliosAsync();
-        
-        var backup = new 
-        { 
-            ExportDate = DateTime.UtcNow,
-            Version = "1.0",
-            Accounts = accounts,
-            Portfolios = portfolios,
-            Goals = goals,
-            Snapshots = fullSnapshots
-        };
-        
-        var options = new JsonSerializerOptions { WriteIndented = true };
-        var json = JsonSerializer.Serialize(backup, options);
-        var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-        await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
     }
 
     async Task ExportCsv()
     {
-        var all = await Finance.GetSnapshotsAsync();
-        var sb = new StringBuilder();
-        sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
-        
-        foreach (var s in all.OrderBy(x => x.SnapshotDate))
+        try
         {
-            var sn = await Finance.GetSnapshotAsync(s.Id);
-            var t = await Finance.CalculateTotalsAsync(sn!);
-            sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.InterestLiquidity},{t.InvestmentsCost},{t.InvestmentsValue},{t.InvestmentsGainLoss},{t.CreditsOpen},{t.PensionInsuranceContrib},{t.PensionInsuranceValue},{t.PensionInsuranceGainLoss},{t.CurrentTotal},{t.ProjectedTotal},{t.GrandTotal}");
+            var all = await Finance.GetSnapshotsAsync();
+            var sb = new StringBuilder();
+            sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
+            
+            foreach (var s in all.OrderBy(x => x.SnapshotDate))
+            {
+                var sn = await Finance.GetSnapshotAsync(s.Id);
+                var t = await Finance.CalculateTotalsAsync(sn!);
+                sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.InterestLiquidity},{t.InvestmentsCost},{t.InvestmentsValue},{t.InvestmentsGainLoss},{t.CreditsOpen},{t.PensionInsuranceContrib},{t.PensionInsuranceValue},{t.PensionInsuranceGainLoss},{t.CurrentTotal},{t.ProjectedTotal},{t.GrandTotal}");
+            }
+            
+            var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
         }
-        
-        var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
-        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
     }
 
     async Task ExportInvestmentsCsv()
     {
-        var all = await Finance.GetSnapshotsAsync();
-        var sb = new StringBuilder();
-        sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
-        
-        foreach (var s in all.OrderBy(x => x.SnapshotDate))
+        try
         {
-            var sn = await Finance.GetSnapshotAsync(s.Id);
-            if (sn == null) continue;
+            var all = await Finance.GetSnapshotsAsync();
+            var sb = new StringBuilder();
+            sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
             
-            foreach (var inv in sn.Investments)
+            foreach (var s in all.OrderBy(x => x.SnapshotDate))
             {
-                var gl = inv.Value - inv.CostBasis;
-                var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
-                var portfolioName = inv.Portfolio?.Name ?? "Non categorizzato";
-                sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{portfolioName},{inv.Name},{inv.CostBasis},{inv.Value},{gl},{pct:F2}");
+                var sn = await Finance.GetSnapshotAsync(s.Id);
+                if (sn == null) continue;
+                
+                foreach (var inv in sn.Investments)
+                {
+                    var gl = inv.Value - inv.CostBasis;
+                    var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
+                    var portfolioName = inv.Portfolio?.Name ?? "Non categorizzato";
+                    sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{portfolioName},{inv.Name},{inv.CostBasis},{inv.Value},{gl},{pct:F2}");
+                }
             }
+            
+            var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
         }
-        
-        var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
-        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
     }
 
     async Task ExportGoalsCsv()
     {
-        var goals = await Finance.GetGoalsAsync();
-        var sb = new StringBuilder();
-        sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
-        
-        foreach (var g in goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
+        try
         {
-            var completed = g.IsCompleted ? "Sì" : "No";
-            var priority = g.Priority.ToString();
-            sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.Deadline},{priority},{completed}");
+            var goals = await Finance.GetGoalsAsync();
+            var sb = new StringBuilder();
+            sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
+            
+            foreach (var g in goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
+            {
+                var completed = g.IsCompleted ? "Sì" : "No";
+                var priority = g.Priority.ToString();
+                sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.Deadline},{priority},{completed}");
+            }
+            
+            var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
+    }
+
+    // Import methods
+    async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file == null)
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "Nessun file selezionato" };
+                return;
+            }
+
+            // Read file content (max 10MB)
+            using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var reader = new StreamReader(stream);
+            var fileContent = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrEmpty(fileContent))
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "File vuoto o non leggibile" };
+                return;
+            }
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var backup = JsonSerializer.Deserialize<BackupDto>(fileContent, options);
+            
+            if (backup == null)
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "Formato file non valido" };
+                return;
+            }
+
+            _importPreview = await Finance.PreviewImportAsync(backup);
+        }
+        catch (JsonException ex)
+        {
+            _importPreview = new ImportPreview { IsValid = false, Error = $"Errore parsing JSON: {ex.Message}" };
+        }
+        catch (Exception ex)
+        {
+            _importPreview = new ImportPreview { IsValid = false, Error = ex.Message };
         }
         
-        var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
-        await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+        StateHasChanged();
+    }
+
+    async Task ExecuteImport()
+    {
+        if (_importPreview?.Data == null) return;
+        
+        _isImporting = true;
+        StateHasChanged();
+        
+        try
+        {
+            _importResult = await Finance.ImportDataAsync(_importPreview.Data, _replaceExisting);
+            _importPreview = null;
+            
+            // Refresh data
+            if (_importResult.Success)
+            {
+                _latest = await Finance.GetLatestSnapshotAsync();
+                if (_latest != null)
+                {
+                    _t = await Finance.CalculateTotalsAsync(_latest);
+                    await BuildCharts();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _importResult = new ImportResult { Success = false, Error = ex.Message };
+        }
+        finally
+        {
+            _isImporting = false;
+        }
+    }
+
+    void CancelImport()
+    {
+        _importPreview = null;
+        _replaceExisting = false;
+    }
+
+    void ResetImport()
+    {
+        _importResult = null;
+        _replaceExisting = false;
     }
 }

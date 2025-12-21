@@ -188,5 +188,20 @@
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="Italian" xml:space="preserve"><value>Italiano</value></data>
   <data name="English" xml:space="preserve"><value>English</value></data>
+
+  <!-- Import -->
+  <data name="ImportData" xml:space="preserve"><value>Import Data</value></data>
+  <data name="ImportDataDesc" xml:space="preserve"><value>Restore data from a JSON backup</value></data>
+  <data name="SelectBackupFile" xml:space="preserve"><value>Select Backup File</value></data>
+  <data name="BackupPreview" xml:space="preserve"><value>Backup Preview</value></data>
+  <data name="New" xml:space="preserve"><value>new</value></data>
+  <data name="Existing" xml:space="preserve"><value>existing</value></data>
+  <data name="ReplaceExisting" xml:space="preserve"><value>Replace existing data (update with backup values)</value></data>
+  <data name="Importing" xml:space="preserve"><value>Importing</value></data>
+  <data name="ConfirmImport" xml:space="preserve"><value>Confirm Import</value></data>
+  <data name="ImportSuccess" xml:space="preserve"><value>Import completed!</value></data>
+  <data name="ImportSuccessDesc" xml:space="preserve"><value>Data has been imported successfully.</value></data>
+  <data name="ImportError" xml:space="preserve"><value>Import error</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
 </root>
 
