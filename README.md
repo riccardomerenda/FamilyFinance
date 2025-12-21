@@ -81,8 +81,8 @@ A comprehensive **family wealth management application** built with Blazor Serve
 
 ```bash
 # Clone the repository
-git clone https://github.com/riccardomerenda/FamilyBalance.git
-cd FamilyBalance
+git clone https://github.com/riccardomerenda/FamilyFinance.git
+cd FamilyFinance
 
 # Run the application
 cd FamilyFinance
@@ -117,8 +117,8 @@ curl -L https://fly.io/install.sh | sh
 fly auth signup
 
 # Clone and deploy
-git clone https://github.com/riccardomerenda/FamilyBalance.git
-cd FamilyBalance
+git clone https://github.com/riccardomerenda/FamilyFinance.git
+cd FamilyFinance
 
 # Create app and volume
 fly apps create your-app-name
@@ -198,8 +198,8 @@ Access at **http://localhost:5044**
 ## 🏗️ Project Structure
 
 ```
-FamilyBalance/
-├── FamilyBalance.sln          # Solution file
+FamilyFinance/
+├── FamilyFinance.sln          # Solution file
 ├── README.md
 ├── LICENSE
 ├── CONTRIBUTING.md
@@ -247,8 +247,8 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 
 ```bash
 # Clone your fork
-git clone https://github.com/riccardomerenda/FamilyBalance.git
-cd FamilyBalance
+git clone https://github.com/riccardomerenda/FamilyFinance.git
+cd FamilyFinance
 
 # Create a branch
 git checkout -b feature/amazing-feature

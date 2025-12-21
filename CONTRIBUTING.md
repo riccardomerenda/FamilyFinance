@@ -84,8 +84,8 @@ Use the [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md) wh
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/FamilyBalance.git
-cd FamilyBalance
+git clone https://github.com/YOUR_USERNAME/FamilyFinance.git
+cd FamilyFinance
 
 # Restore dependencies
 dotnet restore
