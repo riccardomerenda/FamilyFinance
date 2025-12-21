@@ -7,6 +7,29 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.1.1] - 2025-12-21
+
+### 🔧 Fix - Export/Import Budget & Spese
+
+Correzione per includere le categorie budget e le spese mensili nel sistema di backup.
+
+### Corretto
+
+- **Export JSON**: Ora include `BudgetCategories` e `MonthlyExpenses` per ogni snapshot
+- **Import Preview**: Mostra il conteggio delle categorie budget (nuove/esistenti)
+- **Import**: Importa le categorie budget con mappatura ID corretta
+- **Import**: Importa le spese mensili per ogni snapshot
+- Versione formato backup aggiornata a `2.0`
+
+### Modificato
+
+- `BackupDto`: Aggiunti `BudgetCategoryDto` e `MonthlyExpenseDto`
+- `SnapshotDto`: Aggiunta lista `MonthlyExpenses`
+- `ImportPreview`: Aggiunti contatori categorie budget
+- `ImportResult`: Aggiunto `BudgetCategoriesImported`
+
+---
+
 ## [2.1.0] - 2025-12-21
 
 ### ✨ Nuova Funzionalità - Budget & Spese Mensili
