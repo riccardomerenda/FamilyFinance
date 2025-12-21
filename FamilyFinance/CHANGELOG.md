@@ -7,6 +7,21 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.7.3] - 2025-12-21
+
+### 🐛 Bug Fix - Privacy Page Navigation
+
+Il link in fondo alla pagina Privacy ora è contestuale.
+
+### Corretto
+- **Link dinamico**: Se l'utente è loggato, mostra "Torna all'App" (→ Dashboard)
+- **Link dinamico**: Se non loggato, mostra "Torna al Login" (→ Login page)
+
+### Aggiunto
+- Nuova stringa localizzata `BackToApp` (IT/EN)
+
+---
+
 ## [2.7.2] - 2025-12-21
 
 ### 🌍 Localization - Privacy Policy
