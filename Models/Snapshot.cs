@@ -9,6 +9,7 @@ public class Snapshot
     public List<SnapshotLine> Lines { get; set; } = new();
     public List<InvestmentAsset> Investments { get; set; } = new();
     public List<Receivable> Receivables { get; set; } = new();
+    public List<MonthlyExpense> Expenses { get; set; } = new();
     
     // Family ownership
     public int FamilyId { get; set; }

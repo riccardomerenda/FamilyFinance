@@ -99,6 +99,31 @@
     {
         new ReleaseInfo
         {
+            Version = "2.1.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "💰",
+            IsMajor = false,
+            Title = "Budget & Spese Mensili",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "Sistema Budget", new List<string>
+                {
+                    "Nuova pagina Gestione Budget per categorie di spesa",
+                    "Categorie predefinite con un click (Casa, Alimentari, Trasporti...)",
+                    "Budget mensile configurabile per categoria",
+                    "Icone emoji e colori personalizzabili"
+                }),
+                new("💳", "Tracciamento Spese", new List<string>
+                {
+                    "Sezione Spese del Mese nello SnapshotEdit",
+                    "Barra di progresso per ogni categoria",
+                    "Evidenziazione visiva quando si supera il budget",
+                    "Tab Budget nella Dashboard con riepilogo"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.0.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "🎉",
@@ -181,6 +206,31 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "2.1.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "💰",
+            IsMajor = false,
+            Title = "Budget & Monthly Expenses",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "Budget System", new List<string>
+                {
+                    "New Budget Management page for expense categories",
+                    "Default categories with one click (Housing, Groceries, Transport...)",
+                    "Configurable monthly budget per category",
+                    "Customizable emoji icons and colors"
+                }),
+                new("💳", "Expense Tracking", new List<string>
+                {
+                    "Monthly Expenses section in SnapshotEdit",
+                    "Progress bar for each category",
+                    "Visual highlight when over budget",
+                    "Budget tab in Dashboard with summary"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.0.0",

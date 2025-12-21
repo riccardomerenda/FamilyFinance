@@ -66,7 +66,7 @@ public class FinanceService
             interestLiquidity));
     }
 
-    public async Task SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
+    public async Task<int> SaveSnapshotAsync(int? snapshotId, DateOnly date, List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
         List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)> investments,
         List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
     {
@@ -104,6 +104,7 @@ public class FinanceService
             .Select(r => new Receivable { SnapshotId = snapshot.Id, Description = r.Description.Trim(), Amount = r.Amount, Status = r.Status, ExpectedDate = r.ExpectedDate }).ToList();
 
         await _db.SaveChangesAsync();
+        return snapshot.Id;
     }
 
     public async Task DeleteSnapshotAsync(int id) {
@@ -512,6 +513,8 @@ public class FinanceService
     public async Task ClearAllDataAsync()
     {
         // Delete all data in correct order (respect FK constraints)
+        _db.MonthlyExpenses.RemoveRange(_db.MonthlyExpenses);
+        _db.BudgetCategories.RemoveRange(_db.BudgetCategories);
         _db.Receivables.RemoveRange(_db.Receivables);
         _db.InvestmentAssets.RemoveRange(_db.InvestmentAssets);
         _db.SnapshotLines.RemoveRange(_db.SnapshotLines);
@@ -520,5 +523,191 @@ public class FinanceService
         _db.Portfolios.RemoveRange(_db.Portfolios);
         _db.Accounts.RemoveRange(_db.Accounts);
         await _db.SaveChangesAsync();
+    }
+
+    // ========== Budget Categories ==========
+    
+    public async Task<List<BudgetCategory>> GetBudgetCategoriesAsync(int familyId)
+        => await _db.BudgetCategories
+            .Where(c => c.FamilyId == familyId && c.IsActive)
+            .OrderBy(c => c.SortOrder)
+            .ThenBy(c => c.Name)
+            .ToListAsync();
+
+    public async Task<BudgetCategory?> GetBudgetCategoryAsync(int id)
+        => await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Id == id);
+
+    public async Task SaveBudgetCategoryAsync(BudgetCategory category)
+    {
+        if (category.Id == 0)
+        {
+            // Set sort order to last
+            var maxOrder = await _db.BudgetCategories
+                .Where(c => c.FamilyId == category.FamilyId)
+                .MaxAsync(c => (int?)c.SortOrder) ?? 0;
+            category.SortOrder = maxOrder + 1;
+            _db.BudgetCategories.Add(category);
+        }
+        else
+        {
+            var existing = await _db.BudgetCategories.FindAsync(category.Id);
+            if (existing != null)
+            {
+                existing.Name = category.Name;
+                existing.Icon = category.Icon;
+                existing.Color = category.Color;
+                existing.MonthlyBudget = category.MonthlyBudget;
+                existing.SortOrder = category.SortOrder;
+                existing.IsActive = category.IsActive;
+            }
+        }
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeleteBudgetCategoryAsync(int id)
+    {
+        var category = await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Id == id);
+        if (category != null)
+        {
+            category.IsActive = false; // Soft delete
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    public List<BudgetCategory> GetDefaultBudgetCategories()
+    {
+        // Return a list of common budget categories for initial setup
+        return new List<BudgetCategory>
+        {
+            new() { Name = "Casa/Affitto", Icon = "🏠", Color = "#6366f1", MonthlyBudget = 0 },
+            new() { Name = "Alimentari", Icon = "🛒", Color = "#10b981", MonthlyBudget = 0 },
+            new() { Name = "Trasporti", Icon = "🚗", Color = "#f59e0b", MonthlyBudget = 0 },
+            new() { Name = "Utenze", Icon = "⚡", Color = "#ef4444", MonthlyBudget = 0 },
+            new() { Name = "Svago", Icon = "🎭", Color = "#8b5cf6", MonthlyBudget = 0 },
+            new() { Name = "Salute", Icon = "🏥", Color = "#ec4899", MonthlyBudget = 0 },
+            new() { Name = "Abbigliamento", Icon = "👕", Color = "#06b6d4", MonthlyBudget = 0 },
+            new() { Name = "Ristoranti", Icon = "🍕", Color = "#f97316", MonthlyBudget = 0 },
+            new() { Name = "Abbonamenti", Icon = "📱", Color = "#14b8a6", MonthlyBudget = 0 },
+            new() { Name = "Altro", Icon = "💰", Color = "#6b7280", MonthlyBudget = 0 }
+        };
+    }
+
+    public async Task InitializeBudgetCategoriesAsync(int familyId)
+    {
+        // Check if family already has categories
+        var existingCount = await _db.BudgetCategories.CountAsync(c => c.FamilyId == familyId);
+        if (existingCount > 0) return;
+
+        var defaults = GetDefaultBudgetCategories();
+        var order = 1;
+        foreach (var cat in defaults)
+        {
+            cat.FamilyId = familyId;
+            cat.SortOrder = order++;
+            _db.BudgetCategories.Add(cat);
+        }
+        await _db.SaveChangesAsync();
+    }
+
+    // ========== Monthly Expenses ==========
+
+    public async Task<List<MonthlyExpense>> GetMonthlyExpensesAsync(int snapshotId)
+        => await _db.MonthlyExpenses
+            .Include(e => e.Category)
+            .Where(e => e.SnapshotId == snapshotId)
+            .OrderBy(e => e.Category!.SortOrder)
+            .ToListAsync();
+
+    public async Task SaveMonthlyExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses)
+    {
+        // Get existing expenses for this snapshot
+        var existing = await _db.MonthlyExpenses
+            .Where(e => e.SnapshotId == snapshotId)
+            .ToListAsync();
+
+        foreach (var (categoryId, amount, notes) in expenses)
+        {
+            var expense = existing.FirstOrDefault(e => e.CategoryId == categoryId);
+            if (expense != null)
+            {
+                expense.Amount = amount;
+                expense.Notes = notes;
+            }
+            else if (amount > 0) // Only add if there's an amount
+            {
+                _db.MonthlyExpenses.Add(new MonthlyExpense
+                {
+                    SnapshotId = snapshotId,
+                    CategoryId = categoryId,
+                    Amount = amount,
+                    Notes = notes
+                });
+            }
+        }
+
+        // Remove expenses with 0 amount
+        var toRemove = existing.Where(e => expenses.Any(x => x.CategoryId == e.CategoryId && x.Amount == 0));
+        _db.MonthlyExpenses.RemoveRange(toRemove);
+
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task<decimal> GetTotalExpensesForSnapshotAsync(int snapshotId)
+        => await _db.MonthlyExpenses
+            .Where(e => e.SnapshotId == snapshotId)
+            .SumAsync(e => e.Amount);
+
+    public async Task<decimal> GetTotalBudgetAsync(int familyId)
+        => await _db.BudgetCategories
+            .Where(c => c.FamilyId == familyId && c.IsActive)
+            .SumAsync(c => c.MonthlyBudget);
+
+    public record BudgetSummary(
+        decimal TotalBudget,
+        decimal TotalSpent,
+        decimal Difference,
+        decimal PercentUsed,
+        List<CategorySummary> Categories
+    );
+
+    public record CategorySummary(
+        int Id,
+        string Name,
+        string Icon,
+        string Color,
+        decimal Budget,
+        decimal Spent,
+        decimal Difference,
+        decimal PercentUsed,
+        bool IsOverBudget
+    );
+
+    public async Task<BudgetSummary> GetBudgetSummaryAsync(int snapshotId, int familyId)
+    {
+        var categories = await _db.BudgetCategories
+            .Where(c => c.FamilyId == familyId && c.IsActive)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync();
+
+        var expenses = await _db.MonthlyExpenses
+            .Where(e => e.SnapshotId == snapshotId)
+            .ToListAsync();
+
+        var categorySummaries = categories.Select(c =>
+        {
+            var spent = expenses.FirstOrDefault(e => e.CategoryId == c.Id)?.Amount ?? 0;
+            var diff = c.MonthlyBudget - spent;
+            var pct = c.MonthlyBudget > 0 ? (spent / c.MonthlyBudget) * 100 : 0;
+            return new CategorySummary(
+                c.Id, c.Name, c.Icon, c.Color, c.MonthlyBudget, spent, diff, pct, spent > c.MonthlyBudget && c.MonthlyBudget > 0
+            );
+        }).ToList();
+
+        var totalBudget = categories.Sum(c => c.MonthlyBudget);
+        var totalSpent = expenses.Sum(e => e.Amount);
+        var totalDiff = totalBudget - totalSpent;
+        var totalPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+
+        return new BudgetSummary(totalBudget, totalSpent, totalDiff, totalPct, categorySummaries);
     }
 }

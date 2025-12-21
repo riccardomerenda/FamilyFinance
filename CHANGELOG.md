@@ -7,6 +7,36 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.1.0] - 2025-12-21
+
+### ✨ Nuova Funzionalità - Budget & Spese Mensili
+
+Questa versione introduce il sistema di tracciamento budget e spese mensili.
+
+### Aggiunto
+
+#### Budget & Spese
+- Nuova pagina **Gestione Budget** (`/budget`) per configurare le categorie di spesa
+- Categorie predefinite inizializzabili con un click (Casa, Alimentari, Trasporti, Utenze, etc.)
+- Budget mensile configurabile per ogni categoria
+- Icone emoji e colori personalizzabili per le categorie
+- Sezione **Spese del Mese** integrata nello SnapshotEdit
+- Barra di progresso per ogni categoria rispetto al budget
+- Evidenziazione visiva quando si supera il budget
+- Nuovo tab **Budget** nella Dashboard con riepilogo spese vs budget
+- Visualizzazione percentuale di utilizzo del budget
+
+#### UI Improvements
+- Link "Budget" nella navigazione principale
+- Card riassuntive: Budget Totale, Speso, Rimanente, % Utilizzato
+- Breakdown dettagliato per categoria con barre di progresso
+
+### Modificato
+- SnapshotEdit ora include sezione spese integrate
+- SaveSnapshotAsync ora ritorna l'ID dello snapshot per salvare le spese correlate
+
+---
+
 ## [2.0.0] - 2025-12-21
 
 ### 🎉 Major Release - Autenticazione e Multi-Famiglia
@@ -122,4 +152,5 @@ Prima versione dell'applicazione FamilyFinance.
 - 🐛 Bug fix
 - ⚠️ Deprecato
 - 🗑️ Rimosso
+
 

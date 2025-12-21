@@ -12,5 +12,6 @@ public class Family
     public List<Snapshot> Snapshots { get; set; } = new();
     public List<Goal> Goals { get; set; } = new();
     public List<Portfolio> Portfolios { get; set; } = new();
+    public List<BudgetCategory> BudgetCategories { get; set; } = new();
 }
 

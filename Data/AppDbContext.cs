@@ -15,6 +15,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Receivable> Receivables => Set<Receivable>();
     public DbSet<Goal> Goals => Set<Goal>();
     public DbSet<Portfolio> Portfolios => Set<Portfolio>();
+    public DbSet<BudgetCategory> BudgetCategories => Set<BudgetCategory>();
+    public DbSet<MonthlyExpense> MonthlyExpenses => Set<MonthlyExpense>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -64,5 +66,27 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .WithMany(f => f.Portfolios)
             .HasForeignKey(p => p.FamilyId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<BudgetCategory>()
+            .HasOne(b => b.Family)
+            .WithMany(f => f.BudgetCategories)
+            .HasForeignKey(b => b.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MonthlyExpense>()
+            .HasOne(e => e.Snapshot)
+            .WithMany(s => s.Expenses)
+            .HasForeignKey(e => e.SnapshotId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MonthlyExpense>()
+            .HasOne(e => e.Category)
+            .WithMany(c => c.Expenses)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict); // Don't delete expenses when category is deleted
+
+        modelBuilder.Entity<MonthlyExpense>()
+            .HasIndex(e => new { e.SnapshotId, e.CategoryId })
+            .IsUnique(); // One expense per category per snapshot
     }
 }

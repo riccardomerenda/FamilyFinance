@@ -240,5 +240,35 @@
   <data name="ReleaseNotes" xml:space="preserve"><value>Release Notes</value></data>
   <data name="VersionHistory" xml:space="preserve"><value>Version history and updates</value></data>
   <data name="MajorRelease" xml:space="preserve"><value>Major Release</value></data>
+
+  <!-- Budget -->
+  <data name="Budget" xml:space="preserve"><value>Budget</value></data>
+  <data name="BudgetManagement" xml:space="preserve"><value>Budget Management</value></data>
+  <data name="BudgetManagementDesc" xml:space="preserve"><value>Configure expense categories and monthly limits</value></data>
+  <data name="NewCategory" xml:space="preserve"><value>New Category</value></data>
+  <data name="EditCategory" xml:space="preserve"><value>Edit Category</value></data>
+  <data name="NoBudgetCategories" xml:space="preserve"><value>No categories configured</value></data>
+  <data name="NoBudgetCategoriesDesc" xml:space="preserve"><value>Start by creating expense categories to track your monthly budget</value></data>
+  <data name="InitializeDefaultCategories" xml:space="preserve"><value>Initialize Default Categories</value></data>
+  <data name="ExpenseCategories" xml:space="preserve"><value>Expense Categories</value></data>
+  <data name="MonthlyBudget" xml:space="preserve"><value>Monthly Budget</value></data>
+  <data name="MonthlyBudgetHint" xml:space="preserve"><value>Leave 0 if you don't want to set a limit</value></data>
+  <data name="NoBudgetSet" xml:space="preserve"><value>No limit set</value></data>
+  <data name="TotalMonthlyBudget" xml:space="preserve"><value>Total Monthly Budget</value></data>
+  <data name="CategoriesCount" xml:space="preserve"><value>Categories Count</value></data>
+  <data name="AveragePerCategory" xml:space="preserve"><value>Average per Category</value></data>
+  <data name="MonthlyExpenses" xml:space="preserve"><value>Monthly Expenses</value></data>
+  <data name="ManageCategories" xml:space="preserve"><value>Manage Categories</value></data>
+  <data name="TotalExpenses" xml:space="preserve"><value>Total Expenses</value></data>
+  <data name="OfBudget" xml:space="preserve"><value>of budget</value></data>
+  <data name="NoExpenseCategories" xml:space="preserve"><value>No expense categories configured</value></data>
+  <data name="SetupBudgetCategories" xml:space="preserve"><value>Configure categories to track monthly expenses</value></data>
+  <data name="ConfigureBudget" xml:space="preserve"><value>Configure Budget</value></data>
+  <data name="BudgetVsActual" xml:space="preserve"><value>Budget vs Actual</value></data>
+  <data name="Spent" xml:space="preserve"><value>Spent</value></data>
+  <data name="Remaining" xml:space="preserve"><value>Remaining</value></data>
+  <data name="OverBudget" xml:space="preserve"><value>Over Budget</value></data>
+  <data name="UnderBudget" xml:space="preserve"><value>Under Budget</value></data>
+  <data name="TabBudget" xml:space="preserve"><value>Budget</value></data>
 </root>
 
