@@ -7,6 +7,29 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.6.0] - 2025-12-21
+
+### ☁️ Cloud Deployment - Fly.io
+
+Deploy in produzione su Fly.io con supporto per storage persistente.
+
+### Aggiunto
+
+#### Cloud Deployment
+- **Fly.io configuration** (`fly.toml`) per deploy one-click
+- **Volume persistente** per database SQLite in cloud
+- **GitHub Actions workflow** per deploy automatico su push
+- **Auto-scaling** con stop automatico quando inattivo
+
+#### Miglioramenti Dockerfile
+- Fix restore per singolo progetto (no solution)
+- Ottimizzazione build time
+
+### 🌐 Live Demo
+- App disponibile su: https://familyfinance-riccardo.fly.dev
+
+---
+
 ## [2.5.0] - 2025-12-21
 
 ### 🚀 Open Source Ready
