@@ -107,9 +107,16 @@
                 <!-- Top bar -->
                 <header class="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                     <!-- Mobile menu button -->
-                    <button class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <button class="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" @onclick="ToggleMobileMenu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            @if (_mobileMenuOpen)
+                            {
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            }
+                            else
+                            {
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            }
                         </svg>
                     </button>
                     
@@ -138,21 +145,24 @@
                 </header>
                 
                 <!-- Mobile menu -->
-                <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
-                    <nav class="space-y-1">
-                        <NavLink href="" Match="NavLinkMatch.All" class="mobile-nav-item">@L["Dashboard"]</NavLink>
-                        <NavLink href="snapshots" class="mobile-nav-item">@L["Snapshots"]</NavLink>
-                        <NavLink href="accounts" class="mobile-nav-item">@L["Accounts"]</NavLink>
-                        <NavLink href="goals" class="mobile-nav-item">@L["Goals"]</NavLink>
-                        <NavLink href="budget" class="mobile-nav-item">@L["Budget"]</NavLink>
-                        <NavLink href="compare" class="mobile-nav-item">@L["Compare"]</NavLink>
-                        <NavLink href="projections" class="mobile-nav-item">@L["Projections"]</NavLink>
-                        <NavLink href="portfolios" class="mobile-nav-item">@L["Portfolios"]</NavLink>
-                        <NavLink href="family-members" class="mobile-nav-item">@L["FamilyMembers"]</NavLink>
-                        <NavLink href="logs" class="mobile-nav-item">@L["SystemLogs"]</NavLink>
-                        <a href="/Account/Logout" class="mobile-nav-item text-red-500">@L["Logout"]</a>
-                    </nav>
-                </div>
+                @if (_mobileMenuOpen)
+                {
+                    <div class="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+                        <nav class="space-y-1">
+                            <NavLink href="" Match="NavLinkMatch.All" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Dashboard"]</NavLink>
+                            <NavLink href="snapshots" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Snapshots"]</NavLink>
+                            <NavLink href="accounts" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Accounts"]</NavLink>
+                            <NavLink href="goals" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Goals"]</NavLink>
+                            <NavLink href="budget" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Budget"]</NavLink>
+                            <NavLink href="compare" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Compare"]</NavLink>
+                            <NavLink href="projections" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Projections"]</NavLink>
+                            <NavLink href="portfolios" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["Portfolios"]</NavLink>
+                            <NavLink href="family-members" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["FamilyMembers"]</NavLink>
+                            <NavLink href="logs" class="mobile-nav-item" @onclick="CloseMobileMenu">@L["SystemLogs"]</NavLink>
+                            <a href="/Account/Logout" class="mobile-nav-item text-red-500">@L["Logout"]</a>
+                        </nav>
+                    </div>
+                }
                 
                 <!-- Page content -->
                 <main class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-950">
@@ -214,3 +224,17 @@
         color: #818cf8;
     }
 </style>
+
+@code {
+    private bool _mobileMenuOpen = false;
+
+    private void ToggleMobileMenu()
+    {
+        _mobileMenuOpen = !_mobileMenuOpen;
+    }
+
+    private void CloseMobileMenu()
+    {
+        _mobileMenuOpen = false;
+    }
+}
