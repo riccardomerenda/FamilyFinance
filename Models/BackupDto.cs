@@ -10,6 +10,7 @@ public class BackupDto
     public List<AccountDto> Accounts { get; set; } = new();
     public List<PortfolioDto> Portfolios { get; set; } = new();
     public List<GoalDto> Goals { get; set; } = new();
+    public List<BudgetCategoryDto> BudgetCategories { get; set; } = new();
     public List<SnapshotDto> Snapshots { get; set; } = new();
 }
 
@@ -53,6 +54,24 @@ public class SnapshotDto
     public List<SnapshotLineDto> Lines { get; set; } = new();
     public List<InvestmentDto> Investments { get; set; } = new();
     public List<ReceivableDto> Receivables { get; set; } = new();
+    public List<MonthlyExpenseDto> MonthlyExpenses { get; set; } = new();
+}
+
+public class BudgetCategoryDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public string Icon { get; set; } = "💸";
+    public string Color { get; set; } = "#6366f1";
+    public decimal MonthlyBudget { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class MonthlyExpenseDto
+{
+    public int CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public decimal Amount { get; set; }
 }
 
 public class SnapshotLineDto
@@ -105,6 +124,10 @@ public class ImportPreview
     public int NewSnapshots { get; set; }
     public int ExistingSnapshots { get; set; }
     
+    public int TotalBudgetCategories { get; set; }
+    public int NewBudgetCategories { get; set; }
+    public int ExistingBudgetCategories { get; set; }
+    
     public BackupDto? Data { get; set; }
 }
 
@@ -119,6 +142,7 @@ public class ImportResult
     public int AccountsImported { get; set; }
     public int PortfoliosImported { get; set; }
     public int GoalsImported { get; set; }
+    public int BudgetCategoriesImported { get; set; }
     public int SnapshotsImported { get; set; }
 }
 

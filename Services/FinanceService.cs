@@ -226,6 +226,20 @@ public class FinanceService
                 else
                     preview.NewSnapshots++;
             }
+
+            // Budget Categories - match by name
+            var existingBudgetCategories = await _db.BudgetCategories.ToListAsync();
+            preview.TotalBudgetCategories = backup.BudgetCategories?.Count ?? 0;
+            if (backup.BudgetCategories != null)
+            {
+                foreach (var bc in backup.BudgetCategories)
+                {
+                    if (existingBudgetCategories.Any(e => e.Name.Equals(bc.Name, StringComparison.OrdinalIgnoreCase)))
+                        preview.ExistingBudgetCategories++;
+                    else
+                        preview.NewBudgetCategories++;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -400,8 +414,54 @@ public class FinanceService
             await _db.SaveChangesAsync();
             _log.LogImport($"  Goals imported: {result.GoalsImported}");
 
-            // 4. Import Snapshots
-            _log.LogImport("Step 4: Importing Snapshots...");
+            // 4. Import Budget Categories
+            var budgetCategoryIdMap = new Dictionary<int, int>();
+            if (backup.BudgetCategories != null && backup.BudgetCategories.Count > 0)
+            {
+                _log.LogImport("Step 4: Importing Budget Categories...");
+                var existingBudgetCategories = await _db.BudgetCategories.Where(c => c.FamilyId == familyId).ToListAsync();
+                foreach (var bcDto in backup.BudgetCategories)
+                {
+                    var existing = existingBudgetCategories.FirstOrDefault(bc => bc.Name.Equals(bcDto.Name, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (existing != null)
+                    {
+                        budgetCategoryIdMap[bcDto.Id] = existing.Id;
+                        
+                        if (replaceExisting)
+                        {
+                            existing.Icon = bcDto.Icon;
+                            existing.Color = bcDto.Color;
+                            existing.MonthlyBudget = bcDto.MonthlyBudget;
+                            existing.IsActive = bcDto.IsActive;
+                            result.BudgetCategoriesImported++;
+                        }
+                    }
+                    else
+                    {
+                        var newCategory = new BudgetCategory
+                        {
+                            Name = bcDto.Name,
+                            Icon = bcDto.Icon,
+                            Color = bcDto.Color,
+                            MonthlyBudget = bcDto.MonthlyBudget,
+                            IsActive = bcDto.IsActive,
+                            FamilyId = familyId
+                        };
+                        
+                        _db.BudgetCategories.Add(newCategory);
+                        await _db.SaveChangesAsync();
+                        
+                        budgetCategoryIdMap[bcDto.Id] = newCategory.Id;
+                        result.BudgetCategoriesImported++;
+                    }
+                }
+                await _db.SaveChangesAsync();
+                _log.LogImport($"  Budget Categories imported: {result.BudgetCategoriesImported}");
+            }
+
+            // 5. Import Snapshots
+            _log.LogImport("Step 5: Importing Snapshots...");
             var existingSnapshots = await _db.Snapshots.ToListAsync();
             foreach (var sDto in backup.Snapshots)
             {
@@ -484,6 +544,32 @@ public class FinanceService
                         receivable.Status = status;
                     
                     newSnapshot.Receivables.Add(receivable);
+                }
+
+                // Add monthly expenses
+                if (sDto.MonthlyExpenses != null)
+                {
+                    foreach (var expDto in sDto.MonthlyExpenses)
+                    {
+                        var mappedCategoryId = budgetCategoryIdMap.GetValueOrDefault(expDto.CategoryId, expDto.CategoryId);
+                        
+                        // Verify category exists
+                        var category = await _db.BudgetCategories.FindAsync(mappedCategoryId);
+                        if (category == null && !string.IsNullOrEmpty(expDto.CategoryName))
+                        {
+                            category = await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Name == expDto.CategoryName && c.FamilyId == familyId);
+                        }
+                        
+                        if (category != null)
+                        {
+                            newSnapshot.Expenses.Add(new MonthlyExpense
+                            {
+                                SnapshotId = newSnapshot.Id,
+                                CategoryId = category.Id,
+                                Amount = expDto.Amount
+                            });
+                        }
+                    }
                 }
 
                 await _db.SaveChangesAsync();
