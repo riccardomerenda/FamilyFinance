@@ -105,6 +105,55 @@ public class LogService
     {
         return Path.Combine(_logPath, $"familyfinance_{DateTime.Now:yyyyMMdd}.log");
     }
+
+    public void ClearTodayLogs()
+    {
+        var filePath = GetLogFilePath();
+        lock (_lock)
+        {
+            try
+            {
+                if (File.Exists(filePath))
+                    File.WriteAllText(filePath, "");
+                
+                LogInfo("Logs cleared", "System");
+            }
+            catch { }
+        }
+    }
+
+    public void ClearAllLogs()
+    {
+        lock (_lock)
+        {
+            try
+            {
+                var files = Directory.GetFiles(_logPath, "familyfinance_*.log");
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+                
+                LogInfo("All logs cleared", "System");
+            }
+            catch { }
+        }
+    }
+
+    public List<string> GetLogFiles()
+    {
+        try
+        {
+            return Directory.GetFiles(_logPath, "familyfinance_*.log")
+                .Select(Path.GetFileName)
+                .OrderByDescending(f => f)
+                .ToList()!;
+        }
+        catch
+        {
+            return new List<string>();
+        }
+    }
 }
 
 

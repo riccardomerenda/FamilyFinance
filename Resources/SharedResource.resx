@@ -237,6 +237,10 @@
   <data name="NoLogs" xml:space="preserve"><value>Nessun log disponibile per oggi</value></data>
   <data name="Refresh" xml:space="preserve"><value>Aggiorna</value></data>
   <data name="ViewLogs" xml:space="preserve"><value>Vedi Log</value></data>
+  <data name="ClearLogs" xml:space="preserve"><value>Cancella Log</value></data>
+  <data name="ClearTodayLogs" xml:space="preserve"><value>Cancella log di oggi</value></data>
+  <data name="ClearAllLogs" xml:space="preserve"><value>Cancella tutti i log</value></data>
+  <data name="LogFilesTotal" xml:space="preserve"><value>file di log totali</value></data>
   <data name="ReleaseNotes" xml:space="preserve"><value>Note di Rilascio</value></data>
   <data name="VersionHistory" xml:space="preserve"><value>Cronologia delle versioni e aggiornamenti</value></data>
   <data name="MajorRelease" xml:space="preserve"><value>Release Principale</value></data>
