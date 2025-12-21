@@ -375,5 +375,6 @@
   <data name="PrivacyOpenSource" xml:space="preserve"><value>Open Source</value></data>
   <data name="PrivacyOpenSourceText" xml:space="preserve"><value>FamilyFinance is an open-source project. The source code is available on GitHub for transparency and verification.</value></data>
   <data name="BackToLogin" xml:space="preserve"><value>Back to Login</value></data>
+  <data name="BackToApp" xml:space="preserve"><value>Back to App</value></data>
 </root>
 

@@ -2,9 +2,11 @@
 @layout EmptyLayout
 @attribute [AllowAnonymous]
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Localization
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4">
     <div class="max-w-3xl mx-auto">
@@ -188,12 +190,34 @@
 
         <!-- Footer -->
         <div class="mt-8 text-center">
-            <a href="/Account/Login" class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                @L["BackToLogin"]
-            </a>
+            @if (_isAuthenticated)
+            {
+                <a href="/" class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    @L["BackToApp"]
+                </a>
+            }
+            else
+            {
+                <a href="/Account/Login" class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    @L["BackToLogin"]
+                </a>
+            }
         </div>
     </div>
 </div>
+
+@code {
+    private bool _isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        _isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+}
