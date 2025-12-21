@@ -1,0 +1,44 @@
+# Fly.io configuration for FamilyFinance
+# See https://fly.io/docs/reference/configuration/
+
+app = "familyfinance-riccardo"
+primary_region = "fra"  # Frankfurt - vicino all'Italia
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Volume mount per SQLite persistente
+[mounts]
+  source = "familyfinance_data"
+  destination = "/app/data"
+
+[env]
+  ASPNETCORE_ENVIRONMENT = "Production"
+  ASPNETCORE_URLS = "http://+:8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+# Health check
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+

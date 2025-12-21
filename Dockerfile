@@ -5,19 +5,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution and project files
-COPY FamilyBalance.sln .
+# Copy project file
 COPY FamilyFinance/FamilyFinance.csproj FamilyFinance/
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore FamilyFinance/FamilyFinance.csproj
 
 # Copy source code
 COPY FamilyFinance/ FamilyFinance/
 
 # Build and publish
 WORKDIR /src/FamilyFinance
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
