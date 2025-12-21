@@ -315,7 +315,6 @@
   <data name="AlreadyReached" xml:space="preserve"><value>You've already reached this goal!</value></data>
   <data name="WhatIfSimulator" xml:space="preserve"><value>What-If Simulator</value></data>
   <data name="MonthlyContribution" xml:space="preserve"><value>Monthly Contribution</value></data>
-  <data name="TimeHorizon" xml:space="preserve"><value>Time Horizon</value></data>
   <data name="Year" xml:space="preserve"><value>Year</value></data>
   <data name="FutureValue" xml:space="preserve"><value>Future Value</value></data>
   <data name="TotalContributed" xml:space="preserve"><value>Total Contributed</value></data>
@@ -324,5 +323,57 @@
   <data name="GoalsTimeline" xml:space="preserve"><value>Goals Timeline</value></data>
   <data name="Missing" xml:space="preserve"><value>Missing</value></data>
   <data name="Completed" xml:space="preserve"><value>Completed</value></data>
+
+  <!-- Privacy Policy -->
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Privacy Policy</value></data>
+  <data name="PrivacyLastUpdate" xml:space="preserve"><value>Last updated: December 2024</value></data>
+  <data name="PrivacyIntro" xml:space="preserve"><value>FamilyFinance is an open-source application for family wealth management. This policy describes how your personal data is processed in accordance with the European Regulation 2016/679 (GDPR).</value></data>
+  <data name="PrivacyDataController" xml:space="preserve"><value>Data Controller</value></data>
+  <data name="PrivacyContact" xml:space="preserve"><value>Contact</value></data>
+  <data name="PrivacyDataCollected" xml:space="preserve"><value>Data Collected</value></data>
+  <data name="PrivacyRegistrationData" xml:space="preserve"><value>Registration data</value></data>
+  <data name="PrivacyEmailAddress" xml:space="preserve"><value>Email address</value></data>
+  <data name="PrivacyDisplayName" xml:space="preserve"><value>Display name</value></data>
+  <data name="PrivacyPasswordHashed" xml:space="preserve"><value>Password (stored in encrypted/hashed form)</value></data>
+  <data name="PrivacyFinancialData" xml:space="preserve"><value>Financial data entered by the user</value></data>
+  <data name="PrivacyBankBalances" xml:space="preserve"><value>Bank account balances</value></data>
+  <data name="PrivacyInvestmentsPortfolios" xml:space="preserve"><value>Investments and portfolios</value></data>
+  <data name="PrivacyFinancialGoals" xml:space="preserve"><value>Financial goals</value></data>
+  <data name="PrivacyMonthlyExpenses" xml:space="preserve"><value>Monthly expenses</value></data>
+  <data name="PrivacyPurpose" xml:space="preserve"><value>Purpose of Processing</value></data>
+  <data name="PrivacyPurposeWealth" xml:space="preserve"><value>Providing wealth management service</value></data>
+  <data name="PrivacyPurposeAuth" xml:space="preserve"><value>Account authentication and security</value></data>
+  <data name="PrivacyPurposePrefs" xml:space="preserve"><value>Storing user preferences (language, theme)</value></data>
+  <data name="PrivacyCookies" xml:space="preserve"><value>Cookies Used</value></data>
+  <data name="PrivacyCookiesIntro" xml:space="preserve"><value>We only use essential technical cookies, necessary for the application to function. We do not use profiling, analytics, or advertising cookies.</value></data>
+  <data name="PrivacyCookieName" xml:space="preserve"><value>Cookie</value></data>
+  <data name="PrivacyCookiePurpose" xml:space="preserve"><value>Purpose</value></data>
+  <data name="PrivacyCookieDuration" xml:space="preserve"><value>Duration</value></data>
+  <data name="PrivacyCookieAuth" xml:space="preserve"><value>Authentication</value></data>
+  <data name="PrivacyCookieLang" xml:space="preserve"><value>Language preference</value></data>
+  <data name="PrivacyCookieTheme" xml:space="preserve"><value>Dark/light theme</value></data>
+  <data name="PrivacyCookieDays" xml:space="preserve"><value>30 days</value></data>
+  <data name="PrivacyCookieYear" xml:space="preserve"><value>1 year</value></data>
+  <data name="PrivacyCookiePersistent" xml:space="preserve"><value>Persistent</value></data>
+  <data name="PrivacyDataSharing" xml:space="preserve"><value>Data Sharing</value></data>
+  <data name="PrivacyDataSharingText" xml:space="preserve"><value>Your data is not shared with third parties. We do not use analytics, advertising, or social tracking services. Data is stored exclusively on the application server.</value></data>
+  <data name="PrivacySecurity" xml:space="preserve"><value>Security</value></data>
+  <data name="PrivacySecurityHttps" xml:space="preserve"><value>Encrypted HTTPS connection</value></data>
+  <data name="PrivacySecurityHash" xml:space="preserve"><value>Passwords stored with secure hash (ASP.NET Core Identity)</value></data>
+  <data name="PrivacySecurityMultitenant" xml:space="preserve"><value>Data isolated per family (multi-tenancy)</value></data>
+  <data name="PrivacySecurityLockout" xml:space="preserve"><value>Protection against brute-force attacks (automatic lockout)</value></data>
+  <data name="PrivacyRights" xml:space="preserve"><value>Your Rights (GDPR)</value></data>
+  <data name="PrivacyRightsIntro" xml:space="preserve"><value>As a data subject, you have the right to:</value></data>
+  <data name="PrivacyRightAccess" xml:space="preserve"><value>Access - Obtain a copy of your data</value></data>
+  <data name="PrivacyRightRectify" xml:space="preserve"><value>Rectification - Correct inaccurate data</value></data>
+  <data name="PrivacyRightErase" xml:space="preserve"><value>Erasure - Request deletion of your data</value></data>
+  <data name="PrivacyRightPortability" xml:space="preserve"><value>Portability - Export your data (built-in Export feature)</value></data>
+  <data name="PrivacyRightObject" xml:space="preserve"><value>Objection - Object to processing</value></data>
+  <data name="PrivacyRightsContact" xml:space="preserve"><value>To exercise these rights, contact me on</value></data>
+  <data name="PrivacyDemoNote" xml:space="preserve"><value>Demo Mode Notice</value></data>
+  <data name="PrivacyDemoText" xml:space="preserve"><value>The demo account uses fictional data for demonstration purposes. Demo data may be reset periodically. Do not enter real personal data in the demo account.</value></data>
+  <data name="PrivacyOpenSource" xml:space="preserve"><value>Open Source</value></data>
+  <data name="PrivacyOpenSourceText" xml:space="preserve"><value>FamilyFinance is an open-source project. The source code is available on GitHub for transparency and verification.</value></data>
+  <data name="BackToLogin" xml:space="preserve"><value>Back to Login</value></data>
 </root>
 
