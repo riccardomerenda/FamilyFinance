@@ -1,0 +1,50 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed in container)
+*.md
+!README.md
+docs/
+
+# Database files (will be mounted as volume)
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# Test projects
+**/*.Tests/
+**/TestResults/
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# GitHub
+.github/
+
+# Environment files with secrets
+.env
+.env.*
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+

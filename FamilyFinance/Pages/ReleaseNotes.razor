@@ -99,6 +99,37 @@
     {
         new ReleaseInfo
         {
+            Version = "2.5.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🚀",
+            IsMajor = true,
+            Title = "Open Source Ready",
+            Sections = new List<ReleaseSection>
+            {
+                new("📚", "Documentazione", new List<string>
+                {
+                    "README.md professionale con badges e guide",
+                    "CONTRIBUTING.md per contributors",
+                    "Licenza MIT",
+                    "Configurazione ambiente con env.example"
+                }),
+                new("🐳", "DevOps", new List<string>
+                {
+                    "Dockerfile multi-stage ottimizzato",
+                    "docker-compose.yml per deploy facile",
+                    "GitHub Actions CI/CD automatico",
+                    "Health check endpoint per container"
+                }),
+                new("🧪", "Testing", new List<string>
+                {
+                    "Nuovo progetto test con xUnit",
+                    "25 unit test per i servizi core",
+                    "Database InMemory per test isolati"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.4.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "📈",
@@ -308,6 +339,37 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "2.5.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🚀",
+            IsMajor = true,
+            Title = "Open Source Ready",
+            Sections = new List<ReleaseSection>
+            {
+                new("📚", "Documentation", new List<string>
+                {
+                    "Professional README.md with badges and guides",
+                    "CONTRIBUTING.md for contributors",
+                    "MIT License",
+                    "Environment configuration with env.example"
+                }),
+                new("🐳", "DevOps", new List<string>
+                {
+                    "Optimized multi-stage Dockerfile",
+                    "docker-compose.yml for easy deployment",
+                    "Automated GitHub Actions CI/CD",
+                    "Health check endpoint for containers"
+                }),
+                new("🧪", "Testing", new List<string>
+                {
+                    "New test project with xUnit",
+                    "25 unit tests for core services",
+                    "InMemory database for isolated tests"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.4.0",

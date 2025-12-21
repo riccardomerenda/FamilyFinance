@@ -50,9 +50,20 @@ $RECYCLE.BIN/
 
 # Application specific
 appsettings.Development.json
-appsettings.*.json
-!appsettings.json
+appsettings.Local.json
+.env
+.env.*
 
 # Publish output
 publish/
+
+# Test results
+TestResults/
+*.trx
+
+# Secrets
+secrets.json
+
+# IDE specific
+*.DotSettings.user
 

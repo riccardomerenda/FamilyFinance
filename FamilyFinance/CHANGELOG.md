@@ -7,6 +7,38 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.5.0] - 2025-12-21
+
+### 🚀 Open Source Ready
+
+Preparazione completa per rilascio open-source su GitHub.
+
+### Aggiunto
+
+#### Documentazione
+- **README.md** professionale con badges, features, quick start, Docker
+- **CONTRIBUTING.md** con linee guida per contribuire
+- **LICENSE** MIT
+- **env.example** per configurazione
+
+#### DevOps
+- **Dockerfile** multi-stage ottimizzato
+- **docker-compose.yml** per deploy semplificato
+- **GitHub Actions** CI/CD workflow per build e test automatici
+- **Health check endpoint** `/health` per Docker/Kubernetes
+
+#### Testing
+- **Test project** con xUnit
+- **25 unit tests** per AccountService, GoalService, PortfolioService
+- **InMemory database** per test isolati
+
+#### GitHub Integration
+- **Issue templates**: Bug Report, Feature Request
+- **Pull Request template**
+- **Docs folder** per screenshots
+
+---
+
 ## [2.4.0] - 2025-12-21
 
 ### 📈 Nuova Funzionalità - Proiezioni e Forecasting

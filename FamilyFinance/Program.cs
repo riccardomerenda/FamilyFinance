@@ -107,6 +107,9 @@ app.UseAuthorization();
 
 app.UseRequestLocalization();
 
+// Health check endpoint for Docker/K8s
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
