@@ -293,5 +293,36 @@
   <data name="DetailedComparison" xml:space="preserve"><value>Confronto Dettagliato</value></data>
   <data name="AccountDetails" xml:space="preserve"><value>Dettaglio per Account</value></data>
   <data name="Delta" xml:space="preserve"><value>Delta</value></data>
+
+  <!-- Projections -->
+  <data name="Projections" xml:space="preserve"><value>Proiezioni</value></data>
+  <data name="ProjectionsForecasting" xml:space="preserve"><value>Proiezioni e Forecasting</value></data>
+  <data name="NeedMoreSnapshots" xml:space="preserve"><value>Servono più snapshot per le proiezioni</value></data>
+  <data name="NeedMoreSnapshotsDesc" xml:space="preserve"><value>Crea almeno 2 snapshot mensili per vedere le proiezioni</value></data>
+  <data name="CurrentWealth" xml:space="preserve"><value>Patrimonio Attuale</value></data>
+  <data name="AvgMonthlyGrowth" xml:space="preserve"><value>Crescita Media Mensile</value></data>
+  <data name="BasedOnHistory" xml:space="preserve"><value>Basato su storico</value></data>
+  <data name="MonthlyGrowthRate" xml:space="preserve"><value>Tasso Crescita Mensile</value></data>
+  <data name="PerYear" xml:space="preserve"><value>annuo</value></data>
+  <data name="ProjectedIn1Year" xml:space="preserve"><value>Proiezione 1 Anno</value></data>
+  <data name="WealthProjection" xml:space="preserve"><value>Proiezione Patrimonio</value></data>
+  <data name="HistoricalData" xml:space="preserve"><value>Dati Storici</value></data>
+  <data name="Projection" xml:space="preserve"><value>Proiezione</value></data>
+  <data name="WhenWillIReach" xml:space="preserve"><value>Quando raggiungerò...?</value></data>
+  <data name="TargetAmount" xml:space="preserve"><value>Importo Obiettivo</value></data>
+  <data name="EstimatedDate" xml:space="preserve"><value>Data Stimata</value></data>
+  <data name="And" xml:space="preserve"><value>e</value></data>
+  <data name="AlreadyReached" xml:space="preserve"><value>Hai già raggiunto questo obiettivo!</value></data>
+  <data name="WhatIfSimulator" xml:space="preserve"><value>Simulatore What-If</value></data>
+  <data name="MonthlyContribution" xml:space="preserve"><value>Contributo Mensile</value></data>
+  <data name="TimeHorizon" xml:space="preserve"><value>Orizzonte Temporale</value></data>
+  <data name="Year" xml:space="preserve"><value>Anno</value></data>
+  <data name="FutureValue" xml:space="preserve"><value>Valore Futuro</value></data>
+  <data name="TotalContributed" xml:space="preserve"><value>Totale Versato</value></data>
+  <data name="EstimatedGrowth" xml:space="preserve"><value>Crescita Stimata</value></data>
+  <data name="TotalGain" xml:space="preserve"><value>Guadagno Totale</value></data>
+  <data name="GoalsTimeline" xml:space="preserve"><value>Timeline Obiettivi</value></data>
+  <data name="Missing" xml:space="preserve"><value>Mancano</value></data>
+  <data name="Completed" xml:space="preserve"><value>Completato</value></data>
 </root>
 

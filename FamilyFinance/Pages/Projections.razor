@@ -1,0 +1,525 @@
+@page "/projections"
+@using System.Security.Claims
+@inject FinanceService Finance
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthState
+@attribute [Authorize]
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["ProjectionsForecasting"]</h1>
+</div>
+
+@if (_loading)
+{
+    <div class="flex items-center justify-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+    </div>
+}
+else if (_snapshots.Count < 2)
+{
+    <div class="text-center py-16">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mb-2">@L["NeedMoreSnapshots"]</p>
+        <p class="text-sm text-gray-400">@L["NeedMoreSnapshotsDesc"]</p>
+    </div>
+}
+else
+{
+    <!-- Trend Analysis Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- Current Wealth -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["CurrentWealth"]</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@_currentTotal.ToString("N0") €</p>
+            <p class="text-xs text-gray-400 mt-1">@_latestDate.ToString("MMMM yyyy")</p>
+        </div>
+        
+        <!-- Monthly Growth -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["AvgMonthlyGrowth"]</p>
+            <p class="text-2xl font-bold @(_avgMonthlyGrowth >= 0 ? "text-emerald-500" : "text-red-500")">
+                @(_avgMonthlyGrowth >= 0 ? "+" : "")@_avgMonthlyGrowth.ToString("N0") €
+            </p>
+            <p class="text-xs text-gray-400 mt-1">@L["BasedOnHistory"]</p>
+        </div>
+        
+        <!-- Growth Rate -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["MonthlyGrowthRate"]</p>
+            <p class="text-2xl font-bold @(_avgMonthlyGrowthPercent >= 0 ? "text-emerald-500" : "text-red-500")">
+                @(_avgMonthlyGrowthPercent >= 0 ? "+" : "")@_avgMonthlyGrowthPercent.ToString("F2")%
+            </p>
+            <p class="text-xs text-gray-400 mt-1">≈ @((_avgMonthlyGrowthPercent * 12).ToString("F1"))% @L["PerYear"]</p>
+        </div>
+        
+        <!-- Projected 1 Year -->
+        <div class="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-6 text-white">
+            <p class="text-sm text-primary-100 mb-1">@L["ProjectedIn1Year"]</p>
+            <p class="text-2xl font-bold">@_projectedOneYear.ToString("N0") €</p>
+            <p class="text-xs text-primary-200 mt-1">+@((_projectedOneYear - _currentTotal).ToString("N0")) €</p>
+        </div>
+    </div>
+
+    <!-- Projection Chart -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["WealthProjection"]</h3>
+            <div class="flex gap-2">
+                <button @onclick='() => SetProjectionYears(1)' class="px-3 py-1 text-sm rounded-lg @(_projectionYears == 1 ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400")">1Y</button>
+                <button @onclick='() => SetProjectionYears(3)' class="px-3 py-1 text-sm rounded-lg @(_projectionYears == 3 ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400")">3Y</button>
+                <button @onclick='() => SetProjectionYears(5)' class="px-3 py-1 text-sm rounded-lg @(_projectionYears == 5 ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400")">5Y</button>
+                <button @onclick='() => SetProjectionYears(10)' class="px-3 py-1 text-sm rounded-lg @(_projectionYears == 10 ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400")">10Y</button>
+            </div>
+        </div>
+        <div class="h-80">
+            <Chart CanvasId="projectionChart" Config="@_projectionChartConfig" />
+        </div>
+        <div class="flex justify-center gap-6 mt-4 text-sm">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-primary-500"></div>
+                <span class="text-gray-600 dark:text-gray-400">@L["HistoricalData"]</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                <span class="text-gray-600 dark:text-gray-400">@L["Projection"]</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- When Will I Reach Calculator -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["WhenWillIReach"]</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["TargetAmount"]</label>
+                    <div class="relative">
+                        <input type="number" @bind="_targetAmount" @bind:event="oninput" @bind:after="CalculateTimeToTarget"
+                               class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12" />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                    </div>
+                </div>
+                
+                @if (_targetAmount > _currentTotal && _timeToTargetMonths > 0)
+                {
+                    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-emerald-800 dark:text-emerald-200">@L["EstimatedDate"]</p>
+                                <p class="text-lg font-bold text-emerald-900 dark:text-emerald-100">@_estimatedTargetDate.ToString("MMMM yyyy")</p>
+                                <p class="text-xs text-emerald-600 dark:text-emerald-400">
+                                    @_timeToTargetYears @L["Years"] @L["And"] @_timeToTargetRemainingMonths @L["Months"]
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (_targetAmount > 0 && _targetAmount <= _currentTotal)
+                {
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                        <p class="text-blue-800 dark:text-blue-200">🎉 @L["AlreadyReached"]</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- What-If Simulator -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["WhatIfSimulator"]</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["MonthlyContribution"]</label>
+                    <div class="relative">
+                        <input type="number" @bind="_monthlyContribution" @bind:event="oninput" @bind:after="CalculateWhatIf"
+                               class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12" />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">€/mese</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["TimeHorizon"]</label>
+                    <select @bind="_whatIfYears" @bind:after="CalculateWhatIf"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <option value="1">1 @L["Year"]</option>
+                        <option value="3">3 @L["Years"]</option>
+                        <option value="5">5 @L["Years"]</option>
+                        <option value="10">10 @L["Years"]</option>
+                        <option value="20">20 @L["Years"]</option>
+                    </select>
+                </div>
+                
+                @if (_whatIfResult > 0)
+                {
+                    <div class="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl p-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@L["FutureValue"]</p>
+                                <p class="text-xl font-bold text-primary-600 dark:text-primary-400">@_whatIfResult.ToString("N0") €</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@L["TotalContributed"]</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-gray-100">@_whatIfContributions.ToString("N0") €</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@L["EstimatedGrowth"]</p>
+                                <p class="text-xl font-bold text-emerald-500">+@_whatIfGrowth.ToString("N0") €</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@L["TotalGain"]</p>
+                                <p class="text-xl font-bold text-emerald-500">+@((_whatIfResult - _currentTotal).ToString("N0")) €</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals Timeline -->
+    @if (_goals.Any())
+    {
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["GoalsTimeline"]</h3>
+            
+            <div class="space-y-4">
+                @foreach (var goal in _goals.OrderBy(g => g.EstimatedDate))
+                {
+                    var progress = goal.Target > 0 ? Math.Min(100, (goal.Allocated / goal.Target) * 100) : 0;
+                    var isCompleted = goal.Allocated >= goal.Target;
+                    
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center @(isCompleted ? "bg-emerald-100 dark:bg-emerald-900/50" : "bg-primary-100 dark:bg-primary-900/50")">
+                            @if (isCompleted)
+                            {
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            }
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-medium text-gray-900 dark:text-gray-100">@goal.Name</span>
+                                <span class="text-sm text-gray-500">@goal.Allocated.ToString("N0") / @goal.Target.ToString("N0") €</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+                                <div class="h-2 rounded-full @(isCompleted ? "bg-emerald-500" : "bg-primary-500")" style="width: @progress%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                @if (isCompleted)
+                                {
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-medium">✓ @L["Completed"]</span>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-500">@L["Missing"]: @goal.Missing.ToString("N0") €</span>
+                                    <span class="text-primary-600 dark:text-primary-400">
+                                        @L["EstimatedDate"]: <strong>@goal.EstimatedDate.ToString("MMM yyyy")</strong>
+                                        (@goal.MonthsToGoal @L["Months"])
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    bool _loading = true;
+    int _familyId;
+    List<SnapshotData> _snapshots = new();
+    List<GoalProjection> _goals = new();
+    
+    // Current stats
+    decimal _currentTotal;
+    DateOnly _latestDate;
+    decimal _avgMonthlyGrowth;
+    decimal _avgMonthlyGrowthPercent;
+    decimal _projectedOneYear;
+    
+    // Projection chart
+    int _projectionYears = 5;
+    object? _projectionChartConfig;
+    
+    // When will I reach calculator
+    decimal _targetAmount = 100000;
+    int _timeToTargetMonths;
+    int _timeToTargetYears;
+    int _timeToTargetRemainingMonths;
+    DateTime _estimatedTargetDate;
+    
+    // What-if simulator
+    decimal _monthlyContribution = 500;
+    int _whatIfYears = 5;
+    decimal _whatIfResult;
+    decimal _whatIfContributions;
+    decimal _whatIfGrowth;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+
+        await LoadData();
+        _loading = false;
+    }
+
+    async Task LoadData()
+    {
+        var snapshots = await Finance.GetSnapshotsAsync(_familyId);
+        _snapshots = new List<SnapshotData>();
+        
+        foreach (var s in snapshots.OrderBy(x => x.SnapshotDate))
+        {
+            var full = await Finance.GetSnapshotAsync(s.Id);
+            if (full != null)
+            {
+                var totals = await Finance.CalculateTotalsAsync(full);
+                _snapshots.Add(new SnapshotData(s.SnapshotDate, totals.GrandTotal));
+            }
+        }
+
+        if (_snapshots.Count >= 2)
+        {
+            CalculateStats();
+            BuildProjectionChart();
+            CalculateTimeToTarget();
+            CalculateWhatIf();
+            await LoadGoalsProjection();
+        }
+    }
+
+    void CalculateStats()
+    {
+        var latest = _snapshots.Last();
+        var first = _snapshots.First();
+        
+        _currentTotal = latest.Total;
+        _latestDate = latest.Date;
+        
+        // Calculate average monthly growth
+        var totalMonths = ((latest.Date.Year - first.Date.Year) * 12) + latest.Date.Month - first.Date.Month;
+        if (totalMonths > 0)
+        {
+            var totalGrowth = latest.Total - first.Total;
+            _avgMonthlyGrowth = totalGrowth / totalMonths;
+            _avgMonthlyGrowthPercent = first.Total > 0 
+                ? (decimal)Math.Pow((double)(latest.Total / first.Total), 1.0 / totalMonths) - 1 
+                : 0;
+            _avgMonthlyGrowthPercent *= 100;
+        }
+        
+        // Project one year
+        _projectedOneYear = _currentTotal * (decimal)Math.Pow(1 + (double)(_avgMonthlyGrowthPercent / 100), 12);
+    }
+
+    void BuildProjectionChart()
+    {
+        var historicalLabels = _snapshots.Select(s => s.Date.ToString("MM/yy")).ToList();
+        var historicalData = _snapshots.Select(s => s.Total).ToList();
+        
+        // Generate future projections
+        var projectionLabels = new List<string>();
+        var projectionData = new List<decimal?>();
+        
+        var lastDate = _latestDate;
+        var lastValue = _currentTotal;
+        var monthlyRate = 1 + (_avgMonthlyGrowthPercent / 100);
+        
+        for (int i = 1; i <= _projectionYears * 12; i++)
+        {
+            var futureDate = lastDate.AddMonths(i);
+            projectionLabels.Add(futureDate.ToString("MM/yy"));
+            lastValue *= monthlyRate;
+            projectionData.Add(Math.Round(lastValue, 0));
+        }
+        
+        // Combine labels
+        var allLabels = historicalLabels.Concat(projectionLabels).ToList();
+        
+        // Historical data with nulls for future
+        var historicalSeries = historicalData.Select(d => (decimal?)d).ToList();
+        historicalSeries.AddRange(Enumerable.Repeat((decimal?)null, projectionLabels.Count));
+        
+        // Projection data with nulls for past (connect from last historical point)
+        var projectionSeries = Enumerable.Repeat((decimal?)null, historicalLabels.Count - 1).ToList();
+        projectionSeries.Add(_currentTotal); // Connection point
+        projectionSeries.AddRange(projectionData);
+
+        _projectionChartConfig = new
+        {
+            type = "line",
+            data = new
+            {
+                labels = allLabels,
+                datasets = new object[]
+                {
+                    new { 
+                        label = L["HistoricalData"].Value, 
+                        data = historicalSeries, 
+                        borderColor = "#6366f1",
+                        backgroundColor = "rgba(99, 102, 241, 0.1)",
+                        fill = true,
+                        tension = 0.4,
+                        pointRadius = 3
+                    },
+                    new { 
+                        label = L["Projection"].Value, 
+                        data = projectionSeries, 
+                        borderColor = "#10b981",
+                        backgroundColor = "rgba(16, 185, 129, 0.1)",
+                        borderDash = new[] { 5, 5 },
+                        fill = true,
+                        tension = 0.4,
+                        pointRadius = 0
+                    }
+                }
+            },
+            options = new
+            {
+                responsive = true,
+                maintainAspectRatio = false,
+                plugins = new { legend = new { position = "top" } },
+                scales = new { y = new { beginAtZero = false } }
+            }
+        };
+    }
+
+    void SetProjectionYears(int years)
+    {
+        _projectionYears = years;
+        BuildProjectionChart();
+        StateHasChanged();
+    }
+
+    void CalculateTimeToTarget()
+    {
+        if (_targetAmount <= _currentTotal || _avgMonthlyGrowthPercent <= 0)
+        {
+            _timeToTargetMonths = 0;
+            return;
+        }
+
+        var monthlyRate = (double)(_avgMonthlyGrowthPercent / 100);
+        if (monthlyRate <= 0) return;
+        
+        // Using compound growth formula: FV = PV * (1 + r)^n
+        // n = ln(FV/PV) / ln(1 + r)
+        var ratio = (double)(_targetAmount / _currentTotal);
+        _timeToTargetMonths = (int)Math.Ceiling(Math.Log(ratio) / Math.Log(1 + monthlyRate));
+        
+        _timeToTargetYears = _timeToTargetMonths / 12;
+        _timeToTargetRemainingMonths = _timeToTargetMonths % 12;
+        _estimatedTargetDate = DateTime.Today.AddMonths(_timeToTargetMonths);
+    }
+
+    void CalculateWhatIf()
+    {
+        if (_monthlyContribution <= 0 || _whatIfYears <= 0)
+        {
+            _whatIfResult = 0;
+            return;
+        }
+
+        var months = _whatIfYears * 12;
+        var monthlyRate = 1 + (_avgMonthlyGrowthPercent / 100);
+        
+        // Future value of current wealth with compound growth
+        var futureCurrentWealth = _currentTotal * (decimal)Math.Pow((double)monthlyRate, months);
+        
+        // Future value of monthly contributions (annuity formula)
+        decimal futureContributions = 0;
+        if (_avgMonthlyGrowthPercent > 0)
+        {
+            futureContributions = _monthlyContribution * (decimal)((Math.Pow((double)monthlyRate, months) - 1) / ((double)monthlyRate - 1));
+        }
+        else
+        {
+            futureContributions = _monthlyContribution * months;
+        }
+        
+        _whatIfContributions = _monthlyContribution * months;
+        _whatIfResult = futureCurrentWealth + futureContributions;
+        _whatIfGrowth = _whatIfResult - _currentTotal - _whatIfContributions;
+    }
+
+    async Task LoadGoalsProjection()
+    {
+        var goals = await Finance.GetGoalsAsync(_familyId);
+        _goals = new List<GoalProjection>();
+        
+        foreach (var g in goals.Where(g => !g.IsCompleted))
+        {
+            var missing = g.Target - g.AllocatedAmount;
+            int monthsToGoal = 0;
+            
+            if (_avgMonthlyGrowth > 0 && missing > 0)
+            {
+                monthsToGoal = (int)Math.Ceiling(missing / _avgMonthlyGrowth);
+            }
+            
+            _goals.Add(new GoalProjection
+            {
+                Name = g.Name,
+                Target = g.Target,
+                Allocated = g.AllocatedAmount,
+                Missing = missing,
+                MonthsToGoal = monthsToGoal,
+                EstimatedDate = DateTime.Today.AddMonths(monthsToGoal)
+            });
+        }
+        
+        // Add completed goals
+        foreach (var g in goals.Where(g => g.IsCompleted))
+        {
+            _goals.Add(new GoalProjection
+            {
+                Name = g.Name,
+                Target = g.Target,
+                Allocated = g.AllocatedAmount,
+                Missing = 0,
+                MonthsToGoal = 0,
+                EstimatedDate = DateTime.Today
+            });
+        }
+    }
+
+    record SnapshotData(DateOnly Date, decimal Total);
+    
+    class GoalProjection
+    {
+        public string Name { get; set; } = "";
+        public decimal Target { get; set; }
+        public decimal Allocated { get; set; }
+        public decimal Missing { get; set; }
+        public int MonthsToGoal { get; set; }
+        public DateTime EstimatedDate { get; set; }
+    }
+}
+

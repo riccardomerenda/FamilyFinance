@@ -99,6 +99,37 @@
     {
         new ReleaseInfo
         {
+            Version = "2.4.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "📈",
+            IsMajor = true,
+            Title = "Proiezioni e Forecasting",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔮", "Strumento di Pianificazione", new List<string>
+                {
+                    "Analisi trend: crescita mensile media e tasso percentuale",
+                    "Grafico proiezione: storico + futuro stimato (1-10 anni)",
+                    "Calcolatore 'Quando raggiungerò?': data stimata per importo target",
+                    "Timeline obiettivi con date di completamento stimate"
+                }),
+                new("🧮", "Simulatore What-If", new List<string>
+                {
+                    "Simula contributi mensili aggiuntivi",
+                    "Calcolo valore futuro con interesse composto",
+                    "Mostra crescita stimata vs contributi versati",
+                    "Proiezioni fino a 20 anni"
+                }),
+                new("📊", "Calcoli Finanziari", new List<string>
+                {
+                    "Tasso crescita composto mensile da storico",
+                    "Formula annuity per contributi periodici",
+                    "Proiezione logaritmica per tempo a obiettivo"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.3.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "📊",
@@ -277,6 +308,37 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "2.4.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "📈",
+            IsMajor = true,
+            Title = "Projections & Forecasting",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔮", "Planning Tool", new List<string>
+                {
+                    "Trend analysis: average monthly growth and percentage rate",
+                    "Projection chart: historical + estimated future (1-10 years)",
+                    "'When will I reach?' calculator: estimated date for target amount",
+                    "Goals timeline with estimated completion dates"
+                }),
+                new("🧮", "What-If Simulator", new List<string>
+                {
+                    "Simulate additional monthly contributions",
+                    "Future value calculation with compound interest",
+                    "Shows estimated growth vs contributions made",
+                    "Projections up to 20 years"
+                }),
+                new("📊", "Financial Calculations", new List<string>
+                {
+                    "Compound monthly growth rate from history",
+                    "Annuity formula for periodic contributions",
+                    "Logarithmic projection for time-to-goal"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.3.0",

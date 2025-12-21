@@ -7,6 +7,35 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.4.0] - 2025-12-21
+
+### 📈 Nuova Funzionalità - Proiezioni e Forecasting
+
+Trasformazione dell'app da "registro passivo" a "strumento di pianificazione attiva".
+
+### Aggiunto
+
+#### Pagina Proiezioni (`/projections`)
+- **Analisi Trend**: Cards riassuntive con patrimonio attuale, crescita mensile media, tasso percentuale
+- **Grafico Proiezione**: Visualizzazione storico + proiezione futura (1-10 anni)
+- **Calcolatore "Quando raggiungerò?"**: Inserisci un importo obiettivo e calcola la data stimata
+- **Simulatore What-If**: 
+  - Simula contributi mensili aggiuntivi
+  - Calcola valore futuro con compound interest
+  - Mostra crescita stimata e guadagno totale
+- **Timeline Obiettivi**: Stima automatica della data di completamento per ogni goal
+
+#### Calcoli Finanziari
+- Tasso di crescita composto mensile basato su storico snapshot
+- Formula annuity per contributi periodici
+- Proiezione logaritmica per tempo a obiettivo
+
+#### Navigazione
+- Nuovo link "Proiezioni" nel menu laterale
+- Localizzazione completa IT/EN
+
+---
+
 ## [2.3.0] - 2025-12-21
 
 ### 📊 Nuova Funzionalità - Confronto Mensile
