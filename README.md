@@ -2,12 +2,15 @@
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Blazor](https://img.shields.io/badge/Blazor-Server-512BD4?logo=blazor)](https://blazor.net/)
+[![Deploy on Fly.io](https://img.shields.io/badge/Deploy-Fly.io-7c3aed?logo=fly.io)](https://fly.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 A comprehensive **family wealth management application** built with Blazor Server and Entity Framework Core. Track your net worth, investments, goals, and expenses — all in one place.
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Docker](#-docker) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
+🌐 **Live Demo**: [familyfinance-riccardo.fly.dev](https://familyfinance-riccardo.fly.dev)
+
+[Features](#-features) • [Quick Start](#-quick-start) • [Fly.io Deploy](#-flyio-deploy) • [Docker](#-docker) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
 
 ---
 
@@ -88,6 +91,8 @@ dotnet run
 
 Open your browser at **http://localhost:5044**
 
+> 💡 **Tip**: For production deployment, use [Fly.io](#-flyio-deploy) or [Docker](#-docker)
+
 ### First Setup
 
 1. **Register** a new account
@@ -95,6 +100,42 @@ Open your browser at **http://localhost:5044**
 3. **Add accounts** (bank, savings, pension, etc.)
 4. **Create your first snapshot** with current balances
 5. **Set up goals** and track your progress!
+
+---
+
+## ☁️ Fly.io Deploy
+
+The fastest way to deploy FamilyFinance to the cloud (free tier available).
+
+### Quick Deploy
+
+```bash
+# Install Fly CLI
+curl -L https://fly.io/install.sh | sh
+
+# Login (create free account)
+fly auth signup
+
+# Clone and deploy
+git clone https://github.com/riccardomerenda/FamilyBalance.git
+cd FamilyBalance
+
+# Create app and volume
+fly apps create your-app-name
+fly volumes create familyfinance_data --region fra --size 1
+
+# Deploy!
+fly deploy
+```
+
+Your app will be live at `https://your-app-name.fly.dev`
+
+### What's included
+- ✅ 256MB RAM (free tier)
+- ✅ 1GB persistent storage for SQLite
+- ✅ Auto-sleep when idle (saves resources)
+- ✅ Automatic HTTPS
+- ✅ Frankfurt region (low latency for EU)
 
 ---
 
