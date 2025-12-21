@@ -7,6 +7,23 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.7.2] - 2025-12-21
+
+### 🌍 Localization - Privacy Policy
+
+La Privacy Policy ora è completamente localizzata in italiano e inglese.
+
+### Aggiunto
+- **35+ nuove stringhe localizzate** per la Privacy Policy
+- Tutte le sezioni tradotte: Dati Raccolti, Finalità, Cookie, Sicurezza, Diritti GDPR
+- Privacy Policy disponibile nella lingua selezionata dall'utente
+
+### Modificato
+- `Privacy.razor` ora utilizza il sistema di localizzazione esistente
+- `SharedResource.resx` e `SharedResource.en.resx` aggiornati
+
+---
+
 ## [2.7.1] - 2025-12-21
 
 ### 📜 Privacy Policy

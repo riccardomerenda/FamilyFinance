@@ -2,7 +2,9 @@
 @layout EmptyLayout
 @attribute [AllowAnonymous]
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
 @inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4">
     <div class="max-w-3xl mx-auto">
@@ -16,8 +18,8 @@
                 </div>
                 <span class="text-xl font-bold text-gray-800 dark:text-gray-200">FamilyFinance</span>
             </a>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Privacy Policy</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Ultimo aggiornamento: Dicembre 2024</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">@L["PrivacyPolicy"]</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">@L["PrivacyLastUpdate"]</p>
         </div>
 
         <!-- Content -->
@@ -26,142 +28,137 @@
             <!-- Intro -->
             <section>
                 <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    FamilyFinance è un'applicazione open-source per la gestione del patrimonio familiare. 
-                    Questa informativa descrive come vengono trattati i tuoi dati personali in conformità 
-                    con il Regolamento Europeo 2016/679 (GDPR).
+                    @L["PrivacyIntro"]
                 </p>
             </section>
 
-            <!-- Titolare -->
+            <!-- Data Controller -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">👤</span> Titolare del Trattamento
+                    <span class="text-2xl">👤</span> @L["PrivacyDataController"]
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300">
                     Riccardo Merenda<br>
-                    Contatto: <a href="https://www.linkedin.com/in/riccardomerenda/" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">LinkedIn</a>
+                    @L["PrivacyContact"]: <a href="https://www.linkedin.com/in/riccardomerenda/" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">LinkedIn</a>
                 </p>
             </section>
 
-            <!-- Dati Raccolti -->
+            <!-- Data Collected -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">📋</span> Dati Raccolti
+                    <span class="text-2xl">📋</span> @L["PrivacyDataCollected"]
                 </h2>
                 <div class="space-y-4 text-gray-600 dark:text-gray-300">
                     <div>
-                        <h3 class="font-medium text-gray-700 dark:text-gray-200">Dati di registrazione</h3>
+                        <h3 class="font-medium text-gray-700 dark:text-gray-200">@L["PrivacyRegistrationData"]</h3>
                         <ul class="list-disc list-inside ml-4 mt-1">
-                            <li>Indirizzo email</li>
-                            <li>Nome visualizzato</li>
-                            <li>Password (memorizzata in forma criptata/hash)</li>
+                            <li>@L["PrivacyEmailAddress"]</li>
+                            <li>@L["PrivacyDisplayName"]</li>
+                            <li>@L["PrivacyPasswordHashed"]</li>
                         </ul>
                     </div>
                     <div>
-                        <h3 class="font-medium text-gray-700 dark:text-gray-200">Dati finanziari inseriti dall'utente</h3>
+                        <h3 class="font-medium text-gray-700 dark:text-gray-200">@L["PrivacyFinancialData"]</h3>
                         <ul class="list-disc list-inside ml-4 mt-1">
-                            <li>Saldi conti bancari</li>
-                            <li>Investimenti e portafogli</li>
-                            <li>Obiettivi finanziari</li>
-                            <li>Spese mensili</li>
+                            <li>@L["PrivacyBankBalances"]</li>
+                            <li>@L["PrivacyInvestmentsPortfolios"]</li>
+                            <li>@L["PrivacyFinancialGoals"]</li>
+                            <li>@L["PrivacyMonthlyExpenses"]</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
-            <!-- Finalità -->
+            <!-- Purpose -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">🎯</span> Finalità del Trattamento
+                    <span class="text-2xl">🎯</span> @L["PrivacyPurpose"]
                 </h2>
                 <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>Fornitura del servizio di gestione patrimoniale</li>
-                    <li>Autenticazione e sicurezza dell'account</li>
-                    <li>Memorizzazione delle preferenze utente (lingua, tema)</li>
+                    <li>@L["PrivacyPurposeWealth"]</li>
+                    <li>@L["PrivacyPurposeAuth"]</li>
+                    <li>@L["PrivacyPurposePrefs"]</li>
                 </ul>
             </section>
 
-            <!-- Cookie -->
+            <!-- Cookies -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">🍪</span> Cookie Utilizzati
+                    <span class="text-2xl">🍪</span> @L["PrivacyCookies"]
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 mb-4">
-                    Utilizziamo esclusivamente <strong>cookie tecnici essenziali</strong>, necessari per il funzionamento 
-                    dell'applicazione. Non utilizziamo cookie di profilazione, analytics o pubblicitari.
+                    @L["PrivacyCookiesIntro"]
                 </p>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">Cookie</th>
-                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">Scopo</th>
-                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">Durata</th>
+                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">@L["PrivacyCookieName"]</th>
+                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">@L["PrivacyCookiePurpose"]</th>
+                                <th class="text-left py-2 px-3 text-gray-700 dark:text-gray-300">@L["PrivacyCookieDuration"]</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-600 dark:text-gray-400">
                             <tr class="border-b border-gray-100 dark:border-gray-800">
                                 <td class="py-2 px-3 font-mono text-xs">.AspNetCore.Identity</td>
-                                <td class="py-2 px-3">Autenticazione</td>
-                                <td class="py-2 px-3">30 giorni</td>
+                                <td class="py-2 px-3">@L["PrivacyCookieAuth"]</td>
+                                <td class="py-2 px-3">@L["PrivacyCookieDays"]</td>
                             </tr>
                             <tr class="border-b border-gray-100 dark:border-gray-800">
                                 <td class="py-2 px-3 font-mono text-xs">.AspNetCore.Culture</td>
-                                <td class="py-2 px-3">Preferenza lingua</td>
-                                <td class="py-2 px-3">1 anno</td>
+                                <td class="py-2 px-3">@L["PrivacyCookieLang"]</td>
+                                <td class="py-2 px-3">@L["PrivacyCookieYear"]</td>
                             </tr>
                             <tr>
                                 <td class="py-2 px-3 font-mono text-xs">theme (localStorage)</td>
-                                <td class="py-2 px-3">Tema dark/light</td>
-                                <td class="py-2 px-3">Persistente</td>
+                                <td class="py-2 px-3">@L["PrivacyCookieTheme"]</td>
+                                <td class="py-2 px-3">@L["PrivacyCookiePersistent"]</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Condivisione -->
+            <!-- Data Sharing -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">🔒</span> Condivisione dei Dati
+                    <span class="text-2xl">🔒</span> @L["PrivacyDataSharing"]
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300">
-                    I tuoi dati <strong>non vengono condivisi</strong> con terze parti. 
-                    Non utilizziamo servizi di analytics, advertising o social tracking.
-                    I dati sono memorizzati esclusivamente sul server dell'applicazione.
+                    @L["PrivacyDataSharingText"]
                 </p>
             </section>
 
-            <!-- Sicurezza -->
+            <!-- Security -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">🛡️</span> Sicurezza
+                    <span class="text-2xl">🛡️</span> @L["PrivacySecurity"]
                 </h2>
                 <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>Connessione crittografata HTTPS</li>
-                    <li>Password memorizzate con hash sicuro (ASP.NET Core Identity)</li>
-                    <li>Dati isolati per famiglia (multi-tenancy)</li>
-                    <li>Protezione contro attacchi brute-force (lockout automatico)</li>
+                    <li>@L["PrivacySecurityHttps"]</li>
+                    <li>@L["PrivacySecurityHash"]</li>
+                    <li>@L["PrivacySecurityMultitenant"]</li>
+                    <li>@L["PrivacySecurityLockout"]</li>
                 </ul>
             </section>
 
-            <!-- Diritti -->
+            <!-- Rights -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">⚖️</span> I Tuoi Diritti (GDPR)
+                    <span class="text-2xl">⚖️</span> @L["PrivacyRights"]
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 mb-3">
-                    In qualità di interessato, hai diritto a:
+                    @L["PrivacyRightsIntro"]
                 </p>
                 <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1">
-                    <li><strong>Accesso</strong> - Ottenere copia dei tuoi dati</li>
-                    <li><strong>Rettifica</strong> - Correggere dati inesatti</li>
-                    <li><strong>Cancellazione</strong> - Richiedere l'eliminazione dei dati</li>
-                    <li><strong>Portabilità</strong> - Esportare i tuoi dati (funzione Export integrata)</li>
-                    <li><strong>Opposizione</strong> - Opporti al trattamento</li>
+                    <li>@L["PrivacyRightAccess"]</li>
+                    <li>@L["PrivacyRightRectify"]</li>
+                    <li>@L["PrivacyRightErase"]</li>
+                    <li>@L["PrivacyRightPortability"]</li>
+                    <li>@L["PrivacyRightObject"]</li>
                 </ul>
                 <p class="text-gray-600 dark:text-gray-300 mt-3">
-                    Per esercitare questi diritti, contattami su 
+                    @L["PrivacyRightsContact"] 
                     <a href="https://www.linkedin.com/in/riccardomerenda/" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">LinkedIn</a>.
                 </p>
             </section>
@@ -169,24 +166,21 @@
             <!-- Demo -->
             <section class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
                 <h2 class="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
-                    <span class="text-xl">🎮</span> Nota sulla Modalità Demo
+                    <span class="text-xl">🎮</span> @L["PrivacyDemoNote"]
                 </h2>
                 <p class="text-amber-700 dark:text-amber-300 text-sm">
-                    L'account demo utilizza dati fittizi a scopo dimostrativo. 
-                    I dati della demo possono essere resettati periodicamente.
-                    Non inserire dati personali reali nell'account demo.
+                    @L["PrivacyDemoText"]
                 </p>
             </section>
 
             <!-- Open Source -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                    <span class="text-2xl">📖</span> Open Source
+                    <span class="text-2xl">📖</span> @L["PrivacyOpenSource"]
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300">
-                    FamilyFinance è un progetto open-source. Il codice sorgente è disponibile su 
-                    <a href="https://github.com/riccardomerenda/FamilyBalance" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">GitHub</a>
-                    per trasparenza e verifica.
+                    @L["PrivacyOpenSourceText"] 
+                    <a href="https://github.com/riccardomerenda/FamilyBalance" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">GitHub</a>.
                 </p>
             </section>
 
@@ -198,9 +192,8 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                Torna al Login
+                @L["BackToLogin"]
             </a>
         </div>
     </div>
 </div>
-

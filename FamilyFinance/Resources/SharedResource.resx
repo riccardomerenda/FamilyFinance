@@ -315,7 +315,6 @@
   <data name="AlreadyReached" xml:space="preserve"><value>Hai già raggiunto questo obiettivo!</value></data>
   <data name="WhatIfSimulator" xml:space="preserve"><value>Simulatore What-If</value></data>
   <data name="MonthlyContribution" xml:space="preserve"><value>Contributo Mensile</value></data>
-  <data name="TimeHorizon" xml:space="preserve"><value>Orizzonte Temporale</value></data>
   <data name="Year" xml:space="preserve"><value>Anno</value></data>
   <data name="FutureValue" xml:space="preserve"><value>Valore Futuro</value></data>
   <data name="TotalContributed" xml:space="preserve"><value>Totale Versato</value></data>
@@ -324,5 +323,57 @@
   <data name="GoalsTimeline" xml:space="preserve"><value>Timeline Obiettivi</value></data>
   <data name="Missing" xml:space="preserve"><value>Mancano</value></data>
   <data name="Completed" xml:space="preserve"><value>Completato</value></data>
+
+  <!-- Privacy Policy -->
+  <data name="PrivacyPolicy" xml:space="preserve"><value>Privacy Policy</value></data>
+  <data name="PrivacyLastUpdate" xml:space="preserve"><value>Ultimo aggiornamento: Dicembre 2024</value></data>
+  <data name="PrivacyIntro" xml:space="preserve"><value>FamilyFinance è un'applicazione open-source per la gestione del patrimonio familiare. Questa informativa descrive come vengono trattati i tuoi dati personali in conformità con il Regolamento Europeo 2016/679 (GDPR).</value></data>
+  <data name="PrivacyDataController" xml:space="preserve"><value>Titolare del Trattamento</value></data>
+  <data name="PrivacyContact" xml:space="preserve"><value>Contatto</value></data>
+  <data name="PrivacyDataCollected" xml:space="preserve"><value>Dati Raccolti</value></data>
+  <data name="PrivacyRegistrationData" xml:space="preserve"><value>Dati di registrazione</value></data>
+  <data name="PrivacyEmailAddress" xml:space="preserve"><value>Indirizzo email</value></data>
+  <data name="PrivacyDisplayName" xml:space="preserve"><value>Nome visualizzato</value></data>
+  <data name="PrivacyPasswordHashed" xml:space="preserve"><value>Password (memorizzata in forma criptata/hash)</value></data>
+  <data name="PrivacyFinancialData" xml:space="preserve"><value>Dati finanziari inseriti dall'utente</value></data>
+  <data name="PrivacyBankBalances" xml:space="preserve"><value>Saldi conti bancari</value></data>
+  <data name="PrivacyInvestmentsPortfolios" xml:space="preserve"><value>Investimenti e portafogli</value></data>
+  <data name="PrivacyFinancialGoals" xml:space="preserve"><value>Obiettivi finanziari</value></data>
+  <data name="PrivacyMonthlyExpenses" xml:space="preserve"><value>Spese mensili</value></data>
+  <data name="PrivacyPurpose" xml:space="preserve"><value>Finalità del Trattamento</value></data>
+  <data name="PrivacyPurposeWealth" xml:space="preserve"><value>Fornitura del servizio di gestione patrimoniale</value></data>
+  <data name="PrivacyPurposeAuth" xml:space="preserve"><value>Autenticazione e sicurezza dell'account</value></data>
+  <data name="PrivacyPurposePrefs" xml:space="preserve"><value>Memorizzazione delle preferenze utente (lingua, tema)</value></data>
+  <data name="PrivacyCookies" xml:space="preserve"><value>Cookie Utilizzati</value></data>
+  <data name="PrivacyCookiesIntro" xml:space="preserve"><value>Utilizziamo esclusivamente cookie tecnici essenziali, necessari per il funzionamento dell'applicazione. Non utilizziamo cookie di profilazione, analytics o pubblicitari.</value></data>
+  <data name="PrivacyCookieName" xml:space="preserve"><value>Cookie</value></data>
+  <data name="PrivacyCookiePurpose" xml:space="preserve"><value>Scopo</value></data>
+  <data name="PrivacyCookieDuration" xml:space="preserve"><value>Durata</value></data>
+  <data name="PrivacyCookieAuth" xml:space="preserve"><value>Autenticazione</value></data>
+  <data name="PrivacyCookieLang" xml:space="preserve"><value>Preferenza lingua</value></data>
+  <data name="PrivacyCookieTheme" xml:space="preserve"><value>Tema dark/light</value></data>
+  <data name="PrivacyCookieDays" xml:space="preserve"><value>30 giorni</value></data>
+  <data name="PrivacyCookieYear" xml:space="preserve"><value>1 anno</value></data>
+  <data name="PrivacyCookiePersistent" xml:space="preserve"><value>Persistente</value></data>
+  <data name="PrivacyDataSharing" xml:space="preserve"><value>Condivisione dei Dati</value></data>
+  <data name="PrivacyDataSharingText" xml:space="preserve"><value>I tuoi dati non vengono condivisi con terze parti. Non utilizziamo servizi di analytics, advertising o social tracking. I dati sono memorizzati esclusivamente sul server dell'applicazione.</value></data>
+  <data name="PrivacySecurity" xml:space="preserve"><value>Sicurezza</value></data>
+  <data name="PrivacySecurityHttps" xml:space="preserve"><value>Connessione crittografata HTTPS</value></data>
+  <data name="PrivacySecurityHash" xml:space="preserve"><value>Password memorizzate con hash sicuro (ASP.NET Core Identity)</value></data>
+  <data name="PrivacySecurityMultitenant" xml:space="preserve"><value>Dati isolati per famiglia (multi-tenancy)</value></data>
+  <data name="PrivacySecurityLockout" xml:space="preserve"><value>Protezione contro attacchi brute-force (lockout automatico)</value></data>
+  <data name="PrivacyRights" xml:space="preserve"><value>I Tuoi Diritti (GDPR)</value></data>
+  <data name="PrivacyRightsIntro" xml:space="preserve"><value>In qualità di interessato, hai diritto a:</value></data>
+  <data name="PrivacyRightAccess" xml:space="preserve"><value>Accesso - Ottenere copia dei tuoi dati</value></data>
+  <data name="PrivacyRightRectify" xml:space="preserve"><value>Rettifica - Correggere dati inesatti</value></data>
+  <data name="PrivacyRightErase" xml:space="preserve"><value>Cancellazione - Richiedere l'eliminazione dei dati</value></data>
+  <data name="PrivacyRightPortability" xml:space="preserve"><value>Portabilità - Esportare i tuoi dati (funzione Export integrata)</value></data>
+  <data name="PrivacyRightObject" xml:space="preserve"><value>Opposizione - Opporti al trattamento</value></data>
+  <data name="PrivacyRightsContact" xml:space="preserve"><value>Per esercitare questi diritti, contattami su</value></data>
+  <data name="PrivacyDemoNote" xml:space="preserve"><value>Nota sulla Modalità Demo</value></data>
+  <data name="PrivacyDemoText" xml:space="preserve"><value>L'account demo utilizza dati fittizi a scopo dimostrativo. I dati della demo possono essere resettati periodicamente. Non inserire dati personali reali nell'account demo.</value></data>
+  <data name="PrivacyOpenSource" xml:space="preserve"><value>Open Source</value></data>
+  <data name="PrivacyOpenSourceText" xml:space="preserve"><value>FamilyFinance è un progetto open-source. Il codice sorgente è disponibile su GitHub per trasparenza e verifica.</value></data>
+  <data name="BackToLogin" xml:space="preserve"><value>Torna al Login</value></data>
 </root>
 
