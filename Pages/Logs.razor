@@ -1,0 +1,64 @@
+@page "/logs"
+@using FamilyFinance.Services
+@inject LogService Log
+@inject IStringLocalizer<SharedResource> L
+
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["SystemLogs"]</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">@_logPath</p>
+        </div>
+        <button @onclick="Refresh" class="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            @L["Refresh"]
+        </button>
+    </div>
+
+    <div class="bg-gray-900 rounded-2xl p-4 overflow-hidden">
+        <div class="overflow-x-auto max-h-[70vh] overflow-y-auto font-mono text-sm">
+            @if (_logs.Count == 0)
+            {
+                <p class="text-gray-400 py-4 text-center">@L["NoLogs"]</p>
+            }
+            else
+            {
+                @foreach (var log in _logs)
+                {
+                    var cssClass = GetLogClass(log);
+                    <div class="@cssClass py-1 px-2 hover:bg-gray-800 rounded whitespace-nowrap">@log</div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    List<string> _logs = new();
+    string _logPath = "";
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+        _logPath = Log.GetLogFilePath();
+    }
+
+    void Refresh()
+    {
+        _logs = Log.GetRecentLogs(200);
+    }
+
+    string GetLogClass(string log)
+    {
+        if (log.Contains("[ERROR]") || log.Contains("[IMPORT-ERR]"))
+            return "text-red-400";
+        if (log.Contains("[WARN]"))
+            return "text-yellow-400";
+        if (log.Contains("[IMPORT]"))
+            return "text-emerald-400";
+        return "text-gray-300";
+    }
+}
+

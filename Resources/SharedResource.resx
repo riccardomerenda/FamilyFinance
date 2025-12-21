@@ -189,6 +189,33 @@
   <data name="Italian" xml:space="preserve"><value>Italiano</value></data>
   <data name="English" xml:space="preserve"><value>English</value></data>
 
+  <!-- Auth -->
+  <data name="Login" xml:space="preserve"><value>Accedi</value></data>
+  <data name="Logout" xml:space="preserve"><value>Esci</value></data>
+  <data name="LoginSubtitle" xml:space="preserve"><value>Accedi per gestire le finanze della tua famiglia</value></data>
+  <data name="SecureLogin" xml:space="preserve"><value>🔒 Connessione sicura</value></data>
+  <data name="WelcomeSetup" xml:space="preserve"><value>Benvenuto!</value></data>
+  <data name="SetupSubtitle" xml:space="preserve"><value>Configura FamilyFinance per la tua famiglia</value></data>
+  <data name="CreateFamily" xml:space="preserve"><value>Crea la tua Famiglia</value></data>
+  <data name="FamilyName" xml:space="preserve"><value>Nome Famiglia</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continua</value></data>
+  <data name="CreateAdminAccount" xml:space="preserve"><value>Crea Account Admin</value></data>
+  <data name="YourName" xml:space="preserve"><value>Il tuo Nome</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Conferma Password</value></data>
+  <data name="Back" xml:space="preserve"><value>Indietro</value></data>
+  <data name="CompleteSetup" xml:space="preserve"><value>Completa Setup</value></data>
+  <data name="SetupInfo" xml:space="preserve"><value>Sarai l'amministratore della famiglia e potrai invitare altri membri. I dati sono salvati localmente sul tuo computer.</value></data>
+  <data name="FamilyMembers" xml:space="preserve"><value>Membri Famiglia</value></data>
+  <data name="AddMember" xml:space="preserve"><value>Aggiungi Membro</value></data>
+  <data name="Role" xml:space="preserve"><value>Ruolo</value></data>
+  <data name="RoleAdmin" xml:space="preserve"><value>Admin</value></data>
+  <data name="RoleMember" xml:space="preserve"><value>Membro</value></data>
+  <data name="RoleViewer" xml:space="preserve"><value>Solo Lettura</value></data>
+  <data name="LastLogin" xml:space="preserve"><value>Ultimo accesso</value></data>
+  <data name="Never" xml:space="preserve"><value>Mai</value></data>
+  <data name="AccessDenied" xml:space="preserve"><value>Accesso Negato</value></data>
+  <data name="ViewerRestriction" xml:space="preserve"><value>Non hai i permessi per modificare i dati</value></data>
+
   <!-- Import -->
   <data name="ImportData" xml:space="preserve"><value>Importa Dati</value></data>
   <data name="ImportDataDesc" xml:space="preserve"><value>Ripristina dati da un backup JSON</value></data>
@@ -203,5 +230,15 @@
   <data name="ImportSuccessDesc" xml:space="preserve"><value>I dati sono stati importati correttamente.</value></data>
   <data name="ImportError" xml:space="preserve"><value>Errore durante l'importazione</value></data>
   <data name="Close" xml:space="preserve"><value>Chiudi</value></data>
+  <data name="ImportBackup" xml:space="preserve"><value>Importa Backup</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>Importazione Fallita</value></data>
+  <data name="Imported" xml:space="preserve"><value>importati</value></data>
+  <data name="SystemLogs" xml:space="preserve"><value>Log di Sistema</value></data>
+  <data name="NoLogs" xml:space="preserve"><value>Nessun log disponibile per oggi</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Aggiorna</value></data>
+  <data name="ViewLogs" xml:space="preserve"><value>Vedi Log</value></data>
+  <data name="ReleaseNotes" xml:space="preserve"><value>Note di Rilascio</value></data>
+  <data name="VersionHistory" xml:space="preserve"><value>Cronologia delle versioni e aggiornamenti</value></data>
+  <data name="MajorRelease" xml:space="preserve"><value>Release Principale</value></data>
 </root>
 

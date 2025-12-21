@@ -1,4 +1,5 @@
 @page "/accounts"
+@using AccountModel = FamilyFinance.Models.Account
 @inject AppDbContext Db
 @inject IStringLocalizer<SharedResource> L
 
@@ -87,8 +88,8 @@
 }
 
 @code {
-    List<Account> _accounts = new();
-    Account? _editing;
+    List<AccountModel> _accounts = new();
+    AccountModel? _editing;
 
     protected override void OnInitialized() => _accounts = Db.Accounts.OrderBy(a => a.Category).ThenBy(a => a.Name).ToList();
     
@@ -100,10 +101,10 @@
         _ => "bg-gradient-to-br from-gray-500 to-gray-600"
     };
 
-    void NewAccount() => _editing = new Account();
-    void Edit(Account a) => _editing = a;
+    void NewAccount() => _editing = new AccountModel();
+    void Edit(AccountModel a) => _editing = a;
     
-    void Delete(Account a)
+    void Delete(AccountModel a)
     {
         Db.Accounts.Remove(a);
         Db.SaveChanges();

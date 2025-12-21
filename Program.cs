@@ -1,6 +1,8 @@
 using System.Globalization;
 using FamilyFinance.Data;
+using FamilyFinance.Models;
 using FamilyFinance.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,10 +39,49 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
+// Identity
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    // Password settings (relaxed for family use)
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    
+    // User settings
+    options.User.RequireUniqueEmail = true;
+    
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// Cookie settings for authentication
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    options.SlidingExpiration = true;
+});
+
 // Services
 builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddSingleton<LogService>();
 
 var app = builder.Build();
+
+// Ensure database is created and apply migrations
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -51,6 +92,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseRequestLocalization();
 
 app.MapControllers();

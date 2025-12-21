@@ -1,9 +1,13 @@
 @using System.Reflection
+@inject IStringLocalizer<SharedResource> L
 
-<div class="flex items-center gap-2 text-xs text-gray-400">
-    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+<a href="/release-notes" class="flex items-center gap-2 text-xs text-gray-400 hover:text-primary-500 transition-colors group" title="@L["ReleaseNotes"]">
+    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse group-hover:bg-primary-500"></div>
     <span>v@(Version)</span>
-</div>
+    <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+</a>
 
 @code {
     private string Version

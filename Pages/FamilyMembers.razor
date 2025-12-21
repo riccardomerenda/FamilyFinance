@@ -1,0 +1,293 @@
+@page "/family-members"
+@page "/family"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FamilyFinance.Models
+@using FamilyFinance.Services
+@using FamilyModel = FamilyFinance.Models.Family
+@inject AuthService Auth
+@inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">@L["FamilyMembers"]</h1>
+            @if (_family != null)
+            {
+                <p class="text-gray-500 dark:text-gray-400">@_family.Name</p>
+            }
+        </div>
+        
+        @if (_currentUser?.Role == UserRole.Admin)
+        {
+            <button @onclick="ShowAddMember" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                @L["AddMember"]
+            </button>
+        }
+    </div>
+
+    @if (_loading)
+    {
+        <div class="text-center py-12">
+            <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto"></div>
+            <p class="text-gray-500 mt-4">@L["Loading"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-4">
+            @foreach (var member in _members)
+            {
+                var isCurrentUser = member.Id == _currentUser?.Id;
+                var roleColor = member.Role == UserRole.Admin ? "red" : member.Role == UserRole.Member ? "blue" : "gray";
+                
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 @(isCurrentUser ? "ring-2 ring-primary-500" : "")">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center text-white font-bold text-lg">
+                                @member.DisplayName.Substring(0, 1).ToUpper()
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-gray-800 dark:text-gray-200">@member.DisplayName</h3>
+                                    @if (isCurrentUser)
+                                    {
+                                        <span class="text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">Tu</span>
+                                    }
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">@member.Email</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                <span class="inline-block px-3 py-1 text-sm font-medium rounded-full
+                                    @(member.Role == UserRole.Admin ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                                      member.Role == UserRole.Member ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
+                                      "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400")">
+                                    @L[$"Role{member.Role}"]
+                                </span>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    @L["LastLogin"]: @(member.LastLoginAt?.ToString("dd/MM/yy HH:mm") ?? L["Never"])
+                                </p>
+                            </div>
+                            
+                            @if (_currentUser?.Role == UserRole.Admin && !isCurrentUser)
+                            {
+                                <div class="flex gap-1">
+                                    <button @onclick="() => EditMember(member)" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                        </svg>
+                                    </button>
+                                    <button @onclick="() => DeleteMember(member)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <!-- Role Legend -->
+        <div class="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
+            <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">@L["Role"]</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="flex items-start gap-2">
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-medium">Admin</span>
+                    <span class="text-gray-600 dark:text-gray-400">Gestisce utenti e tutti i dati</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-xs font-medium">Membro</span>
+                    <span class="text-gray-600 dark:text-gray-400">Può modificare tutti i dati</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="px-2 py-0.5 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-400 rounded-full text-xs font-medium">Viewer</span>
+                    <span class="text-gray-600 dark:text-gray-400">Solo visualizzazione</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Add/Edit Modal -->
+@if (_showModal)
+{
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @onclick="CloseModal">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" @onclick:stopPropagation="true">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+                @(_editingMember == null ? L["AddMember"] : "Modifica Membro")
+            </h2>
+            
+            @if (!string.IsNullOrEmpty(_modalError))
+            {
+                <div class="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                    @_modalError
+                </div>
+            }
+
+            <div class="space-y-4">
+                @if (_editingMember == null)
+                {
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["YourName"]</label>
+                        <input @bind="_newDisplayName" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" @bind="_newEmail" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" @bind="_newPassword" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+                    </div>
+                }
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@L["Role"]</label>
+                    <div class="flex gap-2">
+                        @foreach (var role in Enum.GetValues<UserRole>())
+                        {
+                            var isSelected = _newRole == role;
+                            <button type="button" @onclick="() => _newRole = role"
+                                class="flex-1 px-4 py-2 rounded-xl font-medium transition-all
+                                    @(isSelected ? "bg-primary-500 text-white ring-2 ring-offset-2 ring-primary-500" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300")">
+                                @L[$"Role{role}"]
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button @onclick="SaveMember" disabled="@_saving" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50">
+                    @L["Save"]
+                </button>
+                <button @onclick="CloseModal" class="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<AppUser> _members = new();
+    AppUser? _currentUser;
+    FamilyModel? _family;
+    bool _loading = true;
+    
+    // Modal state
+    bool _showModal;
+    AppUser? _editingMember;
+    string _newDisplayName = "";
+    string _newEmail = "";
+    string _newPassword = "";
+    UserRole _newRole = UserRole.Member;
+    string? _modalError;
+    bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        if (!string.IsNullOrEmpty(userId))
+        {
+            _currentUser = await Auth.GetUserWithFamilyAsync(userId);
+            if (_currentUser != null)
+            {
+                _family = _currentUser.Family;
+                _members = await Auth.GetFamilyMembersAsync(_currentUser.FamilyId);
+            }
+        }
+        
+        _loading = false;
+    }
+
+    void ShowAddMember()
+    {
+        _editingMember = null;
+        _newDisplayName = "";
+        _newEmail = "";
+        _newPassword = "";
+        _newRole = UserRole.Member;
+        _modalError = null;
+        _showModal = true;
+    }
+
+    void EditMember(AppUser member)
+    {
+        _editingMember = member;
+        _newRole = member.Role;
+        _modalError = null;
+        _showModal = true;
+    }
+
+    void CloseModal()
+    {
+        _showModal = false;
+        _editingMember = null;
+    }
+
+    async Task SaveMember()
+    {
+        _modalError = null;
+        _saving = true;
+
+        try
+        {
+            if (_editingMember != null)
+            {
+                // Update role
+                var (success, error) = await Auth.UpdateUserRoleAsync(_editingMember.Id, _newRole, _currentUser!.Id);
+                if (!success)
+                {
+                    _modalError = error;
+                    return;
+                }
+            }
+            else
+            {
+                // Create new user
+                if (string.IsNullOrWhiteSpace(_newDisplayName) || string.IsNullOrWhiteSpace(_newEmail) || string.IsNullOrWhiteSpace(_newPassword))
+                {
+                    _modalError = "Compila tutti i campi";
+                    return;
+                }
+
+                var (success, error) = await Auth.RegisterUserAsync(_newEmail, _newPassword, _newDisplayName, _currentUser!.FamilyId, _newRole);
+                if (!success)
+                {
+                    _modalError = error;
+                    return;
+                }
+            }
+
+            // Refresh list
+            _members = await Auth.GetFamilyMembersAsync(_currentUser!.FamilyId);
+            CloseModal();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    async Task DeleteMember(AppUser member)
+    {
+        var (success, error) = await Auth.DeleteUserAsync(member.Id, _currentUser!.Id);
+        if (success)
+        {
+            _members = await Auth.GetFamilyMembersAsync(_currentUser.FamilyId);
+        }
+    }
+}
+

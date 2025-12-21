@@ -1,0 +1,12 @@
+@page "/Account/Logout"
+@attribute [AllowAnonymous]
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Nav
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redirect to the logout controller action
+        Nav.NavigateTo("/Auth/Logout", forceLoad: true);
+    }
+}

@@ -11,6 +11,10 @@ public class Goal
     public GoalCategory Category { get; set; } = GoalCategory.Liquidity;
     public bool ShowMonthlyTarget { get; set; } = true; // Mostra proiezione mensile
     
+    // Family ownership
+    public int FamilyId { get; set; }
+    public Family? Family { get; set; }
+    
     // Calculated properties
     public decimal Missing => Math.Max(0, Target - AllocatedAmount);
     public decimal ProgressPercent => Target > 0 ? Math.Min(100, (AllocatedAmount / Target) * 100) : 0;

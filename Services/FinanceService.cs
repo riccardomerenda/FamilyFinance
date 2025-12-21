@@ -7,7 +7,13 @@ namespace FamilyFinance.Services;
 public class FinanceService
 {
     private readonly AppDbContext _db;
-    public FinanceService(AppDbContext db) => _db = db;
+    private readonly LogService _log;
+    
+    public FinanceService(AppDbContext db, LogService log)
+    {
+        _db = db;
+        _log = log;
+    }
 
     // Snapshots
     public async Task<List<Snapshot>> GetSnapshotsAsync()
@@ -229,9 +235,12 @@ public class FinanceService
         return preview;
     }
 
-    public async Task<ImportResult> ImportDataAsync(BackupDto backup, bool replaceExisting)
+    public async Task<ImportResult> ImportDataAsync(BackupDto backup, bool replaceExisting, int familyId)
     {
         var result = new ImportResult { Success = true };
+        
+        _log.LogImport($"=== Starting Import === Replace existing: {replaceExisting}, FamilyId: {familyId}");
+        _log.LogImport($"Backup contains: {backup.Accounts.Count} accounts, {backup.Portfolios.Count} portfolios, {backup.Goals.Count} goals, {backup.Snapshots.Count} snapshots");
 
         try
         {
@@ -240,46 +249,66 @@ public class FinanceService
             var portfolioIdMap = new Dictionary<int, int>();
 
             // 1. Import Accounts
+            _log.LogImport("Step 1: Importing Accounts...");
             var existingAccounts = await _db.Accounts.ToListAsync();
             foreach (var accDto in backup.Accounts)
             {
-                var existing = existingAccounts.FirstOrDefault(a => a.Name.Equals(accDto.Name, StringComparison.OrdinalIgnoreCase));
-                
-                if (existing != null)
+                try
                 {
-                    accountIdMap[accDto.Id] = existing.Id;
+                    _log.LogImport($"  Processing account: {accDto.Name} (Id={accDto.Id}, Category={accDto.Category})");
                     
-                    if (replaceExisting)
+                    var existing = existingAccounts.FirstOrDefault(a => a.Name.Equals(accDto.Name, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (existing != null)
                     {
-                        existing.Owner = accDto.Owner;
-                        existing.IsInterest = accDto.IsInterest;
-                        existing.IsActive = accDto.IsActive;
+                        _log.LogImport($"    Found existing account with Id={existing.Id}");
+                        accountIdMap[accDto.Id] = existing.Id;
+                        
+                        if (replaceExisting)
+                        {
+                            existing.Owner = accDto.Owner ?? "";
+                            existing.IsInterest = accDto.IsInterest;
+                            existing.IsActive = accDto.IsActive;
+                            if (Enum.TryParse<AccountCategory>(accDto.Category, out var cat))
+                                existing.Category = cat;
+                            result.AccountsImported++;
+                        }
+                    }
+                    else
+                    {
+                        _log.LogImport($"    Creating new account...");
+                        var newAccount = new Account
+                        {
+                            Name = accDto.Name ?? "Unknown",
+                            Owner = accDto.Owner ?? "",
+                            IsInterest = accDto.IsInterest,
+                            IsActive = accDto.IsActive,
+                            Category = AccountCategory.Liquidity, // Default
+                            FamilyId = familyId
+                        };
                         if (Enum.TryParse<AccountCategory>(accDto.Category, out var cat))
-                            existing.Category = cat;
+                            newAccount.Category = cat;
+                        
+                        _db.Accounts.Add(newAccount);
+                        await _db.SaveChangesAsync();
+                        
+                        accountIdMap[accDto.Id] = newAccount.Id;
                         result.AccountsImported++;
+                        _log.LogImport($"    Created with new Id={newAccount.Id}");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    var newAccount = new Account
-                    {
-                        Name = accDto.Name,
-                        Owner = accDto.Owner,
-                        IsInterest = accDto.IsInterest,
-                        IsActive = accDto.IsActive
-                    };
-                    if (Enum.TryParse<AccountCategory>(accDto.Category, out var cat))
-                        newAccount.Category = cat;
-                    
-                    _db.Accounts.Add(newAccount);
-                    await _db.SaveChangesAsync();
-                    
-                    accountIdMap[accDto.Id] = newAccount.Id;
-                    result.AccountsImported++;
+                    var innerMsg = ex.InnerException?.Message ?? ex.Message;
+                    _log.LogError($"  Failed to import account '{accDto.Name}': {innerMsg}", ex, "Import");
+                    throw; // Re-throw to stop the import
                 }
             }
 
+            _log.LogImport($"  Accounts imported: {result.AccountsImported}");
+
             // 2. Import Portfolios
+            _log.LogImport("Step 2: Importing Portfolios...");
             var existingPortfolios = await _db.Portfolios.ToListAsync();
             foreach (var pDto in backup.Portfolios)
             {
@@ -309,7 +338,8 @@ public class FinanceService
                         TargetYear = pDto.TargetYear,
                         Color = pDto.Color,
                         IsActive = pDto.IsActive,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        FamilyId = familyId
                     };
                     
                     _db.Portfolios.Add(newPortfolio);
@@ -320,7 +350,10 @@ public class FinanceService
                 }
             }
 
+            _log.LogImport($"  Portfolios imported: {result.PortfoliosImported}");
+
             // 3. Import Goals
+            _log.LogImport("Step 3: Importing Goals...");
             var existingGoals = await _db.Goals.ToListAsync();
             foreach (var gDto in backup.Goals)
             {
@@ -350,7 +383,8 @@ public class FinanceService
                         Target = gDto.Target,
                         AllocatedAmount = gDto.AllocatedAmount,
                         Deadline = gDto.Deadline,
-                        ShowMonthlyTarget = gDto.ShowMonthlyTarget
+                        ShowMonthlyTarget = gDto.ShowMonthlyTarget,
+                        FamilyId = familyId
                     };
                     if (Enum.TryParse<GoalPriority>(gDto.Priority, out var pri))
                         newGoal.Priority = pri;
@@ -363,8 +397,10 @@ public class FinanceService
             }
 
             await _db.SaveChangesAsync();
+            _log.LogImport($"  Goals imported: {result.GoalsImported}");
 
             // 4. Import Snapshots
+            _log.LogImport("Step 4: Importing Snapshots...");
             var existingSnapshots = await _db.Snapshots.ToListAsync();
             foreach (var sDto in backup.Snapshots)
             {
@@ -383,7 +419,7 @@ public class FinanceService
                 }
 
                 // Create new snapshot
-                var newSnapshot = new Snapshot { SnapshotDate = snapshotDate };
+                var newSnapshot = new Snapshot { SnapshotDate = snapshotDate, FamilyId = familyId };
                 _db.Snapshots.Add(newSnapshot);
                 await _db.SaveChangesAsync();
 
@@ -452,11 +488,22 @@ public class FinanceService
                 await _db.SaveChangesAsync();
                 result.SnapshotsImported++;
             }
+            
+            _log.LogImport($"  Snapshots imported: {result.SnapshotsImported}");
+            _log.LogImport("=== Import completed successfully ===");
         }
         catch (Exception ex)
         {
             result.Success = false;
-            result.Error = ex.Message;
+            
+            // Get the innermost exception for better error details
+            var innerEx = ex;
+            while (innerEx.InnerException != null)
+                innerEx = innerEx.InnerException;
+            
+            result.Error = $"{ex.Message} - Inner: {innerEx.Message}";
+            _log.LogError($"Import failed: {ex.Message}", ex, "Import");
+            _log.LogError($"Inner exception: {innerEx.Message}", innerEx, "Import");
         }
 
         return result;

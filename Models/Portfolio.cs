@@ -11,5 +11,9 @@ public class Portfolio
     public string Icon { get; set; } = "chart"; // chart, crypto, piggy, rocket, shield
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    // Family ownership
+    public int FamilyId { get; set; }
+    public Family? Family { get; set; }
 }
 

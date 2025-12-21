@@ -1,11 +1,13 @@
 using FamilyFinance.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FamilyFinance.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
+    public DbSet<Family> Families => Set<Family>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Snapshot> Snapshots => Set<Snapshot>();
     public DbSet<SnapshotLine> SnapshotLines => Set<SnapshotLine>();
@@ -18,6 +20,8 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder); // Important for Identity tables
+        
         var dateOnlyConverter = new ValueConverter<DateOnly, string>(
             v => v.ToString("yyyy-MM-dd"), v => DateOnly.Parse(v));
 
@@ -30,18 +34,35 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<SnapshotLine>().HasIndex(x => new { x.SnapshotId, x.AccountId }).IsUnique();
         
-        // Seed Dati Iniziali (i tuoi conti)
-        modelBuilder.Entity<Account>().HasData(
-            new Account { Id = 1, Name = "BBVA - Capitale", Category = AccountCategory.Liquidity },
-            new Account { Id = 2, Name = "BBVA - Interessi", Category = AccountCategory.Liquidity, IsInterest = true },
-            new Account { Id = 3, Name = "ING - Capitale", Category = AccountCategory.Liquidity },
-            new Account { Id = 4, Name = "ING - Interessi", Category = AccountCategory.Liquidity, IsInterest = true },
-            new Account { Id = 5, Name = "UniCredit Riccardo", Category = AccountCategory.Liquidity, Owner = "Riccardo" },
-            new Account { Id = 6, Name = "UniCredit Valentina", Category = AccountCategory.Liquidity, Owner = "Valentina" },
-            new Account { Id = 7, Name = "FON.TE", Category = AccountCategory.Pension, Owner = "Riccardo" },
-            new Account { Id = 8, Name = "Allianz", Category = AccountCategory.Insurance }
-        );
-        base.OnModelCreating(modelBuilder);
+        // Family relationships
+        modelBuilder.Entity<AppUser>()
+            .HasOne(u => u.Family)
+            .WithMany(f => f.Members)
+            .HasForeignKey(u => u.FamilyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Account>()
+            .HasOne(a => a.Family)
+            .WithMany(f => f.Accounts)
+            .HasForeignKey(a => a.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Snapshot>()
+            .HasOne(s => s.Family)
+            .WithMany(f => f.Snapshots)
+            .HasForeignKey(s => s.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Goal>()
+            .HasOne(g => g.Family)
+            .WithMany(f => f.Goals)
+            .HasForeignKey(g => g.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Portfolio>()
+            .HasOne(p => p.Family)
+            .WithMany(f => f.Portfolios)
+            .HasForeignKey(p => p.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

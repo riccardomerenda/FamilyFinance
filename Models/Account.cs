@@ -8,5 +8,9 @@ public class Account
     public string Owner { get; set; } = "Famiglia";
     public bool IsActive { get; set; } = true;
     public bool IsInterest { get; set; } = false; // Se true, appare nel tab Interessi
+    
+    // Family ownership
+    public int FamilyId { get; set; }
+    public Family? Family { get; set; }
 }
 

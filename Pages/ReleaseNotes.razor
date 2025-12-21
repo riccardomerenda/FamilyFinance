@@ -1,0 +1,290 @@
+@page "/release-notes"
+@using System.Reflection
+@using System.Globalization
+@inject IStringLocalizer<SharedResource> L
+@inject IWebHostEnvironment Env
+
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["ReleaseNotes"]</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">@L["VersionHistory"]</p>
+        </div>
+        <div class="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-xl font-mono font-bold">
+            v@_currentVersion
+        </div>
+    </div>
+
+    <div class="space-y-8">
+        @foreach (var release in _releases)
+        {
+            <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <!-- Release Header -->
+                <div class="px-6 py-4 bg-gradient-to-r @(release.IsMajor ? "from-primary-500 to-primary-600" : "from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700")">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">@release.Emoji</span>
+                            <div>
+                                <h2 class="text-xl font-bold @(release.IsMajor ? "text-white" : "text-gray-800 dark:text-gray-100")">
+                                    v@release.Version
+                                </h2>
+                                <p class="text-sm @(release.IsMajor ? "text-primary-100" : "text-gray-500 dark:text-gray-400")">
+                                    @release.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentUICulture)
+                                </p>
+                            </div>
+                        </div>
+                        @if (release.IsMajor)
+                        {
+                            <span class="px-3 py-1 bg-white/20 text-white text-sm font-medium rounded-full">
+                                @L["MajorRelease"]
+                            </span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(release.Title))
+                    {
+                        <p class="mt-2 @(release.IsMajor ? "text-primary-100" : "text-gray-600 dark:text-gray-300")">
+                            @release.Title
+                        </p>
+                    }
+                </div>
+
+                <!-- Release Content -->
+                <div class="p-6 space-y-6">
+                    @foreach (var sect in release.Sections)
+                    {
+                        <div>
+                            <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                                <span class="text-xl">@sect.Icon</span>
+                                @sect.Title
+                            </h3>
+                            <ul class="space-y-2">
+                                @foreach (var item in sect.Items)
+                                {
+                                    <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400">
+                                        <svg class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>@item</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    string _currentVersion = "2.0.0";
+    List<ReleaseInfo> _releases = new();
+    bool _isItalian => CultureInfo.CurrentUICulture.Name.StartsWith("it");
+
+    protected override void OnInitialized()
+    {
+        // Get version from assembly
+        var assembly = typeof(Program).Assembly;
+        var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrEmpty(version))
+        {
+            _currentVersion = version.Split('+')[0];
+        }
+
+        // Define releases based on current language
+        _releases = _isItalian ? GetItalianReleases() : GetEnglishReleases();
+    }
+
+    List<ReleaseInfo> GetItalianReleases() => new()
+    {
+        new ReleaseInfo
+        {
+            Version = "2.0.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🎉",
+            IsMajor = true,
+            Title = "Autenticazione Multi-Famiglia",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔐", "Autenticazione & Utenti", new List<string>
+                {
+                    "Sistema di login/registrazione completo",
+                    "Supporto multi-famiglia con dati isolati",
+                    "Ruoli utente: Admin e Member",
+                    "Gestione membri della famiglia",
+                    "Setup iniziale guidato"
+                }),
+                new("📦", "Import/Export", new List<string>
+                {
+                    "Export completo in JSON (backup)",
+                    "Export CSV per snapshots, investimenti, obiettivi",
+                    "Import intelligente con anteprima",
+                    "Opzione sovrascrittura dati esistenti"
+                }),
+                new("📊", "Portafogli di Investimento", new List<string>
+                {
+                    "Portafogli distinti (PAC, Crypto, etc.)",
+                    "Orizzonte temporale e anno target",
+                    "Colori personalizzabili",
+                    "Portafogli collassabili nella dashboard"
+                }),
+                new("🎯", "Obiettivi Avanzati", new List<string>
+                {
+                    "Priorità con badge colorati",
+                    "Allocazione manuale dei fondi",
+                    "Proiezione mensile per raggiungere l'obiettivo",
+                    "Visualizzazione obiettivi completati/in ritardo"
+                }),
+                new("🛡️", "Previdenza & Assicurazioni", new List<string>
+                {
+                    "Tab dedicata nella dashboard",
+                    "Tracciamento contributi vs valore attuale",
+                    "Calcolo gain/loss e performance %"
+                }),
+                new("🎨", "UI/UX", new List<string>
+                {
+                    "Design rinnovato con Tailwind CSS",
+                    "Tema Dark/Light con persistenza",
+                    "Layout responsive",
+                    "Localizzazione IT/EN"
+                }),
+                new("📝", "Sistema di Logging", new List<string>
+                {
+                    "Log su file giornalieri",
+                    "Pagina Log di Sistema",
+                    "Dettagli errori per debug"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "1.0.0",
+            Date = new DateTime(2025, 12, 20),
+            Emoji = "🚀",
+            IsMajor = false,
+            Title = "Release Iniziale",
+            Sections = new List<ReleaseSection>
+            {
+                new("✨", "Funzionalità", new List<string>
+                {
+                    "Gestione snapshots mensili",
+                    "Accounts con categorie",
+                    "Investimenti con broker e valore",
+                    "Crediti in sospeso",
+                    "Obiettivi finanziari base",
+                    "Grafici patrimonio nel tempo",
+                    "Database SQLite locale"
+                })
+            }
+        }
+    };
+
+    List<ReleaseInfo> GetEnglishReleases() => new()
+    {
+        new ReleaseInfo
+        {
+            Version = "2.0.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "🎉",
+            IsMajor = true,
+            Title = "Multi-Family Authentication",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔐", "Authentication & Users", new List<string>
+                {
+                    "Complete login/registration system",
+                    "Multi-family support with isolated data",
+                    "User roles: Admin and Member",
+                    "Family member management",
+                    "Guided initial setup"
+                }),
+                new("📦", "Import/Export", new List<string>
+                {
+                    "Full JSON export (backup)",
+                    "CSV export for snapshots, investments, goals",
+                    "Smart import with preview",
+                    "Option to overwrite existing data"
+                }),
+                new("📊", "Investment Portfolios", new List<string>
+                {
+                    "Distinct portfolios (DCA, Crypto, etc.)",
+                    "Time horizon and target year",
+                    "Customizable colors",
+                    "Collapsible portfolios in dashboard"
+                }),
+                new("🎯", "Advanced Goals", new List<string>
+                {
+                    "Priority with colored badges",
+                    "Manual fund allocation",
+                    "Monthly projection to reach goal",
+                    "Completed/overdue goals visualization"
+                }),
+                new("🛡️", "Pension & Insurance", new List<string>
+                {
+                    "Dedicated dashboard tab",
+                    "Contribution vs current value tracking",
+                    "Gain/loss and performance % calculation"
+                }),
+                new("🎨", "UI/UX", new List<string>
+                {
+                    "Redesigned with Tailwind CSS",
+                    "Dark/Light theme with persistence",
+                    "Responsive layout",
+                    "IT/EN localization"
+                }),
+                new("📝", "Logging System", new List<string>
+                {
+                    "Daily log files",
+                    "System Logs page",
+                    "Error details for debugging"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "1.0.0",
+            Date = new DateTime(2025, 12, 20),
+            Emoji = "🚀",
+            IsMajor = false,
+            Title = "Initial Release",
+            Sections = new List<ReleaseSection>
+            {
+                new("✨", "Features", new List<string>
+                {
+                    "Monthly snapshot management",
+                    "Accounts with categories",
+                    "Investments with broker and value",
+                    "Pending credits",
+                    "Basic financial goals",
+                    "Wealth charts over time",
+                    "Local SQLite database"
+                })
+            }
+        }
+    };
+
+    class ReleaseInfo
+    {
+        public string Version { get; set; } = "";
+        public DateTime Date { get; set; }
+        public string Emoji { get; set; } = "📦";
+        public bool IsMajor { get; set; }
+        public string? Title { get; set; }
+        public List<ReleaseSection> Sections { get; set; } = new();
+    }
+
+    class ReleaseSection
+    {
+        public string Icon { get; set; } = "✨";
+        public string Title { get; set; } = "";
+        public List<string> Items { get; set; } = new();
+
+        public ReleaseSection() { }
+        public ReleaseSection(string icon, string title, List<string> items)
+        {
+            Icon = icon;
+            Title = title;
+            Items = items;
+        }
+    }
+}
