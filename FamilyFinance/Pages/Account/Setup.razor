@@ -6,6 +6,7 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
+@inject IWebHostEnvironment Env
 
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-900 p-4">
     <div class="w-full max-w-md">
@@ -121,6 +122,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // In production, disable registration - redirect to login
+        if (!Env.IsDevelopment())
+        {
+            Nav.NavigateTo("/Account/Login");
+            return;
+        }
+        
         // If users already exist, redirect to login
         if (await Auth.HasAnyUsersAsync())
         {
