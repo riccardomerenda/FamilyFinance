@@ -3,6 +3,7 @@ using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
 using FamilyFinance.Services.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -69,6 +70,16 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(30);
     options.SlidingExpiration = true;
 });
+
+// Data Protection - Persist keys to survive container restarts
+var keysFolder = Path.Combine(
+    builder.Environment.IsProduction() ? "/app/data" : builder.Environment.ContentRootPath,
+    "keys");
+Directory.CreateDirectory(keysFolder);
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("FamilyFinance")
+    .PersistKeysToFileSystem(new DirectoryInfo(keysFolder));
 
 // Services - Interfaces and Implementations
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
