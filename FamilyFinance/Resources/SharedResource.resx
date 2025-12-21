@@ -274,5 +274,24 @@
   <data name="OverBudget" xml:space="preserve"><value>Oltre Budget</value></data>
   <data name="UnderBudget" xml:space="preserve"><value>Sotto Budget</value></data>
   <data name="TabBudget" xml:space="preserve"><value>Budget</value></data>
+
+  <!-- Compare -->
+  <data name="Compare" xml:space="preserve"><value>Confronto</value></data>
+  <data name="MonthlyComparison" xml:space="preserve"><value>Confronto Mensile</value></data>
+  <data name="NeedTwoSnapshots" xml:space="preserve"><value>Servono almeno due snapshot per il confronto.</value></data>
+  <data name="CreateSnapshot" xml:space="preserve"><value>Crea uno snapshot</value></data>
+  <data name="From" xml:space="preserve"><value>Da</value></data>
+  <data name="To" xml:space="preserve"><value>A</value></data>
+  <data name="Variation" xml:space="preserve"><value>Variazione</value></data>
+  <data name="AbsoluteChange" xml:space="preserve"><value>Variazione assoluta</value></data>
+  <data name="GrowthRate" xml:space="preserve"><value>Tasso di crescita</value></data>
+  <data name="CategoryComparison" xml:space="preserve"><value>Confronto per Categoria</value></data>
+  <data name="Increases" xml:space="preserve"><value>Aumenti</value></data>
+  <data name="Decreases" xml:space="preserve"><value>Diminuzioni</value></data>
+  <data name="NoIncreases" xml:space="preserve"><value>Nessun aumento nel periodo</value></data>
+  <data name="NoDecreases" xml:space="preserve"><value>Nessuna diminuzione nel periodo</value></data>
+  <data name="DetailedComparison" xml:space="preserve"><value>Confronto Dettagliato</value></data>
+  <data name="AccountDetails" xml:space="preserve"><value>Dettaglio per Account</value></data>
+  <data name="Delta" xml:space="preserve"><value>Delta</value></data>
 </root>
 

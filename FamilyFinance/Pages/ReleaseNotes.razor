@@ -99,6 +99,30 @@
     {
         new ReleaseInfo
         {
+            Version = "2.3.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "📊",
+            IsMajor = false,
+            Title = "Confronto Mensile",
+            Sections = new List<ReleaseSection>
+            {
+                new("📈", "Dashboard Comparativa", new List<string>
+                {
+                    "Selezione di due snapshot per confronto",
+                    "Cards riassuntive: patrimonio, variazione, crescita %",
+                    "Grafico a barre per confronto categorie",
+                    "Sezione 'Cosa è cambiato': aumenti vs diminuzioni"
+                }),
+                new("📋", "Tabelle Dettagliate", new List<string>
+                {
+                    "Confronto per categoria con delta e percentuali",
+                    "Dettaglio per singolo account/investimento",
+                    "Ordinamento automatico per importo"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.2.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "🏗️",
@@ -253,6 +277,30 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "2.3.0",
+            Date = new DateTime(2025, 12, 21),
+            Emoji = "📊",
+            IsMajor = false,
+            Title = "Monthly Comparison",
+            Sections = new List<ReleaseSection>
+            {
+                new("📈", "Comparison Dashboard", new List<string>
+                {
+                    "Select two snapshots for comparison",
+                    "Summary cards: total, variation, growth %",
+                    "Bar chart for category comparison",
+                    "'What changed' section: increases vs decreases"
+                }),
+                new("📋", "Detailed Tables", new List<string>
+                {
+                    "Category comparison with delta and percentages",
+                    "Account/investment level details",
+                    "Automatic sorting by amount"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.2.0",

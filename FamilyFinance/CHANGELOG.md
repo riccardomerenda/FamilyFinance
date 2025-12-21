@@ -7,6 +7,28 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.3.0] - 2025-12-21
+
+### 📊 Nuova Funzionalità - Confronto Mensile
+
+Dashboard comparativa per analizzare le variazioni del patrimonio tra mesi diversi.
+
+### Aggiunto
+
+#### Pagina Confronto (`/compare`)
+- Selezione di due snapshot per confronto side-by-side
+- Cards riassuntive: patrimonio totale, variazione assoluta, percentuale di crescita
+- Grafico a barre per confronto per categoria
+- Sezione "Cosa è cambiato": aumenti e diminuzioni ordinati per importo
+- Tabella dettagliata con confronto per categoria
+- Tabella account con dettaglio per singolo conto/investimento
+
+#### Navigazione
+- Nuovo link "Confronto" nel menu laterale
+- Localizzazione completa IT/EN
+
+---
+
 ## [2.2.0] - 2025-12-21
 
 ### 🏗️ Refactoring - Architettura Servizi
