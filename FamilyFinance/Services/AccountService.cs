@@ -1,7 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
-using FamilyFinance.Services.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,13 @@ public class AccountService : IAccountService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<AccountService> _logger;
+    private readonly IValidator<Account> _validator;
 
-    public AccountService(AppDbContext db, ILogger<AccountService> logger)
+    public AccountService(AppDbContext db, ILogger<AccountService> logger, IValidator<Account> validator)
     {
         _db = db;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<List<Account>> GetAllAsync(int familyId)
@@ -47,11 +49,12 @@ public class AccountService : IAccountService
     public async Task<ServiceResult> SaveAsync(Account account, string? userId = null)
     {
         // Validate
-        var validation = account.Validate();
-        if (!validation.Success)
+        var validationResult = await _validator.ValidateAsync(account);
+        if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Account validation failed: {Errors}", string.Join(", ", validation.Errors));
-            return validation;
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            _logger.LogWarning("Account validation failed: {Errors}", string.Join(", ", errors));
+            return ServiceResult.Fail(errors);
         }
 
         if (account.Id == 0)

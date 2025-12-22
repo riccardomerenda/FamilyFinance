@@ -7,6 +7,28 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.7.0] - 2025-12-22 🛡️ QUALITY & SECURITY
+
+### 🛡️ Enhanced Code Quality
+- **FluentValidation**: Implementata validazione strutturata per tutte le entità (Account, Goal, Portfolio, ecc.)
+- **EditorConfig**: Standardizzazione stile codice
+- **Refactoring**: Servizi refattorizzati per maggiore robustezza
+
+### 📋 Activity Logs
+- **Fix Database**: Risolto problema di migrazione mancante per `ActivityLogs`
+- **Login Logging**: Ora i tentativi di accesso (successo/fallimento) vengono tracciati correttamente
+
+### 🔒 Login Experience
+- **Feedback Migliorato**: Messaggi di errore espliciti via URL query string
+- **Novalidate**: Rimossi tooltip browser nativi in favore di box errore coerente
+- **Controlli Server**: Validazione robusta per campi vuoti
+
+### 🎮 Demo Mode
+- **Aggiornamento Credenziali**: Password aggiornata a `demo2026` per il nuovo anno
+- **Seed Data**: Dati demo aggiornati
+
+---
+
 ## [3.6.2] - 2025-12-22 🐛 LANGUAGE SWITCH FIX
 
 ### 🐛 Bug Fix

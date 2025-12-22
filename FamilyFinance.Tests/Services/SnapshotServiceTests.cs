@@ -4,6 +4,8 @@ using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentValidation;
+using FamilyFinance.Validators;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -20,7 +22,10 @@ public class SnapshotServiceTests : IDisposable
 
         _context = new AppDbContext(options);
         var logger = new Mock<ILogger<SnapshotService>>();
-        _service = new SnapshotService(_context, logger.Object);
+        _service = new SnapshotService(_context, logger.Object, 
+            new SnapshotValidator(_context),
+            new InvestmentAssetValidator(),
+            new ReceivableValidator());
 
         SeedTestData();
     }

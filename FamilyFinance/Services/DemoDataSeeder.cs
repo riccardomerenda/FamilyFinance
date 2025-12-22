@@ -11,7 +11,7 @@ public class DemoDataSeeder
     private readonly UserManager<AppUser> _userManager;
 
     public const string DemoEmail = "demo@familyfinance.app";
-    public const string DemoPassword = "demo2024";
+    public const string DemoPassword = "demo2026";
     public const string DemoFamilyName = "Famiglia Demo";
 
     public DemoDataSeeder(AppDbContext db, UserManager<AppUser> userManager)

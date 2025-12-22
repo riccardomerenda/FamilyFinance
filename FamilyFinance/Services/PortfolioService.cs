@@ -1,7 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
-using FamilyFinance.Services.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,13 @@ public class PortfolioService : IPortfolioService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<PortfolioService> _logger;
+    private readonly IValidator<Portfolio> _validator;
 
-    public PortfolioService(AppDbContext db, ILogger<PortfolioService> logger)
+    public PortfolioService(AppDbContext db, ILogger<PortfolioService> logger, IValidator<Portfolio> validator)
     {
         _db = db;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<List<Portfolio>> GetAllAsync(int familyId)
@@ -36,11 +38,12 @@ public class PortfolioService : IPortfolioService
     public async Task<ServiceResult> SaveAsync(Portfolio portfolio, string? userId = null)
     {
         // Validate
-        var validation = portfolio.Validate();
-        if (!validation.Success)
+        var validationResult = await _validator.ValidateAsync(portfolio);
+        if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Portfolio validation failed: {Errors}", string.Join(", ", validation.Errors));
-            return validation;
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            _logger.LogWarning("Portfolio validation failed: {Errors}", string.Join(", ", errors));
+            return ServiceResult.Fail(errors);
         }
 
         if (portfolio.Id == 0)
