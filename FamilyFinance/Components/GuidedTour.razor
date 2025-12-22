@@ -137,6 +137,9 @@
         
         _currentStep = 0;
         _isActive = true;
+        
+        // Wait for DOM to be fully rendered before calculating positions
+        await Task.Delay(500);
         await UpdatePosition();
         StateHasChanged();
     }
@@ -175,40 +178,58 @@
 
         try
         {
-            // Get element position from JS
-            var rect = await JS.InvokeAsync<ElementRect>("getTourElementRect", step.TargetSelector);
-            
-            if (rect != null && rect.Width > 0)
+            // Retry getting element position up to 3 times with delays
+            ElementRect? rect = null;
+            for (int retry = 0; retry < 3; retry++)
             {
-                // Spotlight position
-                var padding = 8;
+                rect = await JS.InvokeAsync<ElementRect>("getTourElementRect", step.TargetSelector);
+                if (rect != null && rect.Width > 0 && rect.Height > 0)
+                    break;
+                await Task.Delay(200);
+            }
+            
+            if (rect != null && rect.Width > 0 && rect.Height > 0)
+            {
+                // Spotlight position - use viewport coordinates
+                var padding = 12;
                 _spotlightStyle = $"top: {rect.Top - padding}px; left: {rect.Left - padding}px; width: {rect.Width + padding * 2}px; height: {rect.Height + padding * 2}px;";
 
                 // Tooltip position based on placement
-                var tooltipOffset = 16;
+                var tooltipOffset = 20;
+                var tooltipWidth = 320; // w-80 = 20rem = 320px
+                
                 switch (step.Placement)
                 {
                     case TooltipPlacement.Bottom:
-                        _tooltipStyle = $"top: {rect.Bottom + tooltipOffset}px; left: {rect.Left + rect.Width / 2 - 160}px;";
+                        _tooltipStyle = $"top: {rect.Bottom + tooltipOffset}px; left: {Math.Max(16, rect.Left + rect.Width / 2 - tooltipWidth / 2)}px;";
                         _arrowStyle = "top: -8px; left: 50%; margin-left: -8px;";
                         break;
                     case TooltipPlacement.Top:
-                        _tooltipStyle = $"bottom: {rect.Top + tooltipOffset}px; left: {rect.Left + rect.Width / 2 - 160}px;";
+                        _tooltipStyle = $"top: {rect.Top - tooltipOffset - 200}px; left: {Math.Max(16, rect.Left + rect.Width / 2 - tooltipWidth / 2)}px;";
                         _arrowStyle = "bottom: -8px; left: 50%; margin-left: -8px; transform: rotate(225deg);";
                         break;
                     case TooltipPlacement.Left:
-                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 80}px; right: {rect.Left + tooltipOffset}px;";
+                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 100}px; left: {rect.Left - tooltipWidth - tooltipOffset}px;";
                         _arrowStyle = "right: -8px; top: 50%; margin-top: -8px; transform: rotate(135deg);";
                         break;
                     case TooltipPlacement.Right:
                     default:
-                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 80}px; left: {rect.Right + tooltipOffset}px;";
+                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 100}px; left: {rect.Right + tooltipOffset}px;";
                         _arrowStyle = "left: -8px; top: 50%; margin-top: -8px; transform: rotate(-45deg);";
                         break;
                 }
 
                 // Scroll element into view if needed
                 await JS.InvokeVoidAsync("scrollTourElementIntoView", step.TargetSelector);
+            }
+            else
+            {
+                // Element not found after retries, skip to next step
+                if (_currentStep < _steps.Count - 1)
+                    await NextStep();
+                else
+                    await CompleteTour();
+                return;
             }
         }
         catch
