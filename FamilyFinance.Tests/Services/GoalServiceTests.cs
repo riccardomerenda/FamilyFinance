@@ -169,10 +169,10 @@ public class GoalServiceTests : IDisposable
     public async Task DeleteAsync_SoftDeletesGoal()
     {
         // Act
-        await _service.DeleteAsync(1);
+        await _service.DeleteAsync(1L);
 
         // Assert - Goal still exists but is marked as deleted
-        var goal = await _context.Goals.FindAsync(1);
+        var goal = await _context.Goals.FindAsync(1L);
         Assert.NotNull(goal);
         Assert.True(goal!.IsDeleted);
         Assert.NotNull(goal.DeletedAt);
@@ -182,7 +182,7 @@ public class GoalServiceTests : IDisposable
     public async Task GetAllAsync_ExcludesDeletedGoals()
     {
         // Arrange - Soft delete a goal
-        var goal = await _context.Goals.FindAsync(1);
+        var goal = await _context.Goals.FindAsync(1L);
         goal!.IsDeleted = true;
         await _context.SaveChangesAsync();
 
@@ -190,7 +190,7 @@ public class GoalServiceTests : IDisposable
         var goals = await _service.GetAllAsync(1);
 
         // Assert
-        Assert.DoesNotContain(goals, g => g.Id == 1);
+        Assert.DoesNotContain(goals, g => g.Id == 1L);
     }
     
     [Fact]

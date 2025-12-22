@@ -85,7 +85,7 @@ public class FinanceService
     public Task SaveGoalAsync(Goal goal) 
         => _goals.SaveAsync(goal);
 
-    public Task DeleteGoalAsync(int id) 
+    public Task DeleteGoalAsync(long id) 
         => _goals.DeleteAsync(id);
 
     // Portfolios - delegate to IPortfolioService

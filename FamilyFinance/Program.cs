@@ -132,11 +132,20 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
     
-    // Seed demo data in production
-    if (!app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment())
     {
+        // In development, use EnsureCreated for clean schema (no migrations needed)
+        db.Database.EnsureCreated();
+        
+        // Seed demo data in development for testing
+        var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
+        await seeder.SeedDemoDataAsync();
+    }
+    else
+    {
+        // In production, use migrations and seed demo data
+        db.Database.Migrate();
         var seeder = scope.ServiceProvider.GetRequiredService<DemoDataSeeder>();
         await seeder.SeedDemoDataAsync();
     }
