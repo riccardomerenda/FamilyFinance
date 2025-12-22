@@ -1,0 +1,355 @@
+@page "/profile"
+@using FamilyFinance.Models
+@using FamilyFinance.Services
+@using System.Security.Claims
+@inject AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService Notification
+@attribute [Authorize]
+
+<PageTitle>@L["MyProfile"] - FamilyFinance</PageTitle>
+
+<div class="max-w-4xl mx-auto">
+    @if (_user == null)
+    {
+        <div class="flex items-center justify-center h-64">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        </div>
+    }
+    else
+    {
+        <!-- Profile Header -->
+        <div class="bento-card p-8 mb-6 animate-in">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <!-- Avatar -->
+                <div class="relative">
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-br @GetAvatarGradient() flex items-center justify-center shadow-lg">
+                        <span class="text-3xl font-bold text-white">@GetInitials()</span>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@_user.DisplayName</h1>
+                    <p class="text-gray-500 dark:text-gray-400">@_user.Email</p>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-3">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium @GetRoleBadgeClass()">
+                            @GetRoleLabel()
+                        </span>
+                        @if (_user.Family != null)
+                        {
+                            <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                🏠 @_user.Family.Name
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Last Login -->
+                <div class="text-center md:text-right">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider">@L["LastLogin"]</p>
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">
+                        @if (_user.LastLoginAt.HasValue)
+                        {
+                            @_user.LastLoginAt.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                        }
+                        else
+                        {
+                            @L["Never"]
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Edit Profile Card -->
+            <div class="bento-card p-6 animate-in delay-1">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">@L["EditProfile"]</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@L["EditProfileDesc"]</p>
+                    </div>
+                </div>
+
+                <EditForm Model="_profileModel" OnValidSubmit="UpdateProfile">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["DisplayName"]</label>
+                            <InputText @bind-Value="_profileModel.DisplayName" 
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Email"]</label>
+                            <input type="email" value="@_user.Email" disabled
+                                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed" />
+                            <p class="text-xs text-gray-400 mt-1">@L["EmailCannotBeChanged"]</p>
+                        </div>
+                        <button type="submit" disabled="@_isUpdatingProfile"
+                                class="w-full px-4 py-2.5 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+                            @if (_isUpdatingProfile)
+                            {
+                                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            }
+                            else
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            }
+                            @L["SaveChanges"]
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="bento-card p-6 animate-in delay-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">@L["ChangePassword"]</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@L["ChangePasswordDesc"]</p>
+                    </div>
+                </div>
+
+                <EditForm Model="_passwordModel" OnValidSubmit="ChangePassword">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["CurrentPassword"]</label>
+                            <InputText type="password" @bind-Value="_passwordModel.CurrentPassword" 
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["NewPassword"]</label>
+                            <InputText type="password" @bind-Value="_passwordModel.NewPassword" 
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                            <p class="text-xs text-gray-400 mt-1">@L["PasswordRequirements"]</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["ConfirmNewPassword"]</label>
+                            <InputText type="password" @bind-Value="_passwordModel.ConfirmPassword" 
+                                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                        </div>
+                        <button type="submit" disabled="@_isChangingPassword"
+                                class="w-full px-4 py-2.5 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+                            @if (_isChangingPassword)
+                            {
+                                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            }
+                            else
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                </svg>
+                            }
+                            @L["UpdatePassword"]
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+
+        <!-- Account Info Card -->
+        <div class="bento-card p-6 mt-6 animate-in delay-3">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">@L["AccountInfo"]</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">@L["AccountInfoDesc"]</p>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">@L["Role"]</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">@GetRoleLabel()</p>
+                </div>
+                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">@L["Family"]</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">@(_user.Family?.Name ?? "-")</p>
+                </div>
+                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">@L["MemberSince"]</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">@_user.CreatedAt.ToString("MMM yyyy")</p>
+                </div>
+                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">@L["AccountStatus"]</p>
+                    <p class="font-semibold text-emerald-600 dark:text-emerald-400">@L["Active"]</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private AppUser? _user;
+    private ProfileModel _profileModel = new();
+    private PasswordModel _passwordModel = new();
+    private bool _isUpdatingProfile = false;
+    private bool _isChangingPassword = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        if (!string.IsNullOrEmpty(userId))
+        {
+            _user = await Auth.GetUserByIdAsync(userId);
+            if (_user != null)
+            {
+                _profileModel.DisplayName = _user.DisplayName;
+            }
+        }
+    }
+
+    private async Task UpdateProfile()
+    {
+        if (_user == null) return;
+        
+        _isUpdatingProfile = true;
+        try
+        {
+            var result = await Auth.UpdateProfileAsync(_user.Id, _profileModel.DisplayName);
+            if (result.Success)
+            {
+                _user.DisplayName = _profileModel.DisplayName;
+                Notification.ShowSuccess(L["ProfileUpdated"]);
+            }
+            else
+            {
+                Notification.ShowError(result.Error ?? L["GenericError"]);
+            }
+        }
+        finally
+        {
+            _isUpdatingProfile = false;
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        if (_user == null) return;
+
+        if (string.IsNullOrWhiteSpace(_passwordModel.CurrentPassword) ||
+            string.IsNullOrWhiteSpace(_passwordModel.NewPassword) ||
+            string.IsNullOrWhiteSpace(_passwordModel.ConfirmPassword))
+        {
+            Notification.ShowWarning(L["FillAllFields"]);
+            return;
+        }
+
+        if (_passwordModel.NewPassword != _passwordModel.ConfirmPassword)
+        {
+            Notification.ShowError(L["PasswordsDoNotMatch"]);
+            return;
+        }
+
+        _isChangingPassword = true;
+        try
+        {
+            var result = await Auth.ChangePasswordAsync(_user.Id, _passwordModel.CurrentPassword, _passwordModel.NewPassword);
+            if (result.Success)
+            {
+                _passwordModel = new PasswordModel();
+                Notification.ShowSuccess(L["PasswordChanged"]);
+            }
+            else
+            {
+                Notification.ShowError(result.Error ?? L["GenericError"]);
+            }
+        }
+        finally
+        {
+            _isChangingPassword = false;
+        }
+    }
+
+    private string GetInitials()
+    {
+        if (_user == null || string.IsNullOrWhiteSpace(_user.DisplayName))
+            return "?";
+
+        var parts = _user.DisplayName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        
+        return _user.DisplayName.Substring(0, Math.Min(2, _user.DisplayName.Length)).ToUpper();
+    }
+
+    private string GetAvatarGradient()
+    {
+        if (_user == null) return "from-gray-400 to-gray-600";
+        
+        // Generate consistent gradient based on user ID
+        var hash = _user.Id.GetHashCode();
+        var gradients = new[]
+        {
+            "from-primary-500 to-primary-700",
+            "from-emerald-500 to-emerald-700",
+            "from-amber-500 to-orange-600",
+            "from-rose-500 to-pink-600",
+            "from-violet-500 to-purple-600",
+            "from-cyan-500 to-blue-600",
+            "from-fuchsia-500 to-pink-600",
+            "from-teal-500 to-emerald-600"
+        };
+        
+        return gradients[Math.Abs(hash) % gradients.Length];
+    }
+
+    private string GetRoleBadgeClass()
+    {
+        return _user?.Role switch
+        {
+            UserRole.Admin => "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+            UserRole.Member => "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400",
+            UserRole.Viewer => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400",
+            _ => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
+        };
+    }
+
+    private string GetRoleLabel()
+    {
+        return _user?.Role switch
+        {
+            UserRole.Admin => L["RoleAdmin"],
+            UserRole.Member => L["RoleMember"],
+            UserRole.Viewer => L["RoleViewer"],
+            _ => "-"
+        };
+    }
+
+    private class ProfileModel
+    {
+        public string DisplayName { get; set; } = "";
+    }
+
+    private class PasswordModel
+    {
+        public string CurrentPassword { get; set; } = "";
+        public string NewPassword { get; set; } = "";
+        public string ConfirmPassword { get; set; } = "";
+    }
+}
+

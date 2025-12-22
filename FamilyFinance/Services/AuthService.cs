@@ -183,6 +183,70 @@ public class AuthService
         return (true, null);
     }
 
+    /// <summary>
+    /// Get user by ID with family information
+    /// </summary>
+    public async Task<AppUser?> GetUserByIdAsync(string userId)
+    {
+        return await _db.Users
+            .Include(u => u.Family)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
+    /// <summary>
+    /// Update user profile (display name)
+    /// </summary>
+    public async Task<(bool Success, string? Error)> UpdateProfileAsync(string userId, string displayName)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return (false, "Utente non trovato");
+        }
+
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return (false, "Il nome non può essere vuoto");
+        }
+
+        if (displayName.Length > 100)
+        {
+            return (false, "Il nome non può superare i 100 caratteri");
+        }
+
+        user.DisplayName = displayName.Trim();
+        await _db.SaveChangesAsync();
+        return (true, null);
+    }
+
+    /// <summary>
+    /// Change user password
+    /// </summary>
+    public async Task<(bool Success, string? Error)> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return (false, "Utente non trovato");
+        }
+
+        // Verify current password
+        var passwordCheck = await _userManager.CheckPasswordAsync(user, currentPassword);
+        if (!passwordCheck)
+        {
+            return (false, "La password attuale non è corretta");
+        }
+
+        // Change password
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            return (false, string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+
+        return (true, null);
+    }
+
     private async Task CreateDefaultAccountsAsync(int familyId)
     {
         var defaultAccounts = new List<Account>

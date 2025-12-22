@@ -7,6 +7,33 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.3.0] - 2025-12-22 👤 USER PROFILE
+
+### 👤 Nuova Pagina Profilo Utente
+Una pagina dedicata per gestire il proprio profilo con:
+
+#### Funzionalità
+- **Avatar automatico**: Iniziali colorate generate dinamicamente basate sull'ID utente
+- **Modifica nome**: Aggiorna il tuo nome visualizzato
+- **Cambio password**: Cambia la password di accesso con validazione
+- **Info account**: Visualizza ruolo, famiglia, data iscrizione, stato account
+
+#### Header Dropdown
+- **Menu profilo nell'header**: Click sull'avatar per aprire il menu
+- **Info utente visibili**: Nome, email e ruolo nel dropdown
+- **Accesso rapido**: Link a Profilo e Membri Famiglia
+- **Logout integrato**: Esci dall'account direttamente dal menu
+
+### 🔧 Miglioramenti Tecnici
+- Nuovi metodi in `AuthService`: `GetUserByIdAsync`, `UpdateProfileAsync`, `ChangePasswordAsync`
+- Validazione lato server per nome e password
+- Feedback toast per tutte le operazioni
+
+### 🌍 Localizzazione
+- 25+ nuove stringhe IT/EN per la pagina profilo
+
+---
+
 ## [3.2.2] - 2025-12-22 🔧 ROLE CLAIMS FIX
 
 ### 🔧 Bug Fix Critico

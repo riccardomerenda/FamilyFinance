@@ -474,6 +474,31 @@
   <!-- Demo Mode -->
   <data name="DemoModeTitle" xml:space="preserve"><value>Demo Mode</value></data>
 
+  <!-- Profile Page -->
+  <data name="MyProfile" xml:space="preserve"><value>My Profile</value></data>
+  <data name="EditProfile" xml:space="preserve"><value>Edit Profile</value></data>
+  <data name="EditProfileDesc" xml:space="preserve"><value>Update your personal information</value></data>
+  <data name="DisplayName" xml:space="preserve"><value>Display Name</value></data>
+  <data name="EmailCannotBeChanged" xml:space="preserve"><value>Email cannot be changed</value></data>
+  <data name="SaveChanges" xml:space="preserve"><value>Save Changes</value></data>
+  <data name="ChangePassword" xml:space="preserve"><value>Change Password</value></data>
+  <data name="ChangePasswordDesc" xml:space="preserve"><value>Update your login password</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>Current Password</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>New Password</value></data>
+  <data name="ConfirmNewPassword" xml:space="preserve"><value>Confirm New Password</value></data>
+  <data name="PasswordRequirements" xml:space="preserve"><value>Minimum 8 characters, at least one letter and one number</value></data>
+  <data name="UpdatePassword" xml:space="preserve"><value>Update Password</value></data>
+  <data name="AccountInfo" xml:space="preserve"><value>Account Info</value></data>
+  <data name="AccountInfoDesc" xml:space="preserve"><value>Your account details</value></data>
+  <data name="MemberSince" xml:space="preserve"><value>Member since</value></data>
+  <data name="AccountStatus" xml:space="preserve"><value>Account Status</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="ProfileUpdated" xml:space="preserve"><value>Profile updated successfully</value></data>
+  <data name="PasswordChanged" xml:space="preserve"><value>Password changed successfully</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match</value></data>
+  <data name="FillAllFields" xml:space="preserve"><value>Please fill in all fields</value></data>
+  <data name="Family" xml:space="preserve"><value>Family</value></data>
+
   <!-- System Logs -->
   <data name="SystemLogsDesc" xml:space="preserve"><value>Application monitoring and debugging</value></data>
   <data name="Filter" xml:space="preserve"><value>Filter</value></data>

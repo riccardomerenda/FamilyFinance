@@ -8,6 +8,7 @@
 @inject AuthenticationStateProvider AuthState
 @inject NavigationManager Nav
 @inject IWebHostEnvironment Env
+@inject AuthService Auth
 
 <AuthorizeView>
     <Authorized>
@@ -186,18 +187,70 @@
                         <LanguageSelector />
                         <ThemeToggle />
                         
-                        <!-- User menu -->
-                        <div class="flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
-                            <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                                <span class="text-sm font-medium text-primary-600 dark:text-primary-400">
-                                    @(context.User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
-                                </span>
-                            </div>
-                            <a href="/Account/Logout" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400" title="@L["Logout"]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        <!-- User menu dropdown -->
+                        <div class="relative pl-3 border-l border-gray-200 dark:border-gray-700">
+                            <button @onclick="ToggleProfileMenu" @onclick:stopPropagation="true"
+                                    class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                                    <span class="text-sm font-bold text-white">
+                                        @(context.User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                    </span>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400 hidden sm:block transition-transform @(_profileMenuOpen ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
-                            </a>
+                            </button>
+                            
+                            @if (_profileMenuOpen)
+                            {
+                                <div class="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl border z-50 overflow-hidden
+                                            bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+                                    <!-- User info header -->
+                                    <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                                        <p class="font-semibold text-gray-900 dark:text-white truncate">
+                                            @(_currentUserName ?? context.User.Identity?.Name ?? "User")
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                            @(context.User.Identity?.Name ?? "")
+                                        </p>
+                                        @if (_currentUserRole != null)
+                                        {
+                                            <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium @GetRoleBadgeClass()">
+                                                @GetRoleLabel()
+                                            </span>
+                                        }
+                                    </div>
+                                    
+                                    <!-- Menu items -->
+                                    <div class="py-1">
+                                        <a href="/profile" @onclick="CloseProfileMenu"
+                                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                            @L["MyProfile"]
+                                        </a>
+                                        <a href="/family-members" @onclick="CloseProfileMenu"
+                                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                            </svg>
+                                            @L["FamilyMembers"]
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Logout -->
+                                    <div class="border-t border-gray-200 dark:border-gray-700 py-1">
+                                        <a href="/Account/Logout"
+                                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                            </svg>
+                                            @L["Logout"]
+                                        </a>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </header>
@@ -363,15 +416,29 @@
 
 @code {
     private bool _mobileMenuOpen = false;
+    private bool _profileMenuOpen = false;
     private bool _isDemoUser = false;
+    private string? _currentUserName = null;
+    private UserRole? _currentUserRole = null;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var email = authState.User.FindFirst(ClaimTypes.Email)?.Value 
+                 ?? authState.User.FindFirst(ClaimTypes.Name)?.Value;
+        
+        if (!string.IsNullOrEmpty(email))
+        {
+            var user = await Auth.GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                _currentUserName = user.DisplayName;
+                _currentUserRole = user.Role;
+            }
+        }
+        
         if (!Env.IsDevelopment())
         {
-            var authState = await AuthState.GetAuthenticationStateAsync();
-            var email = authState.User.FindFirst(ClaimTypes.Email)?.Value 
-                     ?? authState.User.FindFirst(ClaimTypes.Name)?.Value;
             _isDemoUser = email == DemoDataSeeder.DemoEmail;
         }
     }
@@ -379,10 +446,44 @@
     private void ToggleMobileMenu()
     {
         _mobileMenuOpen = !_mobileMenuOpen;
+        _profileMenuOpen = false;
     }
 
     private void CloseMobileMenu()
     {
         _mobileMenuOpen = false;
+    }
+
+    private void ToggleProfileMenu()
+    {
+        _profileMenuOpen = !_profileMenuOpen;
+        _mobileMenuOpen = false;
+    }
+
+    private void CloseProfileMenu()
+    {
+        _profileMenuOpen = false;
+    }
+
+    private string GetRoleBadgeClass()
+    {
+        return _currentUserRole switch
+        {
+            UserRole.Admin => "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+            UserRole.Member => "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400",
+            UserRole.Viewer => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400",
+            _ => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
+        };
+    }
+
+    private string GetRoleLabel()
+    {
+        return _currentUserRole switch
+        {
+            UserRole.Admin => L["RoleAdmin"],
+            UserRole.Member => L["RoleMember"],
+            UserRole.Viewer => L["RoleViewer"],
+            _ => "-"
+        };
     }
 }

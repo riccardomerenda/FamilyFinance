@@ -69,6 +69,14 @@ A comprehensive **family wealth management application** built with Blazor Serve
 - **Category Breakdown**: Detailed changes per account type
 - **Growth Metrics**: Percentage changes highlighted
 
+### 👤 User Profile (v3.3)
+- **Profile Page**: Dedicated page to manage personal settings
+- **Auto-Generated Avatar**: Colorful initials based on user ID
+- **Edit Display Name**: Update your name anytime
+- **Change Password**: Secure password update with validation
+- **Account Info**: View role, family, member since, account status
+- **Header Dropdown**: Quick access to profile and logout
+
 ### 👨‍👩‍👧‍👦 Multi-Family Support
 - **Isolated Data**: Each family's data is completely separate
 - **User Roles**: Admin and Member permissions
