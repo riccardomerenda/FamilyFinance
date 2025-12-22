@@ -410,5 +410,13 @@
   <data name="PerPage" xml:space="preserve"><value>per pagina</value></data>
   <data name="Showing" xml:space="preserve"><value>Visualizzati</value></data>
   <data name="Of" xml:space="preserve"><value>di</value></data>
+
+  <!-- Page Descriptions -->
+  <data name="GoalsDescription" xml:space="preserve"><value>Gestisci i tuoi obiettivi finanziari e traccia i progressi</value></data>
+  <data name="AccountsDescription" xml:space="preserve"><value>Gestisci i tuoi conti bancari e finanziari</value></data>
+  <data name="PortfoliosDescription" xml:space="preserve"><value>Organizza i tuoi investimenti per strategia</value></data>
+  <data name="CompareDescription" xml:space="preserve"><value>Confronta due periodi per analizzare le variazioni</value></data>
+  <data name="ProjectionsDescription" xml:space="preserve"><value>Previsioni e proiezioni basate sui tuoi dati storici</value></data>
+  <data name="NoGoalsHint" xml:space="preserve"><value>Inizia creando il tuo primo obiettivo finanziario</value></data>
 </root>
 

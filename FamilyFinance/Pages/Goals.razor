@@ -7,9 +7,12 @@
 @inject NotificationService Toast
 @attribute [Authorize]
 
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["FinancialGoals"]</h1>
-    <button @onclick="NewGoal" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["FinancialGoals"]</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["GoalsDescription"]</p>
+    </div>
+    <button @onclick="NewGoal" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -19,53 +22,86 @@
 
 @if (_goals.Any())
 {
-    <!-- Allocation Summary -->
+    <!-- Allocation Summary with Bento Grid -->
     var totalAllocated = _goals.Sum(g => g.AllocatedAmount);
     var totalTargets = _goals.Sum(g => g.Target);
     var totalWealth = _t?.ProjectedTotal ?? 0;
     var unallocated = totalWealth - totalAllocated;
+    var completedCount = _goals.Count(g => g.IsCompleted);
     
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["TotalWealth"]</p>
-            <p class="text-xl font-bold text-gray-900 dark:text-white">@totalWealth.ToString("N0") €</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bento-card p-5 animate-in delay-1">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["TotalWealth"]</p>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white money">@totalWealth.ToString("N0") €</p>
         </div>
-        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["TotalAllocated"]</p>
-            <p class="text-xl font-bold text-primary-600 dark:text-primary-400">@totalAllocated.ToString("N0") €</p>
+        <div class="bento-card p-5 animate-in delay-2">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["TotalAllocated"]</p>
+            </div>
+            <p class="text-2xl font-bold text-primary-600 dark:text-primary-400 money">@totalAllocated.ToString("N0") €</p>
         </div>
-        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["Unallocated"]</p>
-            <p class="text-xl font-bold @(unallocated >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">@unallocated.ToString("N0") €</p>
+        <div class="bento-card p-5 animate-in delay-3">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl @(unallocated >= 0 ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-red-100 dark:bg-red-900/30") flex items-center justify-center">
+                    <svg class="w-5 h-5 @(unallocated >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["Unallocated"]</p>
+            </div>
+            <p class="text-2xl font-bold @(unallocated >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400") money">@unallocated.ToString("N0") €</p>
         </div>
-        <div class="@(totalAllocated >= totalTargets ? "bg-green-500" : "bg-amber-500") rounded-xl p-4 text-white">
-            <p class="text-xs text-white/80 mb-1">@L["TotalTargets"]</p>
-            <p class="text-xl font-bold">@totalTargets.ToString("N0") €</p>
+        <div class="bento-card p-5 @(totalAllocated >= totalTargets ? "hero-gradient" : "bg-gradient-to-br from-amber-500 to-orange-600") text-white animate-in delay-4">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-white/80">@L["TotalTargets"]</p>
+            </div>
+            <p class="text-2xl font-bold money">@totalTargets.ToString("N0") €</p>
+            <p class="text-xs text-white/70 mt-2">@completedCount/@_goals.Count @L["Completed"]</p>
         </div>
     </div>
 }
 
 @if (!_goals.Any())
 {
-    <div class="text-center py-16">
+    <div class="bento-card text-center py-16 animate-in">
         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
         </div>
-        <p class="text-gray-500 dark:text-gray-400 mb-4">@L["NoGoalsMessage"]</p>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoGoalsMessage"]</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-4">@L["NoGoalsHint"]</p>
     </div>
 }
 else
 {
+    var idx = 0;
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var g in _goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
         {
             var pct = g.ProgressPercent;
             var monthsLeft = g.MonthsUntilDeadline;
             var monthlyNeeded = monthsLeft > 0 && g.Missing > 0 ? g.Missing / monthsLeft : 0;
+            var delayClass = $"delay-{Math.Min(idx++ % 5 + 1, 5)}";
 
-            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 @(g.IsCompleted ? "ring-2 ring-green-500" : "")">
+            <div class="bento-card p-6 animate-in @delayClass @(g.IsCompleted ? "ring-2 ring-emerald-500 glow-emerald" : "")">
                 <!-- Header with Priority Badge -->
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
@@ -107,8 +143,8 @@ else
                 <!-- Allocated vs Target -->
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">@g.AllocatedAmount.ToString("N0") €</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">@L["GoalOf"] @g.Target.ToString("N0") €</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white money">@g.AllocatedAmount.ToString("N0") €</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@L["GoalOf"] <span class="money">@g.Target.ToString("N0") €</span></p>
                     </div>
                     @if (g.IsCompleted)
                     {
@@ -126,7 +162,7 @@ else
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500 dark:text-gray-400">@L["MissingAmount"]</span>
-                            <span class="font-semibold text-gray-700 dark:text-gray-300">@g.Missing.ToString("N0") €</span>
+                            <span class="font-semibold text-gray-700 dark:text-gray-300 money">@g.Missing.ToString("N0") €</span>
                         </div>
                         
                         @if (g.Deadline.HasValue)
@@ -150,7 +186,7 @@ else
                                     <div class="mt-3 p-3 rounded-xl bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
                                         <div class="flex items-center justify-between">
                                             <span class="text-sm text-primary-700 dark:text-primary-300">@L["MonthlyNeeded"]</span>
-                                            <span class="text-lg font-bold text-primary-600 dark:text-primary-400">@monthlyNeeded.ToString("N0") €/@L["Month"]</span>
+                                            <span class="text-lg font-bold text-primary-600 dark:text-primary-400 money">@monthlyNeeded.ToString("N0") €/@L["Month"]</span>
                                         </div>
                                     </div>
                                 }
@@ -177,11 +213,11 @@ else
     </div>
 }
 
-<!-- Modal -->
+<!-- Modal with Glassmorphism -->
 @if (_editing != null)
 {
-    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @onclick="() => _editing = null">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" @onclick:stopPropagation="true">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
             <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">@(_editing.Id == 0 ? L["NewGoal"] : L["EditGoal"])</h2>
             
             <div class="space-y-4">
