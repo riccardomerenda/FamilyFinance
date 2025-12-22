@@ -418,5 +418,60 @@
   <data name="CompareDescription" xml:space="preserve"><value>Confronta due periodi per analizzare le variazioni</value></data>
   <data name="ProjectionsDescription" xml:space="preserve"><value>Previsioni e proiezioni basate sui tuoi dati storici</value></data>
   <data name="NoGoalsHint" xml:space="preserve"><value>Inizia creando il tuo primo obiettivo finanziario</value></data>
+
+  <!-- Navigation Groups -->
+  <data name="NavOverview" xml:space="preserve"><value>Panoramica</value></data>
+  <data name="NavAssets" xml:space="preserve"><value>Patrimonio</value></data>
+  <data name="NavPlanning" xml:space="preserve"><value>Pianificazione</value></data>
+  <data name="NavAnalysis" xml:space="preserve"><value>Analisi</value></data>
+  <data name="NavSettings" xml:space="preserve"><value>Impostazioni</value></data>
+
+  <!-- New Pages -->
+  <data name="Investments" xml:space="preserve"><value>Investimenti</value></data>
+  <data name="PensionInsurance" xml:space="preserve"><value>Previdenza</value></data>
+  <data name="DataManagement" xml:space="preserve"><value>Gestione Dati</value></data>
+  <data name="DataManagementDesc" xml:space="preserve"><value>Importa ed esporta i tuoi dati finanziari</value></data>
+  <data name="ExportDataDesc" xml:space="preserve"><value>Scarica backup dei tuoi dati</value></data>
+  <data name="InvestmentsPageDesc" xml:space="preserve"><value>Panoramica del tuo portafoglio investimenti</value></data>
+  <data name="InterestsPageDesc" xml:space="preserve"><value>Interessi accumulati sui tuoi conti</value></data>
+  <data name="PensionInsurancePageDesc" xml:space="preserve"><value>Fondi pensione e polizze assicurative</value></data>
+
+  <!-- Empty States -->
+  <data name="NoInvestmentsYet" xml:space="preserve"><value>Nessun investimento registrato</value></data>
+  <data name="CreateSnapshotToTrackInvestments" xml:space="preserve"><value>Crea uno snapshot per iniziare a tracciare i tuoi investimenti</value></data>
+  <data name="NoInterestAccountsYet" xml:space="preserve"><value>Nessun conto con interessi</value></data>
+  <data name="CreateInterestAccountDesc" xml:space="preserve"><value>Configura un conto con interessi per tracciare i rendimenti</value></data>
+  <data name="NoPensionInsuranceYet" xml:space="preserve"><value>Nessun fondo pensione o polizza</value></data>
+  <data name="CreatePensionInsuranceDesc" xml:space="preserve"><value>Aggiungi un conto previdenza o assicurativo per iniziare</value></data>
+
+  <!-- Actions -->
+  <data name="ManagePortfolios" xml:space="preserve"><value>Gestisci Portafogli</value></data>
+  <data name="ManageAccounts" xml:space="preserve"><value>Gestisci Conti</value></data>
+
+  <!-- Interests Page -->
+  <data name="TotalInterests" xml:space="preserve"><value>Totale Interessi</value></data>
+  <data name="AccumulatedFromAllAccounts" xml:space="preserve"><value>Accumulati da tutti i conti</value></data>
+  <data name="InterestAccounts" xml:space="preserve"><value>Conti con interessi</value></data>
+  <data name="NumberOfAccounts" xml:space="preserve"><value>Numero Conti</value></data>
+  <data name="ActiveInterestAccounts" xml:space="preserve"><value>Conti interessi attivi</value></data>
+  <data name="HighestInterest" xml:space="preserve"><value>Interesse Più Alto</value></data>
+  <data name="OfTotal" xml:space="preserve"><value>del totale</value></data>
+  <data name="InterestsByAccount" xml:space="preserve"><value>Interessi per Conto</value></data>
+
+  <!-- Investments Page -->
+  <data name="AcrossAllPortfolios" xml:space="preserve"><value>Tutti i portafogli</value></data>
+  <data name="TotalGainLoss" xml:space="preserve"><value>Guadagno/Perdita Totale</value></data>
+  <data name="TotalInvested" xml:space="preserve"><value>Totale investito</value></data>
+  <data name="OverallReturn" xml:space="preserve"><value>Rendimento complessivo</value></data>
+  <data name="AssetAllocation" xml:space="preserve"><value>Allocazione Asset</value></data>
+  <data name="PortfolioBreakdown" xml:space="preserve"><value>Dettaglio Portafogli</value></data>
+
+  <!-- Pension Page -->
+  <data name="PensionPlusInsurance" xml:space="preserve"><value>Pensione + Assicurazioni</value></data>
+  <data name="TotalContributions" xml:space="preserve"><value>Contributi Totali</value></data>
+  <data name="ContributionsVsValue" xml:space="preserve"><value>Contributi vs Valore Attuale</value></data>
+
+  <!-- Demo Mode -->
+  <data name="DemoModeTitle" xml:space="preserve"><value>Modalità Demo</value></data>
 </root>
 

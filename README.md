@@ -16,13 +16,14 @@ A comprehensive **family wealth management application** built with Blazor Serve
 
 ## ✨ Features
 
-### 🎨 Modern UI Design (v3.0)
+### 🎨 Modern UI Design (v3.2)
 - **Bento Grid Layout**: Apple/Linear-inspired dashboard design
 - **Glassmorphism Effects**: Frosted glass cards with backdrop blur
 - **Outfit Typography**: Modern, distinctive font family
 - **Mesh Gradient Background**: Atmospheric depth with radial gradients
 - **Stagger Animations**: Smooth reveal effects on page load
 - **Dark/Light Theme**: Automatic system detection with manual toggle
+- **Organized Navigation**: Sidebar with logical groups (Assets, Planning, Analysis, Settings)
 
 ### 📊 Financial Dashboard
 - **Net Worth Hero Card**: Prominent display with gradient accent
@@ -30,6 +31,13 @@ A comprehensive **family wealth management application** built with Blazor Serve
 - **Monthly Snapshots**: Complete financial picture each month
 - **Quick Actions Widget**: One-click access to common tasks
 - **Goals Progress**: Visual progress bars in dashboard
+- **Clickable Cards**: Navigate directly to detailed views
+
+### 💰 Dedicated Asset Pages (v3.2)
+- **Investments**: Full portfolio view with collapsible portfolios and performance metrics
+- **Interests**: Accumulated interest breakdown by account with charts
+- **Pension & Insurance**: Pension funds and policies with contribution tracking
+- **Data Management**: Centralized import/export hub
 
 ### 📈 Projections & Forecasting
 - **Growth Projections**: 1-10 year wealth forecasts based on historical data
@@ -287,6 +295,7 @@ dotnet test
 - [x] ~~Mobile-responsive improvements~~ (v3.0)
 - [x] ~~Modern UI redesign~~ (v3.0)
 - [x] ~~Structured logging~~ (v2.9)
+- [x] ~~Navigation restructure~~ (v3.2) - Tab → Pages
 - [ ] Recurring transactions
 - [ ] Bank statement import (CSV/OFX)
 - [ ] Multiple currencies with conversion
