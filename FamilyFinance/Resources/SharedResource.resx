@@ -534,5 +534,65 @@
   <data name="LogEntries" xml:space="preserve"><value>voci</value></data>
   <data name="AdminOnlyPage" xml:space="preserve"><value>Pagina riservata agli amministratori</value></data>
   <data name="AdminOnlyPageDesc" xml:space="preserve"><value>Questa pagina è accessibile solo agli utenti con ruolo Admin. I log di sistema contengono informazioni tecniche utili per il debug.</value></data>
+
+  <!-- Guided Tour -->
+  <data name="TourStep" xml:space="preserve"><value>Passo</value></data>
+  <data name="Previous" xml:space="preserve"><value>Precedente</value></data>
+  <data name="Next" xml:space="preserve"><value>Successivo</value></data>
+  <data name="StartUsing" xml:space="preserve"><value>Inizia ad usare</value></data>
+  <data name="SkipTour" xml:space="preserve"><value>Salta tour</value></data>
+  <data name="TourWelcomeTitle" xml:space="preserve"><value>Benvenuto in FamilyFinance!</value></data>
+  <data name="TourWelcomeDesc" xml:space="preserve"><value>Questa è la tua dashboard finanziaria. Da qui puoi monitorare tutto il tuo patrimonio familiare.</value></data>
+  <data name="TourTotalTitle" xml:space="preserve"><value>Il Tuo Patrimonio</value></data>
+  <data name="TourTotalDesc" xml:space="preserve"><value>Qui vedi il totale aggiornato del tuo patrimonio, incluso liquidità, investimenti e crediti.</value></data>
+  <data name="TourChartTitle" xml:space="preserve"><value>Andamento nel Tempo</value></data>
+  <data name="TourChartDesc" xml:space="preserve"><value>Questo grafico mostra come il tuo patrimonio è cambiato nel tempo. Ogni punto è uno snapshot.</value></data>
+  <data name="TourGoalsTitle" xml:space="preserve"><value>I Tuoi Obiettivi</value></data>
+  <data name="TourGoalsDesc" xml:space="preserve"><value>Imposta obiettivi finanziari e monitora i progressi. Puoi impostare scadenze e importi target.</value></data>
+  <data name="TourSidebarTitle" xml:space="preserve"><value>Navigazione</value></data>
+  <data name="TourSidebarDesc" xml:space="preserve"><value>Usa il menu laterale per accedere a tutte le sezioni: Snapshot, Conti, Budget, Obiettivi e altro.</value></data>
+  <data name="TourActionsTitle" xml:space="preserve"><value>Azioni Rapide</value></data>
+  <data name="TourActionsDesc" xml:space="preserve"><value>Crea rapidamente nuovi snapshot, imposta obiettivi o gestisci i tuoi conti da qui.</value></data>
+  <data name="TourComplete" xml:space="preserve"><value>Sei pronto!</value></data>
+  <data name="TourCompleteDesc" xml:space="preserve"><value>Ora sai tutto quello che ti serve. Se hai bisogno di aiuto, cerca le icone (?) nelle varie sezioni.</value></data>
+  <data name="RestartTour" xml:space="preserve"><value>Rivedi il tour</value></data>
+
+  <!-- Landing Page -->
+  <data name="LandingHeroTitle" xml:space="preserve"><value>Gestisci le finanze familiari con semplicità</value></data>
+  <data name="LandingHeroSubtitle" xml:space="preserve"><value>Monitora patrimonio, investimenti e obiettivi in un'unica dashboard intuitiva</value></data>
+  <data name="TryDemo" xml:space="preserve"><value>Prova la Demo</value></data>
+  <data name="WatchHow" xml:space="preserve"><value>Scopri come funziona</value></data>
+  <data name="FeatureSnapshotsTitle" xml:space="preserve"><value>Snapshot Periodici</value></data>
+  <data name="FeatureSnapshotsDesc" xml:space="preserve"><value>Cattura lo stato delle tue finanze in qualsiasi momento. Confronta nel tempo e analizza i trend.</value></data>
+  <data name="FeatureGoalsTitle" xml:space="preserve"><value>Obiettivi Finanziari</value></data>
+  <data name="FeatureGoalsDesc" xml:space="preserve"><value>Imposta obiettivi di risparmio o investimento. Monitora i progressi con indicatori visivi.</value></data>
+  <data name="FeatureBudgetTitle" xml:space="preserve"><value>Budget Mensile</value></data>
+  <data name="FeatureBudgetDesc" xml:space="preserve"><value>Categorizza le spese e tieni sotto controllo il budget familiare mese per mese.</value></data>
+  <data name="FeatureChartsTitle" xml:space="preserve"><value>Grafici Interattivi</value></data>
+  <data name="FeatureChartsDesc" xml:space="preserve"><value>Visualizza l'andamento del patrimonio con grafici chiari e proiezioni future.</value></data>
+  <data name="FeatureFamilyTitle" xml:space="preserve"><value>Multi-Utente</value></data>
+  <data name="FeatureFamilyDesc" xml:space="preserve"><value>Condividi l'accesso con i membri della famiglia. Ogni famiglia ha i propri dati isolati.</value></data>
+  <data name="FeatureSecurityTitle" xml:space="preserve"><value>Sicuro e Privato</value></data>
+  <data name="FeatureSecurityDesc" xml:space="preserve"><value>I tuoi dati sono protetti con crittografia e non vengono condivisi con terze parti.</value></data>
+  <data name="HowItWorksTitle" xml:space="preserve"><value>Come Funziona</value></data>
+  <data name="HowItWorksStep1Title" xml:space="preserve"><value>1. Configura i Conti</value></data>
+  <data name="HowItWorksStep1Desc" xml:space="preserve"><value>Aggiungi i tuoi conti bancari, investimenti e altri asset. Non serve collegare nulla, inserisci solo i nomi.</value></data>
+  <data name="HowItWorksStep2Title" xml:space="preserve"><value>2. Crea Snapshot</value></data>
+  <data name="HowItWorksStep2Desc" xml:space="preserve"><value>Periodicamente, crea uno snapshot inserendo i saldi attuali. Basta pochi minuti al mese.</value></data>
+  <data name="HowItWorksStep3Title" xml:space="preserve"><value>3. Monitora e Pianifica</value></data>
+  <data name="HowItWorksStep3Desc" xml:space="preserve"><value>Visualizza l'andamento, imposta obiettivi e prendi decisioni informate sulle tue finanze.</value></data>
+  <data name="ReadyToStart" xml:space="preserve"><value>Pronto per iniziare?</value></data>
+  <data name="ReadyToStartDesc" xml:space="preserve"><value>Prova la demo con dati di esempio o richiedi l'accesso per la tua famiglia.</value></data>
+
+  <!-- Help Tooltips -->
+  <data name="HelpTitle" xml:space="preserve"><value>Aiuto</value></data>
+  <data name="HelpSnapshot" xml:space="preserve"><value>Uno Snapshot è una "fotografia" delle tue finanze in un momento specifico. Crea snapshot regolarmente per tracciare l'andamento del tuo patrimonio.</value></data>
+  <data name="HelpAccounts" xml:space="preserve"><value>I Conti rappresentano dove tieni i tuoi soldi: conti correnti, conti deposito, broker, etc. Configurali una volta e usali negli snapshot.</value></data>
+  <data name="HelpGoals" xml:space="preserve"><value>Gli Obiettivi ti aiutano a risparmiare per traguardi specifici. Imposta un importo target, una scadenza e l'app calcolerà quanto devi mettere da parte ogni mese.</value></data>
+  <data name="HelpBudget" xml:space="preserve"><value>Il Budget ti permette di categorizzare le spese mensili e confrontarle con i limiti che hai impostato.</value></data>
+  <data name="HelpPortfolios" xml:space="preserve"><value>I Portafogli raggruppano i tuoi investimenti. Puoi tracciare azioni, ETF, fondi e calcolare i rendimenti.</value></data>
+  <data name="HelpProjections" xml:space="preserve"><value>Le Proiezioni mostrano dove sarà il tuo patrimonio in futuro, basandosi sui trend storici.</value></data>
+  <data name="HelpCompare" xml:space="preserve"><value>Confronta due snapshot per vedere cosa è cambiato tra un periodo e l'altro.</value></data>
+  <data name="GotIt" xml:space="preserve"><value>Ho capito</value></data>
 </root>
 

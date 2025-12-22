@@ -7,6 +7,59 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.5.0] - 2025-12-22 🎓 ONBOARDING & HELP
+
+### 🎯 Sistema di Onboarding
+Nuovo sistema completo per guidare i nuovi utenti nell'utilizzo dell'app.
+
+#### Tour Interattivo (Opzione B)
+- **GuidedTour component**: Tour guidato con tooltip animati
+- **Spotlight effect**: Evidenziazione degli elementi durante il tour
+- **6 step del tour**: Benvenuto, Patrimonio, Grafici, Azioni Rapide, Navigazione, Completamento
+- **Progressione visiva**: Dots di navigazione e pulsanti Precedente/Successivo
+- **Persistenza**: Il tour viene mostrato solo al primo accesso (localStorage)
+- **Riavviabile**: Link "Rivedi il tour" nel menu profilo
+
+#### Landing Page Professionale (Opzione A)
+- **Nuova pagina `/welcome`**: Landing page pubblica per visitatori
+- **Hero Section**: Titolo impattante con animazioni di sfondo
+- **Dashboard Preview**: Mock della dashboard con dati esempio
+- **Features Showcase**: 6 card che presentano le funzionalità principali
+- **"Come Funziona"**: Processo in 3 step illustrato
+- **CTA Section**: Invito a provare la demo o visitare GitHub
+- **Design dark mode**: Gradiente scuro con glassmorphism
+
+#### Help In-App Contestuale (Opzione D)
+- **HelpTooltip component**: Icone (?) riutilizzabili
+- **Popup informativi**: Spiegazioni contestuali per ogni sezione
+- **Integrazione nelle pagine principali**:
+  - Snapshots: Cosa sono e come usarli
+  - Goals: Come impostare obiettivi
+  - Budget: Gestione del budget mensile
+  - Portfolios: Tracciamento investimenti
+  - Projections: Come interpretare le proiezioni
+  - Compare: Confronto tra periodi
+
+### 🌍 Localizzazione
+- **40+ nuove stringhe IT/EN**:
+  - Tour steps (TourWelcomeTitle, TourChartDesc, etc.)
+  - Landing page (LandingHeroTitle, FeatureSnapshotsTitle, etc.)
+  - Help tooltips (HelpSnapshot, HelpGoals, HelpBudget, etc.)
+
+### 🔧 Dettagli Tecnici
+- `GuidedTour.razor`: Componente con spotlight CSS e tooltip posizionabili
+- `HelpTooltip.razor`: Componente dropdown con glassmorphism
+- JS functions: `getTourElementRect`, `scrollTourElementIntoView`
+- CSS animations: `slideInFromBottom`, spotlight glow effects
+- IDs per tour targeting: `#tour-total`, `#tour-chart`, `#tour-actions`, `#sidebar-nav`
+
+### ✨ UX Improvements
+- Onboarding guidato riduce la curva di apprendimento
+- Help contestuale sempre disponibile
+- Landing page comunica il valore dell'app ai visitatori
+
+---
+
 ## [3.4.0] - 2025-12-22 📋 ACTIVITY LOG
 
 ### 📋 Sistema di Activity Log

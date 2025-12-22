@@ -2,6 +2,8 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
 @using FamilyFinance.Services
+@using FamilyFinance.Components
+@using static FamilyFinance.Components.GuidedTour
 @inject FinanceService Finance
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
@@ -10,6 +12,9 @@
 @inject NavigationManager Nav
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
+
+<!-- Guided Tour -->
+<GuidedTour TourId="dashboard-tour" Steps="_tourSteps" OnComplete="OnTourComplete" />
 
 @if (_loading)
 {
@@ -52,7 +57,7 @@ else
     <div class="grid grid-cols-12 gap-4 lg:gap-6">
         
         <!-- HERO: Net Worth Card (Large) -->
-        <div class="col-span-12 lg:col-span-5 bento-card hero-gradient glow-primary p-6 lg:p-8 text-white animate-in">
+        <div id="tour-total" class="col-span-12 lg:col-span-5 bento-card hero-gradient glow-primary p-6 lg:p-8 text-white animate-in">
             <div class="flex items-start justify-between mb-6">
                 <div>
                     <p class="text-white/70 text-sm font-medium uppercase tracking-wider">@L["NetWorthTotal"]</p>
@@ -110,7 +115,7 @@ else
         </div>
 
         <!-- Trend Chart (Large) -->
-        <div class="col-span-12 lg:col-span-8 bento-card p-5 lg:p-6 animate-in delay-3">
+        <div id="tour-chart" class="col-span-12 lg:col-span-8 bento-card p-5 lg:p-6 animate-in delay-3">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["WealthTrend"]</h3>
                 <a href="/projections" class="text-xs font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1">
@@ -136,7 +141,7 @@ else
         <!-- Goals Widget -->
         @if (_goals != null && _goals.Any())
         {
-            <div class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
+            <div id="tour-goals" class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["Goals"]</h3>
                     <a href="/goals" class="text-xs font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1">
@@ -178,7 +183,7 @@ else
         }
 
         <!-- Quick Actions -->
-        <div class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
+        <div id="tour-actions" class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
             <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Actions"]</h3>
             <div class="grid grid-cols-2 gap-3">
                 <a href="/snapshots/new" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-primary-500/10 to-primary-600/10 hover:from-primary-500/20 hover:to-primary-600/20 transition-all group">
@@ -300,6 +305,9 @@ else
     private object _trendConfig = new { }, _compConfig = new { };
     private List<Goal>? _goals;
     private int _familyId;
+    
+    // Tour steps - defined after L is available
+    private List<TourStep> _tourSteps = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -320,9 +328,66 @@ else
             _t = await Finance.CalculateTotalsAsync(_latest);
             _goals = (await Finance.GetGoalsAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
             await BuildCharts();
+            
+            // Initialize tour steps
+            InitializeTourSteps();
         }
         
         _loading = false;
+    }
+    
+    private void InitializeTourSteps()
+    {
+        _tourSteps = new List<TourStep>
+        {
+            new TourStep
+            {
+                Title = L["TourWelcomeTitle"],
+                Description = L["TourWelcomeDesc"],
+                TargetSelector = "#tour-total",
+                Placement = TooltipPlacement.Right
+            },
+            new TourStep
+            {
+                Title = L["TourTotalTitle"],
+                Description = L["TourTotalDesc"],
+                TargetSelector = "#tour-total",
+                Placement = TooltipPlacement.Bottom
+            },
+            new TourStep
+            {
+                Title = L["TourChartTitle"],
+                Description = L["TourChartDesc"],
+                TargetSelector = "#tour-chart",
+                Placement = TooltipPlacement.Top
+            },
+            new TourStep
+            {
+                Title = L["TourActionsTitle"],
+                Description = L["TourActionsDesc"],
+                TargetSelector = "#tour-actions",
+                Placement = TooltipPlacement.Top
+            },
+            new TourStep
+            {
+                Title = L["TourSidebarTitle"],
+                Description = L["TourSidebarDesc"],
+                TargetSelector = "#sidebar-nav",
+                Placement = TooltipPlacement.Right
+            },
+            new TourStep
+            {
+                Title = L["TourComplete"],
+                Description = L["TourCompleteDesc"],
+                TargetSelector = "#tour-total",
+                Placement = TooltipPlacement.Bottom
+            }
+        };
+    }
+    
+    private void OnTourComplete()
+    {
+        // Tour completed - could show a success message or trigger other actions
     }
 
     async Task BuildCharts()
