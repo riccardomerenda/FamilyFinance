@@ -267,8 +267,28 @@
         // Guided Tour functions
         function getTourElementRect(selector) {
             const element = document.querySelector(selector);
-            if (!element) return null;
+            if (!element) {
+                console.warn('Tour: Element not found:', selector);
+                return null;
+            }
+            
+            // Make sure element is visible
+            const style = window.getComputedStyle(element);
+            if (style.display === 'none' || style.visibility === 'hidden') {
+                console.warn('Tour: Element hidden:', selector);
+                return null;
+            }
+            
             const rect = element.getBoundingClientRect();
+            
+            // Check if element has actual dimensions
+            if (rect.width === 0 || rect.height === 0) {
+                console.warn('Tour: Element has no dimensions:', selector, rect);
+                return null;
+            }
+            
+            console.log('Tour: Element found:', selector, rect);
+            
             // Return viewport-relative coordinates for position:fixed elements
             return {
                 top: rect.top,
@@ -280,11 +300,12 @@
             };
         }
         
-        function scrollTourElementIntoView(selector) {
+        async function scrollTourElementIntoView(selector) {
             const element = document.querySelector(selector);
             if (element) {
-                // Scroll first, then we'll update position
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Wait for scroll to complete
+                await new Promise(resolve => setTimeout(resolve, 300));
             }
         }
     </script>
