@@ -54,10 +54,10 @@ public class DemoDataSeeder
         // Create demo accounts
         var accounts = new List<Account>
         {
-            new() { Name = "Conto Corrente BancaX", Category = AccountCategory.Liquidity, FamilyId = family.Id, Owner = "Famiglia" },
-            new() { Name = "Conto Deposito", Category = AccountCategory.Liquidity, FamilyId = family.Id, Owner = "Famiglia", IsInterest = true },
-            new() { Name = "Fondo Pensione", Category = AccountCategory.Pension, FamilyId = family.Id, Owner = "Mario" },
-            new() { Name = "Polizza Vita", Category = AccountCategory.Insurance, FamilyId = family.Id, Owner = "Laura" },
+            new() { Name = "Conto Corrente BancaX", Category = AccountCategory.Liquidity, FamilyId = family.Id, Owner = "Famiglia", CreatedBy = user.Id },
+            new() { Name = "Conto Deposito", Category = AccountCategory.Liquidity, FamilyId = family.Id, Owner = "Famiglia", IsInterest = true, CreatedBy = user.Id },
+            new() { Name = "Fondo Pensione", Category = AccountCategory.Pension, FamilyId = family.Id, Owner = "Mario", CreatedBy = user.Id },
+            new() { Name = "Polizza Vita", Category = AccountCategory.Insurance, FamilyId = family.Id, Owner = "Laura", CreatedBy = user.Id },
         };
         _db.Accounts.AddRange(accounts);
         await _db.SaveChangesAsync();
@@ -65,9 +65,9 @@ public class DemoDataSeeder
         // Create demo portfolios
         var portfolios = new List<Portfolio>
         {
-            new() { Name = "PAC Lungo Termine", Description = "Piano di accumulo 20 anni", TimeHorizonYears = 20, TargetYear = 2045, Color = "#6366f1", FamilyId = family.Id },
-            new() { Name = "Crypto", Description = "Bitcoin ed Ethereum", TimeHorizonYears = 5, Color = "#f59e0b", FamilyId = family.Id },
-            new() { Name = "ETF Dividendi", Description = "Income strategy", TimeHorizonYears = 10, Color = "#10b981", FamilyId = family.Id },
+            new() { Name = "PAC Lungo Termine", Description = "Piano di accumulo 20 anni", TimeHorizonYears = 20, TargetYear = 2045, Color = "#6366f1", FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Crypto", Description = "Bitcoin ed Ethereum", TimeHorizonYears = 5, Color = "#f59e0b", FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "ETF Dividendi", Description = "Income strategy", TimeHorizonYears = 10, Color = "#10b981", FamilyId = family.Id, CreatedBy = user.Id },
         };
         _db.Portfolios.AddRange(portfolios);
         await _db.SaveChangesAsync();
@@ -75,11 +75,11 @@ public class DemoDataSeeder
         // Create demo goals
         var goals = new List<Goal>
         {
-            new() { Name = "Fondo Emergenza", Target = 15000, AllocatedAmount = 12000, Deadline = new DateOnly(2025, 6, 1), Priority = GoalPriority.High, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Vacanza Giappone", Target = 8000, AllocatedAmount = 3500, Deadline = new DateOnly(2025, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Anticipo Casa", Target = 50000, AllocatedAmount = 22000, Deadline = new DateOnly(2027, 12, 1), Priority = GoalPriority.High, Category = GoalCategory.Investments, FamilyId = family.Id },
-            new() { Name = "Auto Nuova", Target = 25000, AllocatedAmount = 8000, Deadline = new DateOnly(2026, 6, 1), Priority = GoalPriority.Low, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Università Figli", Target = 80000, AllocatedAmount = 15000, Deadline = new DateOnly(2035, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Investments, FamilyId = family.Id },
+            new() { Name = "Fondo Emergenza", Target = 15000, AllocatedAmount = 12000, Deadline = new DateOnly(2025, 6, 1), Priority = GoalPriority.High, Category = GoalCategory.Liquidity, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Vacanza Giappone", Target = 8000, AllocatedAmount = 3500, Deadline = new DateOnly(2025, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Liquidity, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Anticipo Casa", Target = 50000, AllocatedAmount = 22000, Deadline = new DateOnly(2027, 12, 1), Priority = GoalPriority.High, Category = GoalCategory.Investments, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Auto Nuova", Target = 25000, AllocatedAmount = 8000, Deadline = new DateOnly(2026, 6, 1), Priority = GoalPriority.Low, Category = GoalCategory.Liquidity, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Università Figli", Target = 80000, AllocatedAmount = 15000, Deadline = new DateOnly(2035, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Investments, FamilyId = family.Id, CreatedBy = user.Id },
         };
         _db.Goals.AddRange(goals);
         await _db.SaveChangesAsync();
@@ -87,12 +87,12 @@ public class DemoDataSeeder
         // Create demo budget categories
         var budgetCategories = new List<BudgetCategory>
         {
-            new() { Name = "Casa", Icon = "🏠", Color = "#6366f1", MonthlyBudget = 1200, FamilyId = family.Id },
-            new() { Name = "Alimentari", Icon = "🛒", Color = "#10b981", MonthlyBudget = 600, FamilyId = family.Id },
-            new() { Name = "Trasporti", Icon = "🚗", Color = "#f59e0b", MonthlyBudget = 300, FamilyId = family.Id },
-            new() { Name = "Utenze", Icon = "💡", Color = "#ef4444", MonthlyBudget = 250, FamilyId = family.Id },
-            new() { Name = "Svago", Icon = "🎬", Color = "#8b5cf6", MonthlyBudget = 200, FamilyId = family.Id },
-            new() { Name = "Salute", Icon = "💊", Color = "#ec4899", MonthlyBudget = 150, FamilyId = family.Id },
+            new() { Name = "Casa", Icon = "🏠", Color = "#6366f1", MonthlyBudget = 1200, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Alimentari", Icon = "🛒", Color = "#10b981", MonthlyBudget = 600, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Trasporti", Icon = "🚗", Color = "#f59e0b", MonthlyBudget = 300, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Utenze", Icon = "💡", Color = "#ef4444", MonthlyBudget = 250, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Svago", Icon = "🎬", Color = "#8b5cf6", MonthlyBudget = 200, FamilyId = family.Id, CreatedBy = user.Id },
+            new() { Name = "Salute", Icon = "💊", Color = "#ec4899", MonthlyBudget = 150, FamilyId = family.Id, CreatedBy = user.Id },
         };
         _db.BudgetCategories.AddRange(budgetCategories);
         await _db.SaveChangesAsync();
@@ -114,7 +114,7 @@ public class DemoDataSeeder
                 SnapshotDate = date,
                 FamilyId = family.Id,
                 Notes = $"Snapshot {date:MMMM yyyy}",
-                CreatedBy = user.DisplayName
+                CreatedBy = user.Id
             };
             _db.Snapshots.Add(snapshot);
             await _db.SaveChangesAsync();
