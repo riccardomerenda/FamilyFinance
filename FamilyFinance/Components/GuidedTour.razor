@@ -112,7 +112,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && _steps.Any() && !_initialized)
+        // Wait for steps to be populated (they're set after data loads)
+        if (_steps.Any() && !_initialized)
         {
             _initialized = true;
             try
