@@ -7,6 +7,20 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.2.2] - 2025-12-22 🔧 ROLE CLAIMS FIX
+
+### 🔧 Bug Fix Critico
+- **Ruoli non funzionanti**: Il sistema `[Authorize(Roles = "Admin")]` non riconosceva il ruolo dell'utente
+- **Causa**: Il campo `AppUser.Role` era salvato nel database ma non veniva esposto come claim ASP.NET Identity
+- **Soluzione**: Aggiunto `RoleClaimsTransformation` che trasforma il ruolo utente in un claim durante l'autenticazione
+
+### 🔐 Dettagli Tecnici
+- Creato `Services/RoleClaimsTransformation.cs` che implementa `IClaimsTransformation`
+- Registrato il servizio in `Program.cs`
+- Ora `AuthorizeView Roles="Admin"` e `[Authorize(Roles = "Admin")]` funzionano correttamente
+
+---
+
 ## [3.2.1] - 2025-12-22 🔐 SYSTEM LOGS IMPROVEMENTS
 
 ### 🔐 Sicurezza

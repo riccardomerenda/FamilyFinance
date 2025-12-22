@@ -120,6 +120,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
 
+// Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
+builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();
+
 // Legacy facade (will be removed after full migration)
 builder.Services.AddScoped<FinanceService>();
 
