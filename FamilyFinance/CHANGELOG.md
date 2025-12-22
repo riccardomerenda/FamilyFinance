@@ -7,6 +7,77 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.9.0] - 2025-12-22
+
+### 🏗️ Architettura Enterprise
+
+Rilascio importante con miglioramenti architetturali per robustezza e manutenibilità.
+
+### ✅ Validazione Input
+
+- **Validatori Entity**: `EntityValidators.cs` con metodi di validazione per tutte le entità
+- **Goal**: Validazione nome (max 100 char), target (>0, <100M), allocated amount, deadline
+- **Account**: Validazione nome, proprietario, categoria
+- **Portfolio**: Validazione nome, orizzonte temporale (0-50 anni), anno target
+- **BudgetCategory**: Validazione nome (max 50 char), budget mensile (>0, <1M)
+- **InvestmentAsset**: Validazione nome, valore, costo di carico
+- **Receivable**: Validazione descrizione, importo
+- **ServiceResult**: Classe wrapper per risultati operazioni con errori strutturati
+
+### 🔔 Gestione Errori UI
+
+- **Toast Notifications**: Integrazione completa NotificationService in tutte le pagine
+- **Messaggi Localizzati**: 18 nuove stringhe per feedback utente (IT/EN)
+- **Success/Error/Warning/Info**: 4 tipi di notifiche con stili differenti
+- **Auto-dismiss**: Notifiche si chiudono dopo 5 secondi
+
+### 📝 Logging Strutturato (Serilog)
+
+- **Serilog.AspNetCore**: Logging strutturato con sink Console e File
+- **Log giornalieri**: File in `logs/familyfinance_YYYY-MM-DD.log`
+- **Retention**: 30 giorni di log conservati
+- **Enrichers**: MachineName, ThreadId, SourceContext
+- **Log Levels**: Override per Microsoft.AspNetCore e EF Core (Warning)
+- **Structured Logging**: Template con SourceContext per tracciabilità
+
+### 🗑️ Soft Delete
+
+- **Campo IsDeleted**: Aggiunto a tutte le entità principali
+- **DeletedAt**: Timestamp della cancellazione
+- **DeletedBy**: User ID che ha eseguito la cancellazione
+- **Query Filter**: Tutte le query escludono automaticamente record cancellati
+- **Recuperabilità**: Dati non persi, solo marcati come eliminati
+
+### 📊 Audit Trail
+
+- **CreatedAt/UpdatedAt**: Timestamp creazione/modifica su tutte le entità
+- **CreatedBy/UpdatedBy**: User ID per tracciabilità modifiche
+- **Automatico**: Popolato automaticamente dai servizi
+- **Storico completo**: Chi ha modificato cosa e quando
+
+### 🧪 Testing
+
+- **+13 nuovi test**: Da 28 a 41 test totali
+- **SnapshotServiceTests**: 12 test per SnapshotService
+- **Test Soft Delete**: Verifica che le entità cancellate siano escluse
+- **Test Validazione**: Verifica errori su input invalidi
+- **100% Pass Rate**: Tutti i test passano
+
+### 📦 Database
+
+- **Migrazione AuditTrailAndSoftDelete**: Nuovi campi su tutte le tabelle
+- **Indici**: Ottimizzati per query con soft delete
+
+### 📚 Dipendenze
+
+- `Serilog.AspNetCore` 8.0.3
+- `Serilog.Enrichers.Environment` 3.0.1
+- `Serilog.Enrichers.Thread` 4.0.0
+- `Serilog.Sinks.Console` 6.0.0
+- `Serilog.Sinks.File` 6.0.0
+
+---
+
 ## [2.8.0] - 2025-12-22
 
 ### 🔧 Bug Fix & Performance

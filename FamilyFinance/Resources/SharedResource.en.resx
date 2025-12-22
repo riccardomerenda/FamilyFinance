@@ -376,5 +376,25 @@
   <data name="PrivacyOpenSourceText" xml:space="preserve"><value>FamilyFinance is an open-source project. The source code is available on GitHub for transparency and verification.</value></data>
   <data name="BackToLogin" xml:space="preserve"><value>Back to Login</value></data>
   <data name="BackToApp" xml:space="preserve"><value>Back to App</value></data>
+
+  <!-- Toast Notifications -->
+  <data name="GoalCreated" xml:space="preserve"><value>Goal created successfully</value></data>
+  <data name="GoalUpdated" xml:space="preserve"><value>Goal updated successfully</value></data>
+  <data name="GoalDeleted" xml:space="preserve"><value>Goal deleted</value></data>
+  <data name="ErrorSavingGoal" xml:space="preserve"><value>Error saving goal</value></data>
+  <data name="ErrorDeletingGoal" xml:space="preserve"><value>Error deleting goal</value></data>
+  <data name="AccountCreated" xml:space="preserve"><value>Account created successfully</value></data>
+  <data name="AccountUpdated" xml:space="preserve"><value>Account updated successfully</value></data>
+  <data name="AccountDeleted" xml:space="preserve"><value>Account deleted</value></data>
+  <data name="PortfolioCreated" xml:space="preserve"><value>Portfolio created successfully</value></data>
+  <data name="PortfolioUpdated" xml:space="preserve"><value>Portfolio updated successfully</value></data>
+  <data name="PortfolioDeleted" xml:space="preserve"><value>Portfolio deleted</value></data>
+  <data name="SnapshotSaved" xml:space="preserve"><value>Snapshot saved successfully</value></data>
+  <data name="SnapshotDeleted" xml:space="preserve"><value>Snapshot deleted</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Export completed successfully</value></data>
+  <data name="ExportError" xml:space="preserve"><value>Export error</value></data>
+  <data name="ValidationError" xml:space="preserve"><value>Validation error</value></data>
+  <data name="GenericError" xml:space="preserve"><value>An error occurred</value></data>
+  <data name="OperationSuccess" xml:space="preserve"><value>Operation completed</value></data>
 </root>
 

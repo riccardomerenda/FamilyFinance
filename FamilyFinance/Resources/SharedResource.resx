@@ -376,5 +376,25 @@
   <data name="PrivacyOpenSourceText" xml:space="preserve"><value>FamilyFinance è un progetto open-source. Il codice sorgente è disponibile su GitHub per trasparenza e verifica.</value></data>
   <data name="BackToLogin" xml:space="preserve"><value>Torna al Login</value></data>
   <data name="BackToApp" xml:space="preserve"><value>Torna all'App</value></data>
+
+  <!-- Toast Notifications -->
+  <data name="GoalCreated" xml:space="preserve"><value>Obiettivo creato con successo</value></data>
+  <data name="GoalUpdated" xml:space="preserve"><value>Obiettivo aggiornato con successo</value></data>
+  <data name="GoalDeleted" xml:space="preserve"><value>Obiettivo eliminato</value></data>
+  <data name="ErrorSavingGoal" xml:space="preserve"><value>Errore durante il salvataggio</value></data>
+  <data name="ErrorDeletingGoal" xml:space="preserve"><value>Errore durante l'eliminazione</value></data>
+  <data name="AccountCreated" xml:space="preserve"><value>Conto creato con successo</value></data>
+  <data name="AccountUpdated" xml:space="preserve"><value>Conto aggiornato con successo</value></data>
+  <data name="AccountDeleted" xml:space="preserve"><value>Conto eliminato</value></data>
+  <data name="PortfolioCreated" xml:space="preserve"><value>Portafoglio creato con successo</value></data>
+  <data name="PortfolioUpdated" xml:space="preserve"><value>Portafoglio aggiornato con successo</value></data>
+  <data name="PortfolioDeleted" xml:space="preserve"><value>Portafoglio eliminato</value></data>
+  <data name="SnapshotSaved" xml:space="preserve"><value>Snapshot salvato con successo</value></data>
+  <data name="SnapshotDeleted" xml:space="preserve"><value>Snapshot eliminato</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Export completato con successo</value></data>
+  <data name="ExportError" xml:space="preserve"><value>Errore durante l'export</value></data>
+  <data name="ValidationError" xml:space="preserve"><value>Errore di validazione</value></data>
+  <data name="GenericError" xml:space="preserve"><value>Si è verificato un errore</value></data>
+  <data name="OperationSuccess" xml:space="preserve"><value>Operazione completata</value></data>
 </root>
 

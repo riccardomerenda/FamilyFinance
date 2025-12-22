@@ -2,6 +2,8 @@ using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -17,7 +19,8 @@ public class AccountServiceTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _service = new AccountService(_context);
+        var logger = new Mock<ILogger<AccountService>>();
+        _service = new AccountService(_context, logger.Object);
 
         SeedTestData();
     }
@@ -125,7 +128,24 @@ public class AccountServiceTests : IDisposable
         // Assert
         var account = await _context.Accounts.FindAsync(1);
         Assert.NotNull(account);
-        Assert.False(account.IsActive); // Soft delete sets IsActive = false
+        Assert.False(account!.IsActive);
+        Assert.True(account.IsDeleted);
+        Assert.NotNull(account.DeletedAt);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ExcludesDeletedAccounts()
+    {
+        // Arrange - Soft delete an account
+        var account = await _context.Accounts.FindAsync(1);
+        account!.IsDeleted = true;
+        await _context.SaveChangesAsync();
+
+        // Act
+        var accounts = await _service.GetAllAsync(1);
+
+        // Assert
+        Assert.DoesNotContain(accounts, a => a.Id == 1);
     }
 
     [Fact]
