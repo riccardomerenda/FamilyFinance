@@ -309,7 +309,7 @@
         // If already authenticated, redirect to dashboard
         if (authState.User?.Identity?.IsAuthenticated == true)
         {
-            Nav.NavigateTo("/", forceLoad: true);
+            Nav.NavigateTo("/dashboard", forceLoad: true);
             return;
         }
     }
