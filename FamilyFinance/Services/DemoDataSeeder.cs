@@ -36,8 +36,11 @@ public class DemoDataSeeder
                 {
                     throw new Exception($"Failed to update demo user password: {string.Join(", ", resetResult.Errors.Select(e => e.Description))}");
                 }
-
-                // Also unlock the user if they were locked out
+            }
+            
+            // Also unlock the user if they were locked out (do this always)
+            if (await _userManager.IsLockedOutAsync(existingUser))
+            {
                 await _userManager.SetLockoutEndDateAsync(existingUser, null);
                 await _userManager.ResetAccessFailedCountAsync(existingUser);
             }
