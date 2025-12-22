@@ -328,12 +328,16 @@ else
             _t = await Finance.CalculateTotalsAsync(_latest);
             _goals = (await Finance.GetGoalsAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
             await BuildCharts();
-            
-            // Initialize tour steps
-            InitializeTourSteps();
         }
         
         _loading = false;
+        
+        // Initialize tour steps AFTER loading is complete so DOM elements exist
+        if (_latest != null)
+        {
+            InitializeTourSteps();
+            StateHasChanged(); // Trigger re-render so GuidedTour sees the steps
+        }
     }
     
     private void InitializeTourSteps()
