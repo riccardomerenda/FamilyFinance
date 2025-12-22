@@ -4,13 +4,14 @@
 @inject FamilyFinance.Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject IStringLocalizer<SharedResource> L
+@attribute [Authorize]
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-8 animate-in">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["BudgetManagement"]</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">@L["BudgetManagementDesc"]</p>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["BudgetManagement"]</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["BudgetManagementDesc"]</p>
     </div>
-    <button @onclick="NewCategory" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+    <button @onclick="NewCategory" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -20,15 +21,15 @@
 
 @if (!_categories.Any())
 {
-    <div class="text-center py-16">
+    <div class="bento-card text-center py-16 animate-in">
         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
             </svg>
         </div>
-        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">@L["NoBudgetCategories"]</h3>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoBudgetCategories"]</h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6">@L["NoBudgetCategoriesDesc"]</p>
-        <button @onclick="InitializeDefaults" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all">
+        <button @onclick="InitializeDefaults" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-0.5">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
@@ -38,72 +39,90 @@
 }
 else
 {
-    <!-- Budget Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["TotalMonthlyBudget"]</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">@_totalBudget.ToString("N0") €</p>
+    <!-- Budget Summary with Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bento-card p-5 animate-in delay-1">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["TotalMonthlyBudget"]</p>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white money">@_totalBudget.ToString("N0") €</p>
         </div>
-        <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">@L["CategoriesCount"]</p>
+        <div class="bento-card p-5 animate-in delay-2">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["CategoriesCount"]</p>
+            </div>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">@_categories.Count</p>
         </div>
-        <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 text-white">
-            <p class="text-xs text-primary-100 mb-1">@L["AveragePerCategory"]</p>
-            <p class="text-2xl font-bold">@(_categories.Count > 0 ? (_totalBudget / _categories.Count).ToString("N0") : "0") €</p>
+        <div class="bento-card p-5 hero-gradient text-white animate-in delay-3">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-white/80">@L["AveragePerCategory"]</p>
+            </div>
+            <p class="text-2xl font-bold money">@(_categories.Count > 0 ? (_totalBudget / _categories.Count).ToString("N0") : "0") €</p>
         </div>
     </div>
 
-    <!-- Categories List -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-            <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["ExpenseCategories"]</h2>
-        </div>
-        <div class="divide-y divide-gray-200 dark:divide-gray-800">
-            @foreach (var cat in _categories)
-            {
-                <div class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in delay-4">
+        @{ var catIdx = 0; }
+        @foreach (var cat in _categories)
+        {
+            var delayClass = $"delay-{Math.Min(catIdx++ % 5 + 1, 5)}";
+            <div class="bento-card p-5 animate-in @delayClass group">
+                <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background-color: @(cat.Color)20">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110" style="background-color: @(cat.Color)20">
                             @cat.Icon
                         </div>
                         <div>
-                            <h3 class="font-medium text-gray-800 dark:text-gray-200">@cat.Name</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                                @if (cat.MonthlyBudget > 0)
-                                {
-                                    <span>@L["MonthlyBudget"]: <span class="font-semibold" style="color: @cat.Color">@cat.MonthlyBudget.ToString("N0") €</span></span>
-                                }
-                                else
-                                {
-                                    <span class="text-gray-400 dark:text-gray-500">@L["NoBudgetSet"]</span>
-                                }
-                            </p>
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200">@cat.Name</h3>
+                            @if (cat.MonthlyBudget > 0)
+                            {
+                                <p class="text-lg font-bold money" style="color: @cat.Color">@cat.MonthlyBudget.ToString("N0") €<span class="text-xs font-normal text-gray-400">/@L["Month"]</span></p>
+                            }
+                            else
+                            {
+                                <p class="text-sm text-gray-400 dark:text-gray-500">@L["NoBudgetSet"]</p>
+                            }
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button @onclick="() => Edit(cat)" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                             </svg>
                         </button>
                         <button @onclick="() => Delete(cat.Id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
                     </div>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 }
 
-<!-- Edit Modal -->
+<!-- Edit Modal with Glassmorphism -->
 @if (_editing != null)
 {
-    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @onclick="() => _editing = null">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" @onclick:stopPropagation="true">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
             <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
                 @(_editing.Id == 0 ? L["NewCategory"] : L["EditCategory"])
             </h2>

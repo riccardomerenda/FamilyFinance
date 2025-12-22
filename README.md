@@ -16,11 +16,20 @@ A comprehensive **family wealth management application** built with Blazor Serve
 
 ## ✨ Features
 
+### 🎨 Modern UI Design (v3.0)
+- **Bento Grid Layout**: Apple/Linear-inspired dashboard design
+- **Glassmorphism Effects**: Frosted glass cards with backdrop blur
+- **Outfit Typography**: Modern, distinctive font family
+- **Mesh Gradient Background**: Atmospheric depth with radial gradients
+- **Stagger Animations**: Smooth reveal effects on page load
+- **Dark/Light Theme**: Automatic system detection with manual toggle
+
 ### 📊 Financial Dashboard
-- **Net Worth Tracking**: Real-time calculation with/without pension
+- **Net Worth Hero Card**: Prominent display with gradient accent
 - **Trend Charts**: Visualize wealth growth over time
 - **Monthly Snapshots**: Complete financial picture each month
-- **Multi-currency Support**: Track accounts in different currencies
+- **Quick Actions Widget**: One-click access to common tasks
+- **Goals Progress**: Visual progress bars in dashboard
 
 ### 📈 Projections & Forecasting
 - **Growth Projections**: 1-10 year wealth forecasts based on historical data
@@ -234,8 +243,10 @@ FamilyFinance/
 | [Entity Framework Core](https://docs.microsoft.com/ef/) | ORM & data access |
 | [SQLite](https://sqlite.org/) | Embedded database |
 | [ASP.NET Core Identity](https://docs.microsoft.com/aspnet/core/security/authentication/identity) | Authentication |
-| [Tailwind CSS](https://tailwindcss.com/) | Styling |
+| [Tailwind CSS](https://tailwindcss.com/) | Utility-first styling |
 | [Chart.js](https://www.chartjs.org/) | Data visualization |
+| [Serilog](https://serilog.net/) | Structured logging |
+| [Outfit Font](https://fonts.google.com/specimen/Outfit) | Modern typography |
 
 ---
 
@@ -273,7 +284,9 @@ dotnet test
 
 ## 📋 Roadmap
 
-- [ ] Mobile-responsive improvements
+- [x] ~~Mobile-responsive improvements~~ (v3.0)
+- [x] ~~Modern UI redesign~~ (v3.0)
+- [x] ~~Structured logging~~ (v2.9)
 - [ ] Recurring transactions
 - [ ] Bank statement import (CSV/OFX)
 - [ ] Multiple currencies with conversion

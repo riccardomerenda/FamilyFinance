@@ -7,58 +7,58 @@
 @inject NotificationService Toast
 @attribute [Authorize]
 
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["SnapshotsHistory"]</h1>
-    <div class="flex items-center gap-3">
-        @if (_allItems?.Count > 0)
-        {
-            <span class="text-sm text-gray-500 dark:text-gray-400">
-                @_allItems.Count @L["Total"]
-            </span>
-        }
-        <a href="/snapshots/new" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            @L["NewSnapshot"]
-        </a>
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-in">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["SnapshotsHistory"]</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">
+            @if (_allItems?.Count > 0)
+            {
+                <span>@_allItems.Count @L["Total"]</span>
+            }
+        </p>
     </div>
+    <a href="/snapshots/new" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        @L["NewSnapshot"]
+    </a>
 </div>
 
 @if (_allItems == null)
 {
-    <div class="flex items-center justify-center h-64">
+    <div class="bento-card flex items-center justify-center h-64 animate-in">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
     </div>
 }
 else if (!_allItems.Any())
 {
-    <div class="text-center py-16">
+    <div class="bento-card text-center py-16 animate-in">
         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
         </div>
-        <p class="text-gray-500 dark:text-gray-400">@L["NoDataMessage"]</p>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoDataMessage"]</h3>
     </div>
 }
 else
 {
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-        <div class="divide-y divide-gray-200 dark:divide-gray-800">
+    <div class="bento-card overflow-hidden animate-in delay-1">
+        <div class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
             @foreach (var s in PagedItems)
             {
-                <div class="flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div class="flex items-center justify-between p-5 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors group">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-lg transition-transform group-hover:scale-105">
                             @s.SnapshotDate.ToString("dd")
                         </div>
                         <div>
-                            <p class="font-semibold text-gray-800 dark:text-gray-200">@s.SnapshotDate.ToString("MMMM yyyy")</p>
+                            <p class="font-semibold text-gray-800 dark:text-gray-200 text-lg">@s.SnapshotDate.ToString("MMMM yyyy")</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">@s.SnapshotDate.ToString("dddd")</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button @onclick='() => Nav.NavigateTo($"/snapshots/{s.Id}")' class="px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
                             @L["Open"]
                         </button>

@@ -5,9 +5,12 @@
 @inject AuthenticationStateProvider AuthState
 @attribute [Authorize]
 
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["PortfoliosManagement"]</h1>
-    <button @onclick="NewPortfolio" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["PortfoliosManagement"]</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["PortfoliosDescription"]</p>
+    </div>
+    <button @onclick="NewPortfolio" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -17,39 +20,41 @@
 
 @if (!_portfolios.Any())
 {
-    <div class="text-center py-16">
+    <div class="bento-card text-center py-16 animate-in">
         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
             </svg>
         </div>
-        <p class="text-gray-500 dark:text-gray-400 mb-4">@L["NoPortfoliosMessage"]</p>
-        <button @onclick="NewPortfolio" class="text-primary-600 dark:text-primary-400 font-medium">@L["CreateFirstPortfolio"]</button>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoPortfoliosMessage"]</h3>
+        <button @onclick="NewPortfolio" class="text-primary-600 dark:text-primary-400 font-medium hover:underline">@L["CreateFirstPortfolio"]</button>
     </div>
 }
 else
 {
+    var idx = 0;
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var p in _portfolios)
         {
-            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 relative overflow-hidden">
+            var delayClass = $"delay-{Math.Min(idx++ % 5 + 1, 5)}";
+            <div class="bento-card p-6 relative overflow-hidden animate-in @delayClass group">
                 <!-- Color accent bar -->
-                <div class="absolute top-0 left-0 right-0 h-1" style="background-color: @p.Color"></div>
+                <div class="absolute top-0 left-0 right-0 h-1.5 rounded-t-xl" style="background: linear-gradient(90deg, @(p.Color), @(p.Color)88)"></div>
                 
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white" style="background-color: @p.Color">
+                <div class="flex items-start justify-between mb-4 pt-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110" style="background-color: @p.Color">
                             @GetIcon(p.Icon)
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-800 dark:text-gray-200">@p.Name</h3>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200 text-lg">@p.Name</h3>
                             @if (!string.IsNullOrEmpty(p.Description))
                             {
                                 <p class="text-sm text-gray-500 dark:text-gray-400">@p.Description</p>
                             }
                         </div>
                     </div>
-                    <div class="flex gap-1">
+                    <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button @onclick="() => Edit(p)" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -88,11 +93,11 @@ else
     </div>
 }
 
-<!-- Modal -->
+<!-- Modal with Glassmorphism -->
 @if (_editing != null)
 {
-    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @onclick="() => _editing = null">
-        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" @onclick:stopPropagation="true">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
             <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
                 @(_editing.Id == 0 ? L["NewPortfolio"] : L["EditPortfolio"])
             </h2>

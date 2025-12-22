@@ -7,6 +7,40 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.1.0] - 2025-12-22 🎨 PAGE REDESIGN
+
+### 🎨 Redesign Completo Pagine Secondarie
+
+Applicato il nuovo design Bento Grid e glassmorphism a tutte le pagine dell'applicazione.
+
+#### Pagine Aggiornate
+- **Goals.razor**: Bento cards con animazioni stagger, hero card per statistiche
+- **Budget.razor**: Grid layout con cards categoria, modal glassmorphism
+- **Portfolios.razor**: Cards con color accent bar e hover effects
+- **Snapshots.razor**: Lista moderna con group hover e paginazione migliorata
+- **Accounts.razor**: Grid cards con categoria colors e icon abbreviations
+- **Compare.razor**: Summary cards con hero gradient e variazioni evidenziate
+- **Projections.razor**: Cards statistiche con icone e trend indicators
+- **Privacy.razor**: Content card con bento-card styling
+- **Logs.razor**: Console moderna con styling aggiornato
+
+#### Miglioramenti UI Comuni
+- **Animazioni stagger**: `animate-in delay-1` a `delay-5` su tutte le pagine
+- **Font .money**: Monospace per tutti i valori monetari
+- **Group hover effects**: Bottoni azione visibili solo su hover
+- **Modal glassmorphism**: Backdrop blur e trasparenze su tutti i modal
+- **Header consistenti**: Titolo 3xl con descrizione su ogni pagina
+
+### 📚 Documentazione
+- **README aggiornato**: Nuova sezione "Modern UI Design (v3.0)"
+- **Tech Stack esteso**: Aggiunti Serilog e Outfit Font
+- **Roadmap aggiornato**: Mobile responsive e UI redesign completati
+
+### 🌍 Localizzazione
+- 7 nuove stringhe: `GoalsDescription`, `AccountsDescription`, `PortfoliosDescription`, `CompareDescription`, `ProjectionsDescription`, `NoGoalsHint`, pattern per descrizioni pagine
+
+---
+
 ## [3.0.1] - 2025-12-22
 
 ### 🐛 Hotfix Critico
