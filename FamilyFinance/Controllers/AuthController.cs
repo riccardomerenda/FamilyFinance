@@ -24,7 +24,7 @@ public class AuthController : Controller
         
         if (success)
         {
-            return LocalRedirect(returnUrl ?? "/");
+            return LocalRedirect(returnUrl ?? "/dashboard");
         }
         
         // Store error in TempData for the login page
@@ -41,7 +41,7 @@ public class AuthController : Controller
         {
             // Auto-login after registration
             await _auth.LoginAsync(email, password);
-            return Redirect("/");
+            return Redirect("/dashboard");
         }
         
         TempData["SetupError"] = error;

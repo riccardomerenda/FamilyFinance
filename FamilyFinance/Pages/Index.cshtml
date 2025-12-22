@@ -1,0 +1,17 @@
+@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
+@{
+    // Redirect logic: unauthenticated users go to welcome, authenticated users go to dashboard
+    if (User?.Identity?.IsAuthenticated == true)
+    {
+        Response.Redirect("/dashboard");
+        return;
+    }
+    else
+    {
+        Response.Redirect("/welcome");
+        return;
+    }
+}
+
