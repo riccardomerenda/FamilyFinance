@@ -7,6 +7,13 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.6.2] - 2025-12-22 🐛 LANGUAGE SWITCH FIX
+
+### 🐛 Bug Fix
+- **Language Switch Redirect**: Risolto problema che reindirizzava alla dashboard quando si cambiava lingua da una pagina interna. Ora l'utente rimane sulla pagina corrente.
+
+---
+
 ## [3.6.1] - 2025-12-22 🐛 TOUR FIX
 
 ### 🐛 Bug Fix Guided Tour
