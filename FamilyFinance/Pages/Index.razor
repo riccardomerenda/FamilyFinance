@@ -5,11 +5,13 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Authorization
+@using FamilyFinance.Services
 @inject FinanceService Finance
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
 @inject FamilyFinance.Services.AuthService Auth
+@inject NotificationService Toast
 
 @if (_latest is null && !_showImportPanel)
 {
@@ -1080,14 +1082,9 @@ else
 
     async Task BuildCharts()
     {
-        var all = await Finance.GetSnapshotsAsync(_familyId);
-        var full = new List<(string d, decimal v)>();
-        foreach (var s in all.OrderBy(x => x.SnapshotDate))
-        {
-            var sn = await Finance.GetSnapshotAsync(s.Id);
-            var t = await Finance.CalculateTotalsAsync(sn!);
-            full.Add((s.SnapshotDate.ToString("MM/yy"), t.GrandTotal));
-        }
+        // OPTIMIZED: Single query instead of N+1
+        var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+        var full = summaries.Select(s => (d: s.Date.ToString("MM/yy"), v: s.GrandTotal)).ToList();
 
         _trendConfig = new
         {
@@ -1166,10 +1163,10 @@ else
             var backup = new 
             { 
                 ExportDate = DateTime.UtcNow,
-                Version = "2.0",
+                Version = "2.1",
                 Accounts = accounts.Select(a => new { a.Id, a.Name, Category = a.Category.ToString(), a.Owner, a.IsInterest, a.IsActive }),
                 Portfolios = portfolios.Select(p => new { p.Id, p.Name, p.Description, p.TimeHorizonYears, p.TargetYear, p.Color, p.IsActive }),
-                Goals = goals.Select(g => new { g.Id, g.Name, g.Target, g.AllocatedAmount, g.Deadline, Priority = g.Priority.ToString(), Category = g.Category.ToString(), g.ShowMonthlyTarget }),
+                Goals = goals.Select(g => new { g.Id, g.Name, g.Target, g.AllocatedAmount, Deadline = g.DeadlineDisplay, Priority = g.Priority.ToString(), Category = g.Category.ToString(), g.ShowMonthlyTarget }),
                 BudgetCategories = budgetCategories.Select(b => new { b.Id, b.Name, b.Icon, b.Color, b.MonthlyBudget, b.IsActive }),
                 Snapshots = fullSnapshots
             };
@@ -1178,10 +1175,12 @@ else
             var json = JsonSerializer.Serialize(backup, options);
             var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
             await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
+            
+            Toast.ShowSuccess(L["ExportCompleted"].Value);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Export error: {ex.Message}");
+            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
         }
     }
 
@@ -1189,23 +1188,24 @@ else
     {
         try
         {
-            var all = await Finance.GetSnapshotsAsync(_familyId);
+            // OPTIMIZED: Single query instead of N+1
+            var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
             
-            foreach (var s in all.OrderBy(x => x.SnapshotDate))
+            foreach (var s in summaries)
             {
-                var sn = await Finance.GetSnapshotAsync(s.Id);
-                var t = await Finance.CalculateTotalsAsync(sn!);
-                sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{t.Liquidity},{t.InterestLiquidity},{t.InvestmentsCost},{t.InvestmentsValue},{t.InvestmentsGainLoss},{t.CreditsOpen},{t.PensionInsuranceContrib},{t.PensionInsuranceValue},{t.PensionInsuranceGainLoss},{t.CurrentTotal},{t.ProjectedTotal},{t.GrandTotal}");
+                sb.AppendLine($"{s.Date:yyyy-MM-dd},{s.Liquidity},{s.InterestLiquidity},{s.InvestmentsCost},{s.InvestmentsValue},{s.InvestmentsGainLoss},{s.CreditsOpen},{s.PensionInsuranceContrib},{s.PensionInsuranceValue},{s.PensionInsuranceGainLoss},{s.CurrentTotal},{s.ProjectedTotal},{s.GrandTotal}");
             }
             
             var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportCompleted"].Value);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Export error: {ex.Message}");
+            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
         }
     }
 
@@ -1233,10 +1233,12 @@ else
             
             var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportCompleted"].Value);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Export error: {ex.Message}");
+            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
         }
     }
 
@@ -1252,15 +1254,17 @@ else
             {
                 var completed = g.IsCompleted ? "Sì" : "No";
                 var priority = g.Priority.ToString();
-                sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.Deadline},{priority},{completed}");
+                sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.DeadlineDisplay},{priority},{completed}");
             }
             
             var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportCompleted"].Value);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Export error: {ex.Message}");
+            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
         }
     }
 

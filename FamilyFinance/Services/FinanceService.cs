@@ -52,6 +52,12 @@ public class FinanceService
 
     public Task<Totals> CalculateTotalsAsync(Snapshot snapshot) 
         => _snapshots.CalculateTotalsAsync(snapshot);
+    
+    /// <summary>
+    /// Optimized: Get all snapshots with totals in a single query (for charts)
+    /// </summary>
+    public Task<List<SnapshotSummary>> GetSnapshotsWithTotalsAsync(int familyId)
+        => _snapshots.GetAllWithTotalsAsync(familyId);
 
     public Task<int> SaveSnapshotAsync(int familyId, int? snapshotId, DateOnly date,
         List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
@@ -79,7 +85,7 @@ public class FinanceService
     public Task SaveGoalAsync(Goal goal) 
         => _goals.SaveAsync(goal);
 
-    public Task DeleteGoalAsync(long id) 
+    public Task DeleteGoalAsync(int id) 
         => _goals.DeleteAsync(id);
 
     // Portfolios - delegate to IPortfolioService

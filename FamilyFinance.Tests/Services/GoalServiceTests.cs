@@ -34,7 +34,7 @@ public class GoalServiceTests : IDisposable
                 Name = "Emergency Fund",
                 Target = 10000,
                 AllocatedAmount = 5000,
-                Deadline = "2026-12",
+                Deadline = new DateOnly(2026, 12, 1),
                 Priority = GoalPriority.High,
                 FamilyId = 1
             },
@@ -44,7 +44,7 @@ public class GoalServiceTests : IDisposable
                 Name = "Vacation",
                 Target = 3000,
                 AllocatedAmount = 3000, // Completed
-                Deadline = "2025-06",
+                Deadline = new DateOnly(2025, 6, 1),
                 Priority = GoalPriority.Medium,
                 FamilyId = 1
             },
@@ -54,7 +54,7 @@ public class GoalServiceTests : IDisposable
                 Name = "New Car",
                 Target = 25000,
                 AllocatedAmount = 2000,
-                Deadline = "2028-12",
+                Deadline = new DateOnly(2028, 12, 1),
                 Priority = GoalPriority.Low,
                 FamilyId = 1
             },
@@ -169,8 +169,43 @@ public class GoalServiceTests : IDisposable
         await _service.DeleteAsync(1);
 
         // Assert
-        var goal = await _context.Goals.FindAsync(1L);
+        var goal = await _context.Goals.FindAsync(1);
         Assert.Null(goal);
+    }
+    
+    [Fact]
+    public void Goal_MonthsUntilDeadline_CalculatesCorrectly()
+    {
+        // Arrange - Set deadline 6 months from now
+        var futureDate = DateTime.Today.AddMonths(6);
+        var goal = new Goal 
+        { 
+            Target = 10000, 
+            Deadline = new DateOnly(futureDate.Year, futureDate.Month, 1) 
+        };
+
+        // Assert
+        Assert.Equal(6, goal.MonthsUntilDeadline);
+    }
+    
+    [Fact]
+    public void Goal_MonthsUntilDeadline_ReturnsZero_WhenNoDeadline()
+    {
+        // Arrange
+        var goal = new Goal { Target = 10000, Deadline = null };
+
+        // Assert
+        Assert.Equal(0, goal.MonthsUntilDeadline);
+    }
+    
+    [Fact]
+    public void Goal_DeadlineDisplay_FormatsCorrectly()
+    {
+        // Arrange
+        var goal = new Goal { Deadline = new DateOnly(2026, 12, 1) };
+
+        // Assert
+        Assert.Equal("2026-12", goal.DeadlineDisplay);
     }
 
     public void Dispose()

@@ -151,5 +151,35 @@ public class SnapshotService : ISnapshotService
             currentTotal, currentTotal + creditsOpen, currentTotal + creditsOpen + pensionInsuranceValue,
             interestLiquidity));
     }
+
+    /// <summary>
+    /// Optimized method to get all snapshots with calculated totals in a SINGLE database query
+    /// Avoids N+1 problem by using projection instead of loading full entities
+    /// </summary>
+    public async Task<List<SnapshotSummary>> GetAllWithTotalsAsync(int familyId)
+    {
+        return await _db.Snapshots
+            .Where(s => s.FamilyId == familyId)
+            .OrderBy(s => s.SnapshotDate)
+            .Select(s => new SnapshotSummary(
+                s.Id,
+                s.SnapshotDate,
+                // Liquidity: sum of lines where account category is Liquidity
+                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity).Sum(l => l.Amount),
+                // Investments Value
+                s.Investments.Sum(i => i.Value),
+                // Investments Cost
+                s.Investments.Sum(i => i.CostBasis),
+                // Credits Open
+                s.Receivables.Where(r => r.Status == ReceivableStatus.Open).Sum(r => r.Amount),
+                // Pension/Insurance Value
+                s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.Amount),
+                // Pension/Insurance Contributions
+                s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.ContributionBasis),
+                // Interest Liquidity
+                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount)
+            ))
+            .ToListAsync();
+    }
 }
 

@@ -292,18 +292,9 @@ else
 
     async Task LoadData()
     {
-        var snapshots = await Finance.GetSnapshotsAsync(_familyId);
-        _snapshots = new List<SnapshotData>();
-        
-        foreach (var s in snapshots.OrderBy(x => x.SnapshotDate))
-        {
-            var full = await Finance.GetSnapshotAsync(s.Id);
-            if (full != null)
-            {
-                var totals = await Finance.CalculateTotalsAsync(full);
-                _snapshots.Add(new SnapshotData(s.SnapshotDate, totals.GrandTotal));
-            }
-        }
+        // OPTIMIZED: Single query instead of N+1
+        var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+        _snapshots = summaries.Select(s => new SnapshotData(s.Date, s.GrandTotal)).ToList();
 
         if (_snapshots.Count >= 2)
         {

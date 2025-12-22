@@ -75,11 +75,11 @@ public class DemoDataSeeder
         // Create demo goals
         var goals = new List<Goal>
         {
-            new() { Name = "Fondo Emergenza", Target = 15000, AllocatedAmount = 12000, Deadline = "2025-06", Priority = GoalPriority.High, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Vacanza Giappone", Target = 8000, AllocatedAmount = 3500, Deadline = "2025-09", Priority = GoalPriority.Medium, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Anticipo Casa", Target = 50000, AllocatedAmount = 22000, Deadline = "2027-12", Priority = GoalPriority.High, Category = GoalCategory.Investments, FamilyId = family.Id },
-            new() { Name = "Auto Nuova", Target = 25000, AllocatedAmount = 8000, Deadline = "2026-06", Priority = GoalPriority.Low, Category = GoalCategory.Liquidity, FamilyId = family.Id },
-            new() { Name = "Università Figli", Target = 80000, AllocatedAmount = 15000, Deadline = "2035-09", Priority = GoalPriority.Medium, Category = GoalCategory.Investments, FamilyId = family.Id },
+            new() { Name = "Fondo Emergenza", Target = 15000, AllocatedAmount = 12000, Deadline = new DateOnly(2025, 6, 1), Priority = GoalPriority.High, Category = GoalCategory.Liquidity, FamilyId = family.Id },
+            new() { Name = "Vacanza Giappone", Target = 8000, AllocatedAmount = 3500, Deadline = new DateOnly(2025, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Liquidity, FamilyId = family.Id },
+            new() { Name = "Anticipo Casa", Target = 50000, AllocatedAmount = 22000, Deadline = new DateOnly(2027, 12, 1), Priority = GoalPriority.High, Category = GoalCategory.Investments, FamilyId = family.Id },
+            new() { Name = "Auto Nuova", Target = 25000, AllocatedAmount = 8000, Deadline = new DateOnly(2026, 6, 1), Priority = GoalPriority.Low, Category = GoalCategory.Liquidity, FamilyId = family.Id },
+            new() { Name = "Università Figli", Target = 80000, AllocatedAmount = 15000, Deadline = new DateOnly(2035, 9, 1), Priority = GoalPriority.Medium, Category = GoalCategory.Investments, FamilyId = family.Id },
         };
         _db.Goals.AddRange(goals);
         await _db.SaveChangesAsync();

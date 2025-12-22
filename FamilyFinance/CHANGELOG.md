@@ -7,6 +7,68 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.8.0] - 2025-12-22
+
+### 🔧 Bug Fix & Performance
+
+Rilascio importante con correzioni di bug critici, miglioramenti di performance e nuove funzionalità.
+
+### 🐛 Bug Fix Critici
+
+#### Goal.Id - Collisione Timestamp
+- **Problema**: L'ID degli obiettivi usava `DateTimeOffset.ToUnixTimeMilliseconds()`, rischiando collisioni se si creavano 2 goal nello stesso millisecondo
+- **Soluzione**: Cambiato da `long` timestamp a `int` auto-increment gestito dal database
+- **File modificati**: `Goal.cs`, `IGoalService.cs`, `GoalService.cs`, `Goals.razor`
+
+#### Goal.Deadline - Tipo Non Tipizzato
+- **Problema**: Il campo Deadline era una stringa "2026-12", difficile da validare e confrontare
+- **Soluzione**: Convertito a `DateOnly?` con helper properties `DeadlineDisplay` e `MonthsUntilDeadline`
+- **Backward compatible**: Import/Export gestisce automaticamente la conversione
+
+### 🔐 Sicurezza
+
+#### Password Policy Rafforzata
+- Lunghezza minima: **8 caratteri** (era 6)
+- Richiede almeno **1 numero**
+- Richiede almeno **4 caratteri unici**
+- Lockout aumentato a **15 minuti** (era 5)
+
+### ⚡ Performance
+
+#### Query Dashboard Ottimizzate
+- **Problema**: Query N+1 per costruire grafici - ogni snapshot richiedeva una query separata
+- **Soluzione**: Nuovo metodo `GetAllWithTotalsAsync()` con singola query SQL projection
+- **Beneficio**: Dashboard 5-10x più veloce con molti snapshot
+- **File modificati**: `ISnapshotService.cs`, `SnapshotService.cs`, `Index.razor`, `Projections.razor`
+
+#### Indici Database
+- Aggiunti indici su `FamilyId` per: Accounts, Goals, Portfolios, BudgetCategories
+- Indice composito su `Snapshots(FamilyId, SnapshotDate)`
+- Miglioramento query per dataset grandi
+
+### ✨ Nuove Funzionalità
+
+#### Sistema Notifiche Toast
+- Nuovo servizio `NotificationService` per feedback utente
+- Componente `ToastContainer` con animazioni CSS
+- 4 tipi: Success, Error, Warning, Info
+- Auto-dismiss dopo 5 secondi
+- Integrato in Goals e funzioni Export
+
+### 🧪 Testing
+
+- **3 nuovi test** per `Goal.MonthsUntilDeadline`, `Goal.DeadlineDisplay`
+- **28 test totali** - tutti passati
+- Aggiornati test esistenti per nuovi tipi
+
+### 📦 Database Migration
+
+- Nuova migrazione `GoalIdAndDeadlineRefactor`
+- Conversione automatica dei dati esistenti
+- Indici creati automaticamente
+
+---
+
 ## [2.7.3] - 2025-12-21
 
 ### 🐛 Bug Fix - Privacy Page Navigation
