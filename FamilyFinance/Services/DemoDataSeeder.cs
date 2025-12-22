@@ -26,6 +26,18 @@ public class DemoDataSeeder
         var existingUser = await _userManager.FindByEmailAsync(DemoEmail);
         if (existingUser != null)
         {
+            // Ensure password is up to date (e.g. if changed in code)
+            if (!await _userManager.CheckPasswordAsync(existingUser, DemoPassword))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                var result = await _userManager.ResetPasswordAsync(existingUser, token, DemoPassword);
+                
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Failed to update demo user password: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            
             return; // Demo data already exists
         }
 
