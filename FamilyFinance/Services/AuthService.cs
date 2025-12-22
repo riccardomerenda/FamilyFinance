@@ -10,12 +10,18 @@ public class AuthService
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly AppDbContext _db;
+    private readonly ActivityLogService _activityLog;
 
-    public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, AppDbContext db)
+    public AuthService(
+        UserManager<AppUser> userManager, 
+        SignInManager<AppUser> signInManager, 
+        AppDbContext db,
+        ActivityLogService activityLog)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _db = db;
+        _activityLog = activityLog;
     }
 
     /// <summary>
@@ -81,6 +87,7 @@ public class AuthService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
+            await _activityLog.LogLoginFailedAsync(email);
             return (false, "Email o password non corretti", null);
         }
 
@@ -90,19 +97,26 @@ public class AuthService
         {
             user.LastLoginAt = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
+            await _activityLog.LogLoginAsync(user);
             return (true, null, user);
         }
 
         if (result.IsLockedOut)
         {
+            await _activityLog.LogLoginFailedAsync(email);
             return (false, "Account bloccato per troppi tentativi. Riprova tra 5 minuti.", null);
         }
 
+        await _activityLog.LogLoginFailedAsync(email);
         return (false, "Email o password non corretti", null);
     }
 
-    public async Task LogoutAsync()
+    public async Task LogoutAsync(AppUser? user = null)
     {
+        if (user != null)
+        {
+            await _activityLog.LogLogoutAsync(user);
+        }
         await _signInManager.SignOutAsync();
     }
 
@@ -155,8 +169,13 @@ public class AuthService
             }
         }
 
+        var oldRole = user.Role;
         user.Role = newRole;
         await _db.SaveChangesAsync();
+        
+        await _activityLog.LogUserManagementAsync(adminUser, ActivityAction.RoleChanged, user, 
+            $"Role changed from {oldRole} to {newRole}");
+        
         return (true, null);
     }
 
@@ -179,6 +198,7 @@ public class AuthService
             return (false, "Utente non trovato");
         }
 
+        await _activityLog.LogUserManagementAsync(adminUser, ActivityAction.UserRemoved, user);
         await _userManager.DeleteAsync(user);
         return (true, null);
     }
@@ -244,6 +264,7 @@ public class AuthService
             return (false, string.Join(", ", result.Errors.Select(e => e.Description)));
         }
 
+        await _activityLog.LogPasswordChangedAsync(user);
         return (true, null);
     }
 

@@ -109,6 +109,9 @@ builder.Services.AddDataProtection()
     .SetApplicationName("FamilyFinance")
     .PersistKeysToFileSystem(new DirectoryInfo(keysFolder));
 
+// HttpContextAccessor for getting request info in services
+builder.Services.AddHttpContextAccessor();
+
 // Services - Interfaces and Implementations
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -119,6 +122,7 @@ builder.Services.AddScoped<IImportExportService, ImportExportService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
+builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();

@@ -77,6 +77,14 @@ A comprehensive **family wealth management application** built with Blazor Serve
 - **Account Info**: View role, family, member since, account status
 - **Header Dropdown**: Quick access to profile and logout
 
+### 📋 Activity Log (v3.4)
+- **Audit Trail**: Track all user activities (login, logout, data changes)
+- **Failed Logins**: Monitor security with failed login attempts
+- **Admin Dashboard**: Stats for total activities, logins, active users
+- **Filters**: By action type, user, and time period (7/30/90 days)
+- **IP Tracking**: See where users connect from
+- **90-Day Retention**: Automatic cleanup of old logs
+
 ### 👨‍👩‍👧‍👦 Multi-Family Support
 - **Isolated Data**: Each family's data is completely separate
 - **User Roles**: Admin and Member permissions

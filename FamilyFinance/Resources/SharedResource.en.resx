@@ -499,6 +499,34 @@
   <data name="FillAllFields" xml:space="preserve"><value>Please fill in all fields</value></data>
   <data name="Family" xml:space="preserve"><value>Family</value></data>
 
+  <!-- Activity Log -->
+  <data name="ActivityLog" xml:space="preserve"><value>Activity Log</value></data>
+  <data name="ActivityLogDesc" xml:space="preserve"><value>User activity history</value></data>
+  <data name="TotalActivities" xml:space="preserve"><value>Total Activities</value></data>
+  <data name="Logins" xml:space="preserve"><value>Logins</value></data>
+  <data name="FailedLogins" xml:space="preserve"><value>Failed Logins</value></data>
+  <data name="ActiveUsers" xml:space="preserve"><value>Active Users</value></data>
+  <data name="FilterByAction" xml:space="preserve"><value>Filter by action</value></data>
+  <data name="FilterByUser" xml:space="preserve"><value>Filter by user</value></data>
+  <data name="AllActions" xml:space="preserve"><value>All actions</value></data>
+  <data name="AllUsers" xml:space="preserve"><value>All users</value></data>
+  <data name="Last" xml:space="preserve"><value>Last</value></data>
+  <data name="Days" xml:space="preserve"><value>days</value></data>
+  <data name="NoActivityLogs" xml:space="preserve"><value>No activity recorded</value></data>
+  <data name="Timestamp" xml:space="preserve"><value>Date/Time</value></data>
+  <data name="User" xml:space="preserve"><value>User</value></data>
+  <data name="IpAddress" xml:space="preserve"><value>IP Address</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Login Failed</value></data>
+  <data name="Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Updated" xml:space="preserve"><value>Updated</value></data>
+  <data name="Deleted" xml:space="preserve"><value>Deleted</value></data>
+  <data name="UserAdded" xml:space="preserve"><value>User Added</value></data>
+  <data name="UserRemoved" xml:space="preserve"><value>User Removed</value></data>
+  <data name="RoleChanged" xml:space="preserve"><value>Role Changed</value></data>
+  <data name="JustNow" xml:space="preserve"><value>Just now</value></data>
+  <data name="ActivityLogRetention" xml:space="preserve"><value>Log retention</value></data>
+  <data name="ActivityLogRetentionDesc" xml:space="preserve"><value>Activity logs are retained for 90 days and then automatically deleted.</value></data>
+
   <!-- System Logs -->
   <data name="SystemLogsDesc" xml:space="preserve"><value>Application monitoring and debugging</value></data>
   <data name="Filter" xml:space="preserve"><value>Filter</value></data>

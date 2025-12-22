@@ -7,6 +7,41 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.4.0] - 2025-12-22 📋 ACTIVITY LOG
+
+### 📋 Sistema di Activity Log
+Nuovo sistema di audit per tracciare tutte le attività degli utenti.
+
+#### Funzionalità
+- **Tracciamento automatico**:
+  - Login/Logout e tentativi falliti
+  - Cambio password
+  - Modifica ruoli utente
+  - Aggiunta/rimozione membri famiglia
+- **Dettagli completi**: Timestamp, utente, azione, IP, User Agent
+- **Retention 90 giorni**: I log più vecchi vengono eliminati automaticamente
+
+#### Pagina `/activity-log` (Solo Admin)
+- **Dashboard statistiche**: Totale attività, login, login falliti, utenti attivi
+- **Filtri avanzati**: Per azione, per utente, per periodo (7/30/90 giorni)
+- **Timeline interattiva**: Visualizzazione cronologica con icone e badge colorati
+- **Info contestuali**: Tempo relativo ("Adesso", "5 min", "2h", "3d")
+
+#### Accesso
+- Accessibile solo agli **Admin** dal dropdown profilo
+- Link "Activity Log" nel menu admin insieme a "Log di Sistema"
+
+### 🔧 Dettagli Tecnici
+- Nuovo modello `ActivityLog` con indici ottimizzati per query
+- Nuovo servizio `ActivityLogService` con metodi di logging e query
+- Integrazione automatica in `AuthService` per login/logout/password
+- IHttpContextAccessor per catturare IP e User Agent
+
+### 🌍 Localizzazione
+- 25+ nuove stringhe IT/EN per la pagina Activity Log
+
+---
+
 ## [3.3.1] - 2025-12-22 🧹 SIDEBAR CLEANUP
 
 ### 🧹 Pulizia Sidebar

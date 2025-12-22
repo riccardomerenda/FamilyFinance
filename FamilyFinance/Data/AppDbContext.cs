@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Portfolio> Portfolios => Set<Portfolio>();
     public DbSet<BudgetCategory> BudgetCategories => Set<BudgetCategory>();
     public DbSet<MonthlyExpense> MonthlyExpenses => Set<MonthlyExpense>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -96,5 +97,13 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<MonthlyExpense>()
             .HasIndex(e => new { e.SnapshotId, e.CategoryId })
             .IsUnique(); // One expense per category per snapshot
+
+        // Activity Log indexes for efficient querying
+        modelBuilder.Entity<ActivityLog>()
+            .HasIndex(a => new { a.FamilyId, a.Timestamp });
+        modelBuilder.Entity<ActivityLog>()
+            .HasIndex(a => a.UserId);
+        modelBuilder.Entity<ActivityLog>()
+            .HasIndex(a => a.Action);
     }
 }
