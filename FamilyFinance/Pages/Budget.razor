@@ -1,7 +1,8 @@
 @page "/budget"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@inject FinanceService Finance
+@using FamilyFinance.Services.Interfaces
+@inject IBudgetService BudgetSvc
 @inject FamilyFinance.Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject IStringLocalizer<SharedResource> L
@@ -213,7 +214,7 @@ else
 
     async Task LoadCategories()
     {
-        _categories = await Finance.GetBudgetCategoriesAsync(_familyId);
+        _categories = await BudgetSvc.GetCategoriesAsync(_familyId);
         _totalBudget = _categories.Sum(c => c.MonthlyBudget);
     }
 
@@ -234,21 +235,21 @@ else
     async Task Save()
     {
         if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
-        await Finance.SaveBudgetCategoryAsync(_editing);
+        await BudgetSvc.SaveCategoryAsync(_editing);
         _editing = null;
         await LoadCategories();
     }
 
     async Task Delete(int id)
     {
-        await Finance.DeleteBudgetCategoryAsync(id);
+        await BudgetSvc.DeleteCategoryAsync(id);
         await LoadCategories();
     }
 
     async Task InitializeDefaults()
     {
-        await Finance.InitializeBudgetCategoriesAsync(_familyId);
+        await BudgetSvc.InitializeCategoriesAsync(_familyId);
         await LoadCategories();
     }
 }
-
+```

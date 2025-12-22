@@ -328,7 +328,9 @@
                         </div>
                     }
                     <div class="p-6">
-                        @Body
+                        <CustomErrorBoundary>
+                            @Body
+                        </CustomErrorBoundary>
                     </div>
                 </main>
             </div>
