@@ -474,6 +474,31 @@
   <!-- Demo Mode -->
   <data name="DemoModeTitle" xml:space="preserve"><value>Modalità Demo</value></data>
 
+  <!-- Profile Page -->
+  <data name="MyProfile" xml:space="preserve"><value>Il mio Profilo</value></data>
+  <data name="EditProfile" xml:space="preserve"><value>Modifica Profilo</value></data>
+  <data name="EditProfileDesc" xml:space="preserve"><value>Aggiorna le tue informazioni personali</value></data>
+  <data name="DisplayName" xml:space="preserve"><value>Nome Visualizzato</value></data>
+  <data name="EmailCannotBeChanged" xml:space="preserve"><value>L'email non può essere modificata</value></data>
+  <data name="SaveChanges" xml:space="preserve"><value>Salva Modifiche</value></data>
+  <data name="ChangePassword" xml:space="preserve"><value>Cambia Password</value></data>
+  <data name="ChangePasswordDesc" xml:space="preserve"><value>Aggiorna la tua password di accesso</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>Password Attuale</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>Nuova Password</value></data>
+  <data name="ConfirmNewPassword" xml:space="preserve"><value>Conferma Nuova Password</value></data>
+  <data name="PasswordRequirements" xml:space="preserve"><value>Minimo 8 caratteri, almeno una lettera e un numero</value></data>
+  <data name="UpdatePassword" xml:space="preserve"><value>Aggiorna Password</value></data>
+  <data name="AccountInfo" xml:space="preserve"><value>Informazioni Account</value></data>
+  <data name="AccountInfoDesc" xml:space="preserve"><value>Dettagli del tuo account</value></data>
+  <data name="MemberSince" xml:space="preserve"><value>Membro dal</value></data>
+  <data name="AccountStatus" xml:space="preserve"><value>Stato Account</value></data>
+  <data name="Active" xml:space="preserve"><value>Attivo</value></data>
+  <data name="ProfileUpdated" xml:space="preserve"><value>Profilo aggiornato con successo</value></data>
+  <data name="PasswordChanged" xml:space="preserve"><value>Password cambiata con successo</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Le password non corrispondono</value></data>
+  <data name="FillAllFields" xml:space="preserve"><value>Compila tutti i campi</value></data>
+  <data name="Family" xml:space="preserve"><value>Famiglia</value></data>
+
   <!-- System Logs -->
   <data name="SystemLogsDesc" xml:space="preserve"><value>Monitoraggio e debug dell'applicazione</value></data>
   <data name="Filter" xml:space="preserve"><value>Filtro</value></data>
