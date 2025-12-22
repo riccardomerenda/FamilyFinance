@@ -98,22 +98,35 @@
     private List<TourStep> _steps = new();
     private int _currentStep = 0;
     private bool _isActive = false;
+    private bool _initialized = false;
     private string _spotlightStyle = "";
     private string _tooltipStyle = "";
     private string _arrowStyle = "";
 
     private TourStep CurrentStep => _steps.Count > _currentStep ? _steps[_currentStep] : new TourStep();
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         _steps = Steps;
-        if (_steps.Any() && !_isActive)
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _steps.Any() && !_initialized)
         {
-            // Check if tour was already completed
-            var completed = await JS.InvokeAsync<string>("localStorage.getItem", $"tour_completed_{TourId}");
-            if (string.IsNullOrEmpty(completed))
+            _initialized = true;
+            try
             {
-                await StartTour();
+                // Check if tour was already completed - JS is safe here
+                var completed = await JS.InvokeAsync<string>("localStorage.getItem", $"tour_completed_{TourId}");
+                if (string.IsNullOrEmpty(completed))
+                {
+                    await StartTour();
+                }
+            }
+            catch
+            {
+                // JS interop failed, skip tour
             }
         }
     }
