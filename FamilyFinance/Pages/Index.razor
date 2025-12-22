@@ -1284,11 +1284,11 @@ else
             var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
             await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
             
-            Toast.ShowSuccess(L["ExportCompleted"].Value);
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
         }
         catch (Exception ex)
         {
-            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
         }
     }
 
@@ -1309,11 +1309,11 @@ else
             var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
             
-            Toast.ShowSuccess(L["ExportCompleted"].Value);
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
         }
         catch (Exception ex)
         {
-            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
         }
     }
 
@@ -1342,11 +1342,11 @@ else
             var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
             
-            Toast.ShowSuccess(L["ExportCompleted"].Value);
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
         }
         catch (Exception ex)
         {
-            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
         }
     }
 
@@ -1368,11 +1368,11 @@ else
             var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
             await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
             
-            Toast.ShowSuccess(L["ExportCompleted"].Value);
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
         }
         catch (Exception ex)
         {
-            Toast.ShowError(L["ExportFailed"].Value + ": " + ex.Message);
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
         }
     }
 
