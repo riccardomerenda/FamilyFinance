@@ -7,6 +7,13 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.7.1] - 2025-12-22 🔥 DEMO PASSWORD HOTFIX
+
+### 🐛 Bug Fix
+- **Demo User Update**: Il seeder ora forza l'aggiornamento della password utente demo se non corrisponde a quella configurata. Questo risolve il problema di login su ambienti persistenti dopo il cambio password.
+
+---
+
 ## [3.7.0] - 2025-12-22 🛡️ QUALITY & SECURITY
 
 ### 🛡️ Enhanced Code Quality
