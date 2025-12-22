@@ -3,6 +3,16 @@
 @code {
     protected override void OnInitialized()
     {
-        Nav.NavigateTo("/Account/Login", forceLoad: true);
+        var currentUri = Nav.ToBaseRelativePath(Nav.Uri);
+        
+        // If trying to access home page, redirect to welcome instead of login
+        if (string.IsNullOrEmpty(currentUri) || currentUri == "/")
+        {
+            Nav.NavigateTo("/welcome", forceLoad: true);
+        }
+        else
+        {
+            Nav.NavigateTo("/Account/Login", forceLoad: true);
+        }
     }
 }
