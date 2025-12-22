@@ -1,7 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
-using FamilyFinance.Services.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,13 @@ public class BudgetService : IBudgetService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<BudgetService> _logger;
+    private readonly IValidator<BudgetCategory> _validator;
 
-    public BudgetService(AppDbContext db, ILogger<BudgetService> logger)
+    public BudgetService(AppDbContext db, ILogger<BudgetService> logger, IValidator<BudgetCategory> validator)
     {
         _db = db;
         _logger = logger;
+        _validator = validator;
     }
 
     // Categories
@@ -38,11 +40,12 @@ public class BudgetService : IBudgetService
     public async Task<ServiceResult> SaveCategoryAsync(BudgetCategory category, string? userId = null)
     {
         // Validate
-        var validation = category.Validate();
-        if (!validation.Success)
+        var validationResult = await _validator.ValidateAsync(category);
+        if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Budget category validation failed: {Errors}", string.Join(", ", validation.Errors));
-            return validation;
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            _logger.LogWarning("Budget category validation failed: {Errors}", string.Join(", ", errors));
+            return ServiceResult.Fail(errors);
         }
 
         if (category.Id == 0)

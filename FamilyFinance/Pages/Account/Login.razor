@@ -36,7 +36,7 @@
                         <p class="text-sm text-amber-100 mt-1">@L["DemoModeCredentials"]</p>
                         <div class="mt-2 p-2 rounded-lg bg-white/10 font-mono text-sm">
                             <p>📧 <span class="select-all">demo@familyfinance.app</span></p>
-                            <p>🔑 <span class="select-all">demo2024</span></p>
+                            <p>🔑 <span class="select-all">demo2026</span></p>
                         </div>
                     </div>
                 </div>
@@ -45,14 +45,14 @@
 
         <!-- Login Card -->
         <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8">
-            @if (!string.IsNullOrEmpty(_error))
+            @if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 <div class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
-                    @_error
+                    @ErrorMessage
                 </div>
             }
 
-            <form method="post" action="/Auth/Login">
+            <form method="post" action="/Auth/Login" novalidate>
                 <div class="space-y-5">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
@@ -120,7 +120,8 @@
 </div>
 
 @code {
-    string? _error = null;
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? ErrorMessage { get; set; }
     bool _isDemoMode = false;
 
     protected override async Task OnInitializedAsync()

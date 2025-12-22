@@ -68,7 +68,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.ActivityLog", b =>
@@ -121,7 +121,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId", "Timestamp");
 
-                    b.ToTable("ActivityLogs");
+                    b.ToTable("ActivityLogs", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.AppUser", b =>
@@ -261,7 +261,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("BudgetCategories");
+                    b.ToTable("BudgetCategories", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.Family", b =>
@@ -279,7 +279,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Families");
+                    b.ToTable("Families", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.Goal", b =>
@@ -338,7 +338,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("Goals");
+                    b.ToTable("Goals", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.InvestmentAsset", b =>
@@ -373,7 +373,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("SnapshotId");
 
-                    b.ToTable("InvestmentAssets");
+                    b.ToTable("InvestmentAssets", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.MonthlyExpense", b =>
@@ -401,7 +401,7 @@ namespace FamilyFinance.Migrations
                     b.HasIndex("SnapshotId", "CategoryId")
                         .IsUnique();
 
-                    b.ToTable("MonthlyExpenses");
+                    b.ToTable("MonthlyExpenses", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.Portfolio", b =>
@@ -462,7 +462,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("Portfolios");
+                    b.ToTable("Portfolios", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.Receivable", b =>
@@ -491,7 +491,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("SnapshotId");
 
-                    b.ToTable("Receivables");
+                    b.ToTable("Receivables", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.Snapshot", b =>
@@ -535,7 +535,7 @@ namespace FamilyFinance.Migrations
 
                     b.HasIndex("FamilyId", "SnapshotDate");
 
-                    b.ToTable("Snapshots");
+                    b.ToTable("Snapshots", (string)null);
                 });
 
             modelBuilder.Entity("FamilyFinance.Models.SnapshotLine", b =>
@@ -563,7 +563,7 @@ namespace FamilyFinance.Migrations
                     b.HasIndex("SnapshotId", "AccountId")
                         .IsUnique();
 
-                    b.ToTable("SnapshotLines");
+                    b.ToTable("SnapshotLines", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

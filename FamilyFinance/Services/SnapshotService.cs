@@ -1,7 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
-using FamilyFinance.Services.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,20 @@ public class SnapshotService : ISnapshotService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<SnapshotService> _logger;
+    private readonly IValidator<Snapshot> _snapshotValidator;
+    private readonly IValidator<InvestmentAsset> _investmentValidator;
+    private readonly IValidator<Receivable> _receivableValidator;
 
-    public SnapshotService(AppDbContext db, ILogger<SnapshotService> logger)
+    public SnapshotService(AppDbContext db, ILogger<SnapshotService> logger, 
+        IValidator<Snapshot> snapshotValidator,
+        IValidator<InvestmentAsset> investmentValidator,
+        IValidator<Receivable> receivableValidator)
     {
         _db = db;
         _logger = logger;
+        _snapshotValidator = snapshotValidator;
+        _investmentValidator = investmentValidator;
+        _receivableValidator = receivableValidator;
     }
 
     public async Task<List<Snapshot>> GetAllAsync(int familyId)
@@ -58,22 +67,25 @@ public class SnapshotService : ISnapshotService
         string? userId = null)
     {
         // Validate snapshot date
-        var validation = EntityValidators.ValidateSnapshot(date, familyId);
-        if (!validation.Success)
+        var snapshotForValidation = new Snapshot { Id = snapshotId ?? 0, FamilyId = familyId, SnapshotDate = date };
+        var validationResult = await _snapshotValidator.ValidateAsync(snapshotForValidation);
+        if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Snapshot validation failed: {Errors}", string.Join(", ", validation.Errors));
-            return ServiceResult<int>.Fail(validation.Errors);
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            _logger.LogWarning("Snapshot validation failed: {Errors}", string.Join(", ", errors));
+            return ServiceResult<int>.Fail(errors);
         }
 
         // Validate investments
         foreach (var inv in investments.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
         {
             var asset = new InvestmentAsset { Name = inv.Name, CostBasis = inv.CostBasis, Value = inv.Value };
-            var invValidation = asset.Validate();
-            if (!invValidation.Success)
+            var invValidation = await _investmentValidator.ValidateAsync(asset);
+            if (!invValidation.IsValid)
             {
-                _logger.LogWarning("Investment validation failed for '{AssetName}': {Errors}", inv.Name, string.Join(", ", invValidation.Errors));
-                return ServiceResult<int>.Fail(invValidation.Errors);
+                var errors = invValidation.Errors.Select(e => e.ErrorMessage).ToList();
+                _logger.LogWarning("Investment validation failed for '{AssetName}': {Errors}", inv.Name, string.Join(", ", errors));
+                return ServiceResult<int>.Fail(errors);
             }
         }
 
@@ -81,11 +93,12 @@ public class SnapshotService : ISnapshotService
         foreach (var rec in receivables.Where(r => !string.IsNullOrWhiteSpace(r.Description)))
         {
             var receivable = new Receivable { Description = rec.Description, Amount = rec.Amount };
-            var recValidation = receivable.Validate();
-            if (!recValidation.Success)
+            var recValidation = await _receivableValidator.ValidateAsync(receivable);
+            if (!recValidation.IsValid)
             {
-                _logger.LogWarning("Receivable validation failed for '{Description}': {Errors}", rec.Description, string.Join(", ", recValidation.Errors));
-                return ServiceResult<int>.Fail(recValidation.Errors);
+                var errors = recValidation.Errors.Select(e => e.ErrorMessage).ToList();
+                _logger.LogWarning("Receivable validation failed for '{Description}': {Errors}", rec.Description, string.Join(", ", errors));
+                return ServiceResult<int>.Fail(errors);
             }
         }
 

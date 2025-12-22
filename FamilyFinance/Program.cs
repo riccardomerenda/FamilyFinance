@@ -3,6 +3,7 @@ using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
 using FamilyFinance.Services.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -113,6 +114,7 @@ builder.Services.AddDataProtection()
 builder.Services.AddHttpContextAccessor();
 
 // Services - Interfaces and Implementations
+builder.Services.AddValidatorsFromAssemblyContaining<FamilyFinance.Validators.AccountValidator>();
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IGoalService, GoalService>();

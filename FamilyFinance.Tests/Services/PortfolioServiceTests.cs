@@ -4,6 +4,8 @@ using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentValidation;
+using FamilyFinance.Validators;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -20,7 +22,7 @@ public class PortfolioServiceTests : IDisposable
 
         _context = new AppDbContext(options);
         var logger = new Mock<ILogger<PortfolioService>>();
-        _service = new PortfolioService(_context, logger.Object);
+        _service = new PortfolioService(_context, logger.Object, new PortfolioValidator());
 
         SeedTestData();
     }

@@ -1,7 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
-using FamilyFinance.Services.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,13 @@ public class GoalService : IGoalService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<GoalService> _logger;
+    private readonly IValidator<Goal> _validator;
 
-    public GoalService(AppDbContext db, ILogger<GoalService> logger)
+    public GoalService(AppDbContext db, ILogger<GoalService> logger, IValidator<Goal> validator)
     {
         _db = db;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<List<Goal>> GetAllAsync(int familyId)
@@ -36,11 +38,12 @@ public class GoalService : IGoalService
     public async Task<ServiceResult> SaveAsync(Goal goal, string? userId = null)
     {
         // Validate
-        var validation = goal.Validate();
-        if (!validation.Success)
+        var validationResult = await _validator.ValidateAsync(goal);
+        if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Goal validation failed: {Errors}", string.Join(", ", validation.Errors));
-            return validation;
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            _logger.LogWarning("Goal validation failed: {Errors}", string.Join(", ", errors));
+            return ServiceResult.Fail(errors);
         }
 
         if (goal.Id == 0)

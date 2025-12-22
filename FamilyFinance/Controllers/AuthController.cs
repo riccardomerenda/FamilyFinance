@@ -20,6 +20,11 @@ public class AuthController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
     {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            return Redirect($"/Account/Login?error={Uri.EscapeDataString("Email e Password sono obbligatori")}");
+        }
+
         var (success, error, user) = await _auth.LoginAsync(email, password);
         
         if (success)
@@ -27,9 +32,8 @@ public class AuthController : Controller
             return LocalRedirect(returnUrl ?? "/dashboard");
         }
         
-        // Store error in TempData for the login page
-        TempData["LoginError"] = error;
-        return Redirect("/Account/Login");
+        // Pass error via query string
+        return Redirect($"/Account/Login?error={Uri.EscapeDataString(error)}");
     }
 
     [HttpPost]

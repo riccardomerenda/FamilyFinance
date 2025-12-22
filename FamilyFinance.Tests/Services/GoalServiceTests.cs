@@ -4,6 +4,8 @@ using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentValidation;
+using FamilyFinance.Validators;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -20,7 +22,7 @@ public class GoalServiceTests : IDisposable
 
         _context = new AppDbContext(options);
         var logger = new Mock<ILogger<GoalService>>();
-        _service = new GoalService(_context, logger.Object);
+        _service = new GoalService(_context, logger.Object, new GoalValidator());
 
         SeedTestData();
     }
