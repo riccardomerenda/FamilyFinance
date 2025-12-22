@@ -397,6 +397,14 @@
   <data name="GenericError" xml:space="preserve"><value>Si è verificato un errore</value></data>
   <data name="OperationSuccess" xml:space="preserve"><value>Operazione completata</value></data>
 
+  <!-- Demo Mode -->
+  <data name="DemoMode" xml:space="preserve"><value>Modalità Demo</value></data>
+  <data name="DemoModeDescription" xml:space="preserve"><value>Stai esplorando con dati di esempio. I dati potrebbero essere resettati periodicamente.</value></data>
+  <data name="DemoModeCredentials" xml:space="preserve"><value>Usa le credenziali demo per esplorare l'app:</value></data>
+  <data name="RequestAccess" xml:space="preserve"><value>Richiedi Accesso</value></data>
+  <data name="InterestedPersonalVersion" xml:space="preserve"><value>Interessato a una versione personale?</value></data>
+  <data name="RequestAccessLinkedIn" xml:space="preserve"><value>Richiedi Accesso su LinkedIn</value></data>
+
   <!-- Pagination -->
   <data name="Show" xml:space="preserve"><value>Mostra</value></data>
   <data name="PerPage" xml:space="preserve"><value>per pagina</value></data>

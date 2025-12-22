@@ -229,96 +229,200 @@ else
 
     @if (Tab == "dash")
     {
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Current Total (Liquidity + Investments) -->
-            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["CurrentTotal"]</span>
-                    <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                        </svg>
+        <!-- Bento Grid Dashboard -->
+        <div class="grid grid-cols-12 gap-4 lg:gap-6">
+            
+            <!-- HERO: Net Worth Card (Large) -->
+            <div class="col-span-12 lg:col-span-5 bento-card hero-gradient glow-primary p-6 lg:p-8 text-white animate-in">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <p class="text-white/70 text-sm font-medium uppercase tracking-wider">@L["NetWorthTotal"]</p>
+                        <h2 class="text-4xl lg:text-5xl font-extrabold mt-2 money">@_t.ProjectedTotal.ToString("N0") €</h2>
+                        <p class="text-white/60 text-sm mt-2">@L["LiquidityPlusInvestmentsCredits"]</p>
                     </div>
-                </div>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white">@_t.CurrentTotal.ToString("N0") €</p>
-                <p class="text-xs text-gray-400 mt-1">@L["LiquidityPlusInvestments"]</p>
-            </div>
-
-            <!-- Projected (+ Credits) -->
-            <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["Projected"]</span>
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white">@_t.ProjectedTotal.ToString("N0") €</p>
-                <p class="text-xs text-gray-400 mt-1">@L["IncludingCredits"]</p>
-            </div>
-
-            <!-- Net Worth (PRIMARY - without pension, pension shown as secondary) -->
-            <div class="card-hover bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-6 text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-sm font-medium text-primary-100">@L["NetWorthTotal"]</span>
-                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                 </div>
-                <p class="text-3xl font-bold">@_t.ProjectedTotal.ToString("N0") €</p>
-                <p class="text-xs text-primary-200 mt-1">@L["LiquidityPlusInvestmentsCredits"]</p>
                 @if (_t.PensionInsuranceValue > 0)
                 {
-                    <div class="mt-3 pt-3 border-t border-white/20">
-                        <p class="text-sm text-primary-100">
-                            @L["IncludingPension"]: <span class="font-semibold">@_t.GrandTotal.ToString("N0") €</span>
-                        </p>
+                    <div class="pt-4 border-t border-white/20">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <span class="text-white/70 text-sm">@L["IncludingPension"]:</span>
+                            <span class="font-bold money">@_t.GrandTotal.ToString("N0") €</span>
+                        </div>
                     </div>
                 }
             </div>
-        </div>
 
-        <!-- Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Trend Chart -->
-            <div class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["WealthTrend"]</h3>
-                <div class="h-64">
+            <!-- Liquidity Card -->
+            <div class="col-span-6 lg:col-span-4 bento-card p-5 animate-in delay-1">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["ChartLiquidity"]</span>
+                </div>
+                <p class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white money">@_t.Liquidity.ToString("N0") €</p>
+                <p class="text-xs text-gray-400 mt-1">+ @_t.InterestLiquidity.ToString("N0") € @L["ChartInterests"]</p>
+            </div>
+
+            <!-- Investments Card -->
+            <div class="col-span-6 lg:col-span-3 bento-card p-5 animate-in delay-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["ChartInvestments"]</span>
+                </div>
+                <p class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white money">@_t.InvestmentsValue.ToString("N0") €</p>
+                <p class="text-xs mt-1 @(_t.InvestmentsGainLoss >= 0 ? "text-emerald-500" : "text-red-500") font-medium">
+                    @(_t.InvestmentsGainLoss >= 0 ? "+" : "")@_t.InvestmentsGainLoss.ToString("N0") € (@(_t.InvestmentsGainLossPercent >= 0 ? "+" : "")@_t.InvestmentsGainLossPercent.ToString("N1")%)
+                </p>
+            </div>
+
+            <!-- Trend Chart (Large) -->
+            <div class="col-span-12 lg:col-span-8 bento-card p-5 lg:p-6 animate-in delay-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["WealthTrend"]</h3>
+                    <a href="/projections" class="text-xs font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1">
+                        @L["Projections"]
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div class="h-56 lg:h-64">
                     <Chart CanvasId="trend" Config="@_trendConfig" />
                 </div>
             </div>
 
-            <!-- Composition Chart -->
-            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+            <!-- Composition Donut -->
+            <div class="col-span-12 lg:col-span-4 bento-card p-5 lg:p-6 animate-in delay-4">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Composition"]</h3>
-                <div class="h-64">
+                <div class="h-48 lg:h-56">
                     <Chart CanvasId="comp" Config="@_compConfig" />
                 </div>
             </div>
-        </div>
 
-        <!-- Pending Credits -->
-        @if (_latest!.Receivables.Any(x => x.Status == ReceivableStatus.Open))
-        {
-            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["PendingCredits"]</h3>
-                <div class="space-y-3">
-                    @foreach (var r in _latest.Receivables.Where(x => x.Status == ReceivableStatus.Open))
-                    {
-                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                            <span class="font-medium text-gray-700 dark:text-gray-300">@r.Description</span>
-                            <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-sm font-semibold">
-                                @r.Amount.ToString("N0") €
-                            </span>
+            <!-- Goals Widget -->
+            @if (_goals != null && _goals.Any())
+            {
+                <div class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["Goals"]</h3>
+                        <a href="/goals" class="text-xs font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1">
+                            @L["Edit"]
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="space-y-4">
+                        @foreach (var goal in _goals.Take(3))
+                        {
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">@goal.Name</span>
+                                    <span class="text-xs font-semibold @(goal.IsCompleted ? "text-emerald-500" : "text-gray-500 dark:text-gray-400")">
+                                        @goal.ProgressPercent.ToString("N0")%
+                                    </span>
+                                </div>
+                                <div class="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full progress-animated @(goal.IsCompleted ? "bg-gradient-to-r from-emerald-500 to-teal-400" : "bg-gradient-to-r from-primary-500 to-accent-500")" 
+                                         style="width: @Math.Min(100, goal.ProgressPercent)%"></div>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                    <span class="money">@goal.AllocatedAmount.ToString("N0") € / @goal.Target.ToString("N0") €</span>
+                                    @if (!goal.IsCompleted && goal.Deadline.HasValue)
+                                    {
+                                        <span>@goal.DeadlineDisplay</span>
+                                    }
+                                    else if (goal.IsCompleted)
+                                    {
+                                        <span class="text-emerald-500">✓ @L["GoalCompleted"]</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Quick Actions / Budget Widget -->
+            <div class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Actions"]</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="/snapshots/new" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-primary-500/10 to-primary-600/10 hover:from-primary-500/20 hover:to-primary-600/20 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
                         </div>
-                    }
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["NewSnapshot"]</span>
+                    </a>
+                    <a href="/accounts" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Accounts"]</span>
+                    </a>
+                    <a href="/goals" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 hover:from-emerald-500/20 hover:to-emerald-600/20 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Goals"]</span>
+                    </a>
+                    <a href="/compare" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/10 hover:from-amber-500/20 hover:to-amber-600/20 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Compare"]</span>
+                    </a>
                 </div>
             </div>
-        }
+
+            <!-- Pending Credits -->
+            @if (_latest!.Receivables.Any(x => x.Status == ReceivableStatus.Open))
+            {
+                <div class="col-span-12 bento-card p-5 lg:p-6 animate-in delay-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["PendingCredits"]</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        @foreach (var r in _latest.Receivables.Where(x => x.Status == ReceivableStatus.Open))
+                        {
+                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
+                                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">@r.Description</span>
+                                <span class="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold money">
+                                    @r.Amount.ToString("N0") €
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
     }
 
     @if (Tab == "inv")
@@ -1041,6 +1145,9 @@ else
     // Budget state
     BudgetSummary? _budgetSummary;
     
+    // Goals for dashboard widget
+    List<Goal>? _goals;
+    
     // Import state
     ImportPreview? _importPreview;
     ImportResult? _importResult;
@@ -1076,6 +1183,7 @@ else
         {
             _t = await Finance.CalculateTotalsAsync(_latest);
             _budgetSummary = await Finance.GetBudgetSummaryAsync(_latest.Id, _familyId);
+            _goals = (await Finance.GetGoalsAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
             await BuildCharts();
         }
     }
