@@ -7,6 +7,13 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.7.2] - 2025-12-22 🔓 DEMO UNLOCK HOTFIX
+
+### 🐛 Bug Fix
+- **Demo User Unlock**: Il seeder ora sblocca automaticamente l'utente demo durante l'aggiornamento, risolvendo il problema di "Account bloccato" dovuto a tentativi falliti precedenti.
+
+---
+
 ## [3.7.1] - 2025-12-22 🔥 DEMO PASSWORD HOTFIX
 
 ### 🐛 Bug Fix
