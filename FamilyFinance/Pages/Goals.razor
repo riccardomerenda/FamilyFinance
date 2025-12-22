@@ -1,8 +1,10 @@
 @page "/goals"
 @using System.Security.Claims
+@using FamilyFinance.Services
 @inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
+@inject NotificationService Toast
 @attribute [Authorize]
 
 <div class="flex items-center justify-between mb-6">
@@ -60,7 +62,7 @@ else
         @foreach (var g in _goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
         {
             var pct = g.ProgressPercent;
-            var monthsLeft = GetMonthsUntilDeadline(g.Deadline);
+            var monthsLeft = g.MonthsUntilDeadline;
             var monthlyNeeded = monthsLeft > 0 && g.Missing > 0 ? g.Missing / monthsLeft : 0;
 
             <div class="card-hover bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 @(g.IsCompleted ? "ring-2 ring-green-500" : "")">
@@ -127,11 +129,11 @@ else
                             <span class="font-semibold text-gray-700 dark:text-gray-300">@g.Missing.ToString("N0") €</span>
                         </div>
                         
-                        @if (!string.IsNullOrEmpty(g.Deadline))
+                        @if (g.Deadline.HasValue)
                         {
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-gray-500 dark:text-gray-400">@L["Deadline"]</span>
-                                <span class="font-medium text-gray-700 dark:text-gray-300">@g.Deadline</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">@g.DeadlineDisplay</span>
                             </div>
                             
                             @if (monthsLeft > 0)
@@ -200,8 +202,8 @@ else
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Deadline"]</label>
-                    <input @bind="_editing.Deadline" placeholder="2026-12" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Deadline"] (YYYY-MM)</label>
+                    <input type="text" @bind="_deadlineInput" placeholder="2026-12" pattern="\d{4}-\d{2}" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
                 </div>
                 
                 <div>
@@ -253,6 +255,7 @@ else
     Goal? _editing;
     Totals? _t;
     int _familyId;
+    string _deadlineInput = "";  // For HTML month input binding
 
     protected override async Task OnInitializedAsync()
     {
@@ -268,34 +271,71 @@ else
         if (l != null) _t = await Finance.CalculateTotalsAsync(l);
     }
     
-    int GetMonthsUntilDeadline(string deadline)
+    void NewGoal()
     {
-        if (string.IsNullOrWhiteSpace(deadline)) return 0;
-        
-        // Try parse YYYY-MM format
-        if (deadline.Length >= 7 && int.TryParse(deadline[..4], out var year) && int.TryParse(deadline.Substring(5, 2), out var month))
-        {
-            var target = new DateTime(year, month, 1);
-            var now = DateTime.Today;
-            var months = ((target.Year - now.Year) * 12) + target.Month - now.Month;
-            return Math.Max(0, months);
-        }
-        return 0;
+        _editing = new Goal { FamilyId = _familyId };
+        _deadlineInput = "";
     }
     
-    void NewGoal() => _editing = new Goal { FamilyId = _familyId };
-    void Edit(Goal g) => _editing = new Goal { Id = g.Id, Name = g.Name, Target = g.Target, AllocatedAmount = g.AllocatedAmount, Deadline = g.Deadline, Priority = g.Priority, Category = g.Category, ShowMonthlyTarget = g.ShowMonthlyTarget, FamilyId = g.FamilyId };
+    void Edit(Goal g)
+    {
+        _editing = new Goal 
+        { 
+            Id = g.Id, 
+            Name = g.Name, 
+            Target = g.Target, 
+            AllocatedAmount = g.AllocatedAmount, 
+            Deadline = g.Deadline, 
+            Priority = g.Priority, 
+            Category = g.Category, 
+            ShowMonthlyTarget = g.ShowMonthlyTarget, 
+            FamilyId = g.FamilyId 
+        };
+        _deadlineInput = g.Deadline?.ToString("yyyy-MM") ?? "";
+    }
     
     async Task Save() 
     { 
-        await Finance.SaveGoalAsync(_editing!); 
-        _editing = null; 
-        await OnInitializedAsync(); 
+        try
+        {
+            // Parse deadline from input
+            if (!string.IsNullOrEmpty(_deadlineInput) && _deadlineInput.Length >= 7)
+            {
+                if (int.TryParse(_deadlineInput[..4], out var year) && 
+                    int.TryParse(_deadlineInput.Substring(5, 2), out var month))
+                {
+                    _editing!.Deadline = new DateOnly(year, month, 1);
+                }
+            }
+            else
+            {
+                _editing!.Deadline = null;
+            }
+            
+            var isNew = _editing!.Id == 0;
+            await Finance.SaveGoalAsync(_editing!); 
+            _editing = null; 
+            await OnInitializedAsync();
+            
+            Toast.ShowSuccess(isNew ? L["GoalCreated"].Value : L["GoalUpdated"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ErrorSavingGoal"].Value + ": " + ex.Message);
+        }
     }
     
-    async Task Del(long id) 
+    async Task Del(int id) 
     { 
-        await Finance.DeleteGoalAsync(id); 
-        await OnInitializedAsync(); 
+        try
+        {
+            await Finance.DeleteGoalAsync(id); 
+            await OnInitializedAsync();
+            Toast.ShowSuccess(L["GoalDeleted"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ErrorDeletingGoal"].Value + ": " + ex.Message);
+        }
     }
 }

@@ -1,0 +1,120 @@
+@using FamilyFinance.Services
+@inject NotificationService Notifications
+@implements IDisposable
+
+<div class="fixed bottom-4 right-4 z-50 flex flex-col gap-3 max-w-sm">
+    @foreach (var toast in _toasts)
+    {
+        var (bgClass, iconPath, borderClass) = GetToastStyle(toast.Type);
+        
+        <div class="@bgClass @borderClass rounded-xl p-4 shadow-lg border animate-slide-in flex items-start gap-3 min-w-[300px]">
+            <!-- Icon -->
+            <div class="flex-shrink-0 w-6 h-6">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@iconPath"></path>
+                </svg>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-sm">@toast.Title</p>
+                <p class="text-sm opacity-90 mt-0.5">@toast.Message</p>
+            </div>
+            
+            <!-- Close button -->
+            <button @onclick="() => RemoveToast(toast.Id)" class="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    @@keyframes slide-in {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+</style>
+
+@code {
+    private List<ToastMessage> _toasts = new();
+
+    protected override void OnInitialized()
+    {
+        Notifications.OnShow += ShowToast;
+        Notifications.OnHide += RemoveToast;
+    }
+
+    private void ShowToast(ToastMessage toast)
+    {
+        _toasts.Add(toast);
+        StateHasChanged();
+        
+        // Auto-remove after duration
+        _ = Task.Delay(toast.DurationMs).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                RemoveToast(toast.Id);
+            });
+        });
+    }
+
+    private void RemoveToast(Guid id)
+    {
+        var toast = _toasts.FirstOrDefault(t => t.Id == id);
+        if (toast != null)
+        {
+            _toasts.Remove(toast);
+            StateHasChanged();
+        }
+    }
+
+    private (string bgClass, string iconPath, string borderClass) GetToastStyle(ToastType type) => type switch
+    {
+        ToastType.Success => (
+            "bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200",
+            "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+            "border-green-200 dark:border-green-800"
+        ),
+        ToastType.Error => (
+            "bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200",
+            "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            "border-red-200 dark:border-red-800"
+        ),
+        ToastType.Warning => (
+            "bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200",
+            "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
+            "border-amber-200 dark:border-amber-800"
+        ),
+        ToastType.Info => (
+            "bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200",
+            "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            "border-blue-200 dark:border-blue-800"
+        ),
+        _ => (
+            "bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200",
+            "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            "border-gray-200 dark:border-gray-700"
+        )
+    };
+
+    public void Dispose()
+    {
+        Notifications.OnShow -= ShowToast;
+        Notifications.OnHide -= RemoveToast;
+    }
+}
+

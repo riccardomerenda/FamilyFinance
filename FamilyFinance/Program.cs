@@ -44,19 +44,21 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 // Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
-    // Password settings (relaxed for family use)
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
+    // Password settings (balanced security for family use)
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = false;  // Keep simple for families
+    options.Password.RequireNonAlphanumeric = false;  // Keep simple for families
+    options.Password.RequiredLength = 8;  // Increased from 6 to 8
+    options.Password.RequiredUniqueChars = 4;  // At least 4 different characters
     
     // User settings
     options.User.RequireUniqueEmail = true;
     
     // Lockout settings
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);  // Increased from 5 to 15
     options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
@@ -90,6 +92,7 @@ builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IImportExportService, ImportExportService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<LogService>();
+builder.Services.AddScoped<NotificationService>();  // Toast notifications
 
 // Legacy facade (will be removed after full migration)
 builder.Services.AddScoped<FinanceService>();

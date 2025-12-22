@@ -13,5 +13,32 @@ public interface ISnapshotService
         List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables);
     Task DeleteAsync(int id);
     Task<Totals> CalculateTotalsAsync(Snapshot snapshot);
+    
+    /// <summary>
+    /// Get all snapshots with their totals in a single optimized query (avoids N+1)
+    /// </summary>
+    Task<List<SnapshotSummary>> GetAllWithTotalsAsync(int familyId);
+}
+
+/// <summary>
+/// Summary record for chart data - avoids loading full entities
+/// </summary>
+public record SnapshotSummary(
+    int Id,
+    DateOnly Date,
+    decimal Liquidity,
+    decimal InvestmentsValue,
+    decimal InvestmentsCost,
+    decimal CreditsOpen,
+    decimal PensionInsuranceValue,
+    decimal PensionInsuranceContrib,
+    decimal InterestLiquidity
+)
+{
+    public decimal InvestmentsGainLoss => InvestmentsValue - InvestmentsCost;
+    public decimal PensionInsuranceGainLoss => PensionInsuranceValue - PensionInsuranceContrib;
+    public decimal CurrentTotal => Liquidity + InvestmentsValue;
+    public decimal ProjectedTotal => CurrentTotal + CreditsOpen;
+    public decimal GrandTotal => ProjectedTotal + PensionInsuranceValue;
 }
 

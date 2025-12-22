@@ -33,8 +33,16 @@ public class AppDbContext : IdentityDbContext<AppUser>
 
         modelBuilder.Entity<Snapshot>().Property(x => x.SnapshotDate).HasConversion(dateOnlyConverter);
         modelBuilder.Entity<Receivable>().Property(x => x.ExpectedDate).HasConversion(nullableDateOnlyConverter);
+        modelBuilder.Entity<Goal>().Property(x => x.Deadline).HasConversion(nullableDateOnlyConverter);
 
         modelBuilder.Entity<SnapshotLine>().HasIndex(x => new { x.SnapshotId, x.AccountId }).IsUnique();
+        
+        // Performance indexes for frequent queries
+        modelBuilder.Entity<Snapshot>().HasIndex(x => new { x.FamilyId, x.SnapshotDate });
+        modelBuilder.Entity<Account>().HasIndex(x => x.FamilyId);
+        modelBuilder.Entity<Goal>().HasIndex(x => x.FamilyId);
+        modelBuilder.Entity<Portfolio>().HasIndex(x => x.FamilyId);
+        modelBuilder.Entity<BudgetCategory>().HasIndex(x => x.FamilyId);
         
         // Family relationships
         modelBuilder.Entity<AppUser>()
