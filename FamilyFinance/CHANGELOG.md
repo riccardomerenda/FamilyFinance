@@ -7,6 +7,29 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.3.1] - 2025-12-22 🧹 SIDEBAR CLEANUP
+
+### 🧹 Pulizia Sidebar
+- **Rimossa sezione "IMPOSTAZIONI"**: Non più necessaria con il dropdown profilo
+- **"Gestione Dati" spostato in "ANALISI"**: Posizionamento più logico
+- **"Membri Famiglia" solo nel dropdown**: Evita duplicazione
+- **"Log di Sistema" solo nel dropdown**: Accessibile solo per Admin dal menu profilo
+
+### 📱 Menu Mobile Aggiornato
+- Rimossa sezione "Impostazioni"
+- "Gestione Dati" ora in "Analisi"
+
+### ✨ Risultato
+La sidebar ora è focalizzata esclusivamente sulla navigazione dei dati finanziari:
+- **Panoramica**: Dashboard, Snapshots
+- **Patrimonio**: Conti, Investimenti, Interessi, Previdenza, Portafogli
+- **Pianificazione**: Obiettivi, Budget, Proiezioni
+- **Analisi**: Confronto, Gestione Dati
+
+Tutto il resto (Profilo, Membri Famiglia, Log Sistema, Logout) è nel dropdown utente.
+
+---
+
 ## [3.3.0] - 2025-12-22 👤 USER PROFILE
 
 ### 👤 Nuova Pagina Profilo Utente
