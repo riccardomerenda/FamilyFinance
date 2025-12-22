@@ -7,6 +7,27 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.6.1] - 2025-12-22 🐛 TOUR FIX
+
+### 🐛 Bug Fix Guided Tour
+
+#### Tooltip Arrow Fix
+- **Problema**: La freccia del tooltip appariva come un rombo nero invece di un triangolo negli step 2, 3 e 6
+- **Causa**: CSS border technique non corretta per creare il triangolo
+- **Soluzione**: Implementata tecnica CSS triangle standard con `border` properties e colori dinamici
+
+#### Posizionamento CSS Fix
+- **Problema**: I tooltip erano completamente fuori posizione
+- **Causa**: I valori CSS venivano formattati con virgola (es. `88,66px`) invece del punto decimale (`88.66px`) per via delle impostazioni cultura italiana
+- **Soluzione**: Uso esplicito di `CultureInfo.InvariantCulture` per la formattazione dei valori CSS
+
+### 🔧 Miglioramenti
+- Rimosso logging di debug dal componente GuidedTour
+- Tooltip arrow ora usa CSS triangle standard con bordi trasparenti
+- Posizionamento dinamico della freccia basato sul placement del tooltip
+
+---
+
 ## [3.6.0] - 2025-12-22 🚀 WELCOME PAGE REDIRECT
 
 ### 🌐 Flusso di Navigazione Migliorato

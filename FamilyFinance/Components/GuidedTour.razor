@@ -1,5 +1,7 @@
+@using System.Globalization
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
+@inject ILogger<GuidedTour> Logger
 
 @if (_isActive && _currentStep < _steps.Count)
 {
@@ -83,9 +85,8 @@
             </div>
         </div>
         
-        <!-- Arrow pointer -->
-        <div class="absolute w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 transform rotate-45"
-             style="@_arrowStyle"></div>
+        <!-- Arrow pointer (CSS triangle) -->
+        <div class="absolute" style="@_arrowStyle"></div>
     </div>
 }
 
@@ -198,48 +199,126 @@
             if (rect != null && rect.Width > 0 && rect.Height > 0)
             {
                 // Spotlight position - use viewport coordinates
+                // IMPORTANT: Use InvariantCulture for CSS values (decimal point, not comma)
                 var padding = 12;
-                _spotlightStyle = $"top: {rect.Top - padding}px; left: {rect.Left - padding}px; width: {rect.Width + padding * 2}px; height: {rect.Height + padding * 2}px;";
+                var spotTop = (rect.Top - padding).ToString(CultureInfo.InvariantCulture);
+                var spotLeft = (rect.Left - padding).ToString(CultureInfo.InvariantCulture);
+                var spotWidth = (rect.Width + padding * 2).ToString(CultureInfo.InvariantCulture);
+                var spotHeight = (rect.Height + padding * 2).ToString(CultureInfo.InvariantCulture);
+                _spotlightStyle = $"top: {spotTop}px; left: {spotLeft}px; width: {spotWidth}px; height: {spotHeight}px;";
 
                 // Tooltip position based on placement
                 var tooltipOffset = 20;
                 var tooltipWidth = 320; // w-80 = 20rem = 320px
                 var tooltipHeight = 200; // approximate
                 
-                // Ensure tooltip stays within viewport
-                var viewportWidth = 1200; // fallback
-                var viewportHeight = 800; // fallback
+                // Use actual viewport dimensions from JS
+                var viewportWidth = rect.ViewportWidth > 0 ? rect.ViewportWidth : 1200;
+                var viewportHeight = rect.ViewportHeight > 0 ? rect.ViewportHeight : 800;
                 
-                double tooltipTop, tooltipLeft;
+                double tooltipTop = 0, tooltipLeft = 0;
                 
-                switch (step.Placement)
+                // Calculate tooltip position with fallback for edge cases
+                var preferredPlacement = step.Placement;
+                
+                // Check if preferred placement would put tooltip off-screen and adjust
+                // Arrow styles using CSS triangles (borders)
+                // Dark mode: #1f2937 (gray-800), Light mode: white
+                var arrowColor = "#1f2937"; // dark mode default
+                
+                switch (preferredPlacement)
                 {
                     case TooltipPlacement.Bottom:
                         tooltipTop = rect.Bottom + tooltipOffset;
+                        if (tooltipTop + tooltipHeight > viewportHeight - 16)
+                        {
+                            tooltipTop = rect.Top - tooltipOffset - tooltipHeight;
+                            if (tooltipTop < 16) tooltipTop = 16;
+                            // Arrow pointing DOWN (at bottom of tooltip)
+                            _arrowStyle = $"bottom: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid {arrowColor};";
+                        }
+                        else
+                        {
+                            // Arrow pointing UP (at top of tooltip)
+                            _arrowStyle = $"top: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid {arrowColor};";
+                        }
                         tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
-                        _tooltipStyle = $"top: {tooltipTop}px; left: {tooltipLeft}px;";
-                        _arrowStyle = "top: -8px; left: 50%; margin-left: -8px;";
                         break;
+                        
                     case TooltipPlacement.Top:
                         tooltipTop = rect.Top - tooltipOffset - tooltipHeight;
+                        if (tooltipTop < 16)
+                        {
+                            tooltipTop = rect.Bottom + tooltipOffset;
+                            // Arrow pointing UP
+                            _arrowStyle = $"top: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid {arrowColor};";
+                        }
+                        else
+                        {
+                            // Arrow pointing DOWN
+                            _arrowStyle = $"bottom: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid {arrowColor};";
+                        }
                         tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
-                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {tooltipLeft}px;";
-                        _arrowStyle = "bottom: -8px; left: 50%; margin-left: -8px; transform: rotate(225deg);";
                         break;
+                        
                     case TooltipPlacement.Left:
-                        tooltipTop = rect.Top + rect.Height / 2 - 100;
                         tooltipLeft = rect.Left - tooltipWidth - tooltipOffset;
-                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {Math.Max(16, tooltipLeft)}px;";
-                        _arrowStyle = "right: -8px; top: 50%; margin-top: -8px; transform: rotate(135deg);";
+                        if (tooltipLeft < 16)
+                        {
+                            tooltipLeft = rect.Right + tooltipOffset;
+                            if (tooltipLeft + tooltipWidth > viewportWidth - 16)
+                            {
+                                tooltipTop = rect.Bottom + tooltipOffset;
+                                tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
+                                _arrowStyle = $"top: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid {arrowColor};";
+                            }
+                            else
+                            {
+                                tooltipTop = Math.Max(16, Math.Min(rect.Top + rect.Height / 2 - 100, viewportHeight - tooltipHeight - 16));
+                                // Arrow pointing LEFT (on left side of tooltip)
+                                _arrowStyle = $"left: -10px; top: 50%; margin-top: -10px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid {arrowColor};";
+                            }
+                        }
+                        else
+                        {
+                            tooltipTop = Math.Max(16, Math.Min(rect.Top + rect.Height / 2 - 100, viewportHeight - tooltipHeight - 16));
+                            // Arrow pointing RIGHT (on right side of tooltip)
+                            _arrowStyle = $"right: -10px; top: 50%; margin-top: -10px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 10px solid {arrowColor};";
+                        }
                         break;
+                        
                     case TooltipPlacement.Right:
                     default:
-                        tooltipTop = rect.Top + rect.Height / 2 - 100;
                         tooltipLeft = rect.Right + tooltipOffset;
-                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {tooltipLeft}px;";
-                        _arrowStyle = "left: -8px; top: 50%; margin-top: -8px; transform: rotate(-45deg);";
+                        if (tooltipLeft + tooltipWidth > viewportWidth - 16)
+                        {
+                            tooltipLeft = rect.Left - tooltipWidth - tooltipOffset;
+                            if (tooltipLeft < 16)
+                            {
+                                tooltipTop = rect.Bottom + tooltipOffset;
+                                tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
+                                _arrowStyle = $"top: -10px; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid {arrowColor};";
+                            }
+                            else
+                            {
+                                tooltipTop = Math.Max(16, Math.Min(rect.Top + rect.Height / 2 - 100, viewportHeight - tooltipHeight - 16));
+                                // Arrow pointing RIGHT
+                                _arrowStyle = $"right: -10px; top: 50%; margin-top: -10px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 10px solid {arrowColor};";
+                            }
+                        }
+                        else
+                        {
+                            tooltipTop = Math.Max(16, Math.Min(rect.Top + rect.Height / 2 - 100, viewportHeight - tooltipHeight - 16));
+                            // Arrow pointing LEFT
+                            _arrowStyle = $"left: -10px; top: 50%; margin-top: -10px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid {arrowColor};";
+                        }
                         break;
                 }
+                
+                // Format with InvariantCulture for CSS
+                var ttTop = tooltipTop.ToString(CultureInfo.InvariantCulture);
+                var ttLeft = tooltipLeft.ToString(CultureInfo.InvariantCulture);
+                _tooltipStyle = $"top: {ttTop}px; left: {ttLeft}px;";
             }
             else
             {
@@ -304,6 +383,8 @@
         public double Bottom { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+        public double ViewportWidth { get; set; } = 1200;
+        public double ViewportHeight { get; set; } = 800;
     }
 }
 
