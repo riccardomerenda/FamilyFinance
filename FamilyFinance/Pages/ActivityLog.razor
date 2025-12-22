@@ -1,0 +1,377 @@
+@page "/activity-log"
+@using FamilyFinance.Models
+@using FamilyFinance.Services
+@using System.Security.Claims
+@inject ActivityLogService ActivityLogSvc
+@inject AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@L["ActivityLog"] - FamilyFinance</PageTitle>
+
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 animate-in">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["ActivityLog"]</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">@L["ActivityLogDesc"]</p>
+            </div>
+        </div>
+        <button @onclick="Refresh" class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            @L["Refresh"]
+        </button>
+    </div>
+
+    @if (_stats != null)
+    {
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-in delay-1">
+            <div class="bento-card p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">@_stats.TotalActivities</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@L["TotalActivities"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bento-card p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">@_stats.Logins</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@L["Logins"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bento-card p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-red-600 dark:text-red-400">@_stats.FailedLogins</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@L["FailedLogins"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bento-card p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">@_stats.UniqueUsers</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@L["ActiveUsers"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Filters -->
+    <div class="bento-card p-4 mb-4 animate-in delay-2">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["FilterByAction"]:</label>
+                <select @bind="_selectedAction" @bind:after="ApplyFilters" 
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                    <option value="">@L["AllActions"]</option>
+                    <option value="Login">Login</option>
+                    <option value="Logout">Logout</option>
+                    <option value="LoginFailed">@L["FailedLogins"]</option>
+                    <option value="Create">Create</option>
+                    <option value="Update">Update</option>
+                    <option value="Delete">Delete</option>
+                    <option value="Export">Export</option>
+                    <option value="Import">Import</option>
+                    <option value="PasswordChanged">@L["PasswordChanged"]</option>
+                </select>
+            </div>
+            @if (_activeUsers.Any())
+            {
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["FilterByUser"]:</label>
+                    <select @bind="_selectedUserId" @bind:after="ApplyFilters"
+                            class="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                        <option value="">@L["AllUsers"]</option>
+                        @foreach (var user in _activeUsers)
+                        {
+                            <option value="@user.UserId">@user.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            }
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["Last"]:</label>
+                <select @bind="_selectedDays" @bind:after="Refresh"
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                    <option value="7">7 @L["Days"]</option>
+                    <option value="30">30 @L["Days"]</option>
+                    <option value="90">90 @L["Days"]</option>
+                </select>
+            </div>
+            <div class="flex-1"></div>
+            <p class="text-sm text-gray-400">@_logs.Count @L["Of"] @_totalCount @L["LogEntries"]</p>
+        </div>
+    </div>
+
+    <!-- Activity Log Table -->
+    <div class="bento-card overflow-hidden animate-in delay-3">
+        @if (_logs.Count == 0)
+        {
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <p class="text-gray-500 dark:text-gray-400">@L["NoActivityLogs"]</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-800/50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Timestamp"]</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["User"]</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Action"]</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Details"]</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell">@L["IpAddress"]</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @foreach (var log in _logs)
+                        {
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="text-gray-900 dark:text-white">@log.Timestamp.ToLocalTime().ToString("dd MMM HH:mm")</div>
+                                    <div class="text-xs text-gray-400">@GetRelativeTime(log.Timestamp)</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg @GetUserAvatarClass(log) flex items-center justify-center text-xs font-bold text-white">
+                                            @GetUserInitials(log)
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">@(log.UserDisplayName ?? "Unknown")</div>
+                                            <div class="text-xs text-gray-400">@(log.UserEmail ?? "-")</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium @GetActionBadgeClass(log.Action)">
+                                        @GetActionIcon(log.Action)
+                                        @GetActionLabel(log.Action)
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if (!string.IsNullOrEmpty(log.EntityType))
+                                    {
+                                        <div class="text-gray-900 dark:text-white">@log.EntityType</div>
+                                        <div class="text-xs text-gray-400">@(log.EntityName ?? log.EntityId)</div>
+                                    }
+                                    else if (!string.IsNullOrEmpty(log.Details))
+                                    {
+                                        <div class="text-gray-500 dark:text-gray-400 text-xs max-w-xs truncate" title="@log.Details">@log.Details</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400">-</span>
+                                    }
+                                </td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">@(log.IpAddress ?? "-")</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Admin Notice -->
+    <div class="mt-4 p-3 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 animate-in delay-4">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-violet-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-sm text-violet-700 dark:text-violet-300">
+                <p class="font-medium">@L["ActivityLogRetention"]</p>
+                <p class="text-violet-600 dark:text-violet-400">@L["ActivityLogRetentionDesc"]</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<FamilyFinance.Models.ActivityLog> _logs = new();
+    private List<(string UserId, string DisplayName, string Email)> _activeUsers = new();
+    private ActivityStats? _stats;
+    private int _familyId;
+    private int _totalCount;
+    
+    // Filters
+    private string _selectedAction = "";
+    private string _selectedUserId = "";
+    private int _selectedDays = 30;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+                await LoadData();
+            }
+        }
+    }
+
+    private async Task LoadData()
+    {
+        _stats = await ActivityLogSvc.GetStatsAsync(_familyId, _selectedDays);
+        _activeUsers = await ActivityLogSvc.GetActiveUsersAsync(_familyId);
+        await ApplyFilters();
+    }
+
+    private async Task Refresh()
+    {
+        await LoadData();
+    }
+
+    private async Task ApplyFilters()
+    {
+        ActivityAction? action = null;
+        if (!string.IsNullOrEmpty(_selectedAction) && Enum.TryParse<ActivityAction>(_selectedAction, out var parsedAction))
+        {
+            action = parsedAction;
+        }
+
+        var fromDate = DateTime.UtcNow.AddDays(-_selectedDays);
+        
+        _logs = await ActivityLogSvc.GetLogsAsync(
+            _familyId,
+            limit: 200,
+            userId: string.IsNullOrEmpty(_selectedUserId) ? null : _selectedUserId,
+            action: action,
+            fromDate: fromDate);
+        
+        _totalCount = _logs.Count;
+    }
+
+    private string GetUserInitials(FamilyFinance.Models.ActivityLog log)
+    {
+        if (string.IsNullOrWhiteSpace(log.UserDisplayName))
+            return "?";
+
+        var parts = log.UserDisplayName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        
+        return log.UserDisplayName.Substring(0, Math.Min(2, log.UserDisplayName.Length)).ToUpper();
+    }
+
+    private string GetUserAvatarClass(FamilyFinance.Models.ActivityLog log)
+    {
+        if (string.IsNullOrEmpty(log.UserId))
+            return "bg-gray-400";
+        
+        var hash = log.UserId.GetHashCode();
+        var colors = new[] { "bg-primary-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-violet-500", "bg-cyan-500" };
+        return colors[Math.Abs(hash) % colors.Length];
+    }
+
+    private string GetActionBadgeClass(ActivityAction action) => action switch
+    {
+        ActivityAction.Login => "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
+        ActivityAction.Logout => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400",
+        ActivityAction.LoginFailed => "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+        ActivityAction.PasswordChanged => "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
+        ActivityAction.Create => "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400",
+        ActivityAction.Update => "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400",
+        ActivityAction.Delete => "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+        ActivityAction.Export => "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400",
+        ActivityAction.Import => "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400",
+        ActivityAction.UserAdded => "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400",
+        ActivityAction.UserRemoved => "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+        ActivityAction.RoleChanged => "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400",
+        _ => "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
+    };
+
+    private string GetActionIcon(ActivityAction action) => action switch
+    {
+        ActivityAction.Login => "🟢",
+        ActivityAction.Logout => "🔴",
+        ActivityAction.LoginFailed => "⚠️",
+        ActivityAction.PasswordChanged => "🔑",
+        ActivityAction.Create => "➕",
+        ActivityAction.Update => "📝",
+        ActivityAction.Delete => "🗑️",
+        ActivityAction.Export => "📤",
+        ActivityAction.Import => "📥",
+        ActivityAction.UserAdded => "👤",
+        ActivityAction.UserRemoved => "👤",
+        ActivityAction.RoleChanged => "🛡️",
+        _ => "📋"
+    };
+
+    private string GetActionLabel(ActivityAction action) => action switch
+    {
+        ActivityAction.Login => "Login",
+        ActivityAction.Logout => "Logout",
+        ActivityAction.LoginFailed => L["LoginFailed"],
+        ActivityAction.PasswordChanged => L["PasswordChanged"],
+        ActivityAction.Create => L["Created"],
+        ActivityAction.Update => L["Updated"],
+        ActivityAction.Delete => L["Deleted"],
+        ActivityAction.Export => "Export",
+        ActivityAction.Import => "Import",
+        ActivityAction.UserAdded => L["UserAdded"],
+        ActivityAction.UserRemoved => L["UserRemoved"],
+        ActivityAction.RoleChanged => L["RoleChanged"],
+        _ => action.ToString()
+    };
+
+    private string GetRelativeTime(DateTime timestamp)
+    {
+        var diff = DateTime.UtcNow - timestamp;
+        
+        if (diff.TotalMinutes < 1) return L["JustNow"];
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} min";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays}d";
+        
+        return timestamp.ToLocalTime().ToString("dd/MM");
+    }
+}
+
