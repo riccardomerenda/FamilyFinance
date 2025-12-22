@@ -2,6 +2,8 @@ using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -17,7 +19,8 @@ public class PortfolioServiceTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _service = new PortfolioService(_context);
+        var logger = new Mock<ILogger<PortfolioService>>();
+        _service = new PortfolioService(_context, logger.Object);
 
         SeedTestData();
     }
@@ -135,7 +138,24 @@ public class PortfolioServiceTests : IDisposable
         // Assert
         var portfolio = await _context.Portfolios.FindAsync(1);
         Assert.NotNull(portfolio);
-        Assert.False(portfolio.IsActive); // Soft delete sets IsActive = false
+        Assert.False(portfolio!.IsActive);
+        Assert.True(portfolio.IsDeleted);
+        Assert.NotNull(portfolio.DeletedAt);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ExcludesDeletedPortfolios()
+    {
+        // Arrange - Soft delete a portfolio
+        var portfolio = await _context.Portfolios.FindAsync(1);
+        portfolio!.IsDeleted = true;
+        await _context.SaveChangesAsync();
+
+        // Act
+        var portfolios = await _service.GetAllAsync(1);
+
+        // Assert
+        Assert.DoesNotContain(portfolios, p => p.Id == 1);
     }
 
     [Fact]

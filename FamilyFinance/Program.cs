@@ -7,8 +7,34 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
+
+// Configure Serilog early for startup logging
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithThreadId()
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/familyfinance_.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+try
+{
+    Log.Information("Starting FamilyFinance application");
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Use Serilog
+builder.Host.UseSerilog();
 
 // Configure supported cultures
 var supportedCultures = new[] 
@@ -138,4 +164,14 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+    Log.Information("Application started successfully");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

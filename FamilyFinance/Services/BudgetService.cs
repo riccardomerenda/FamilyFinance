@@ -1,65 +1,112 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
+using FamilyFinance.Services.Validators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyFinance.Services;
 
 public class BudgetService : IBudgetService
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<BudgetService> _logger;
 
-    public BudgetService(AppDbContext db)
+    public BudgetService(AppDbContext db, ILogger<BudgetService> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     // Categories
     public async Task<List<BudgetCategory>> GetCategoriesAsync(int familyId)
-        => await _db.BudgetCategories
-            .Where(c => c.FamilyId == familyId && c.IsActive)
+    {
+        _logger.LogDebug("Fetching budget categories for family {FamilyId}", familyId);
+        return await _db.BudgetCategories
+            .Where(c => c.FamilyId == familyId && c.IsActive && !c.IsDeleted)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
             .ToListAsync();
+    }
 
     public async Task<BudgetCategory?> GetCategoryByIdAsync(int id)
-        => await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Id == id);
-
-    public async Task SaveCategoryAsync(BudgetCategory category)
     {
+        _logger.LogDebug("Fetching budget category {CategoryId}", id);
+        return await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+    }
+
+    public async Task<ServiceResult> SaveCategoryAsync(BudgetCategory category, string? userId = null)
+    {
+        // Validate
+        var validation = category.Validate();
+        if (!validation.Success)
+        {
+            _logger.LogWarning("Budget category validation failed: {Errors}", string.Join(", ", validation.Errors));
+            return validation;
+        }
+
         if (category.Id == 0)
         {
             var maxOrder = await _db.BudgetCategories
                 .Where(c => c.FamilyId == category.FamilyId)
                 .MaxAsync(c => (int?)c.SortOrder) ?? 0;
             category.SortOrder = maxOrder + 1;
+            category.CreatedAt = DateTime.UtcNow;
+            category.CreatedBy = userId;
             _db.BudgetCategories.Add(category);
+            _logger.LogInformation("Creating new budget category '{CategoryName}' for family {FamilyId}", category.Name, category.FamilyId);
         }
         else
         {
             var existing = await _db.BudgetCategories.FindAsync(category.Id);
-            if (existing != null)
+            if (existing == null || existing.IsDeleted)
             {
-                existing.Name = category.Name;
-                existing.Icon = category.Icon;
-                existing.Color = category.Color;
-                existing.MonthlyBudget = category.MonthlyBudget;
-                existing.SortOrder = category.SortOrder;
-                existing.IsActive = category.IsActive;
+                _logger.LogWarning("Budget category {CategoryId} not found for update", category.Id);
+                return ServiceResult.Fail("Categoria non trovata");
             }
+
+            existing.Name = category.Name;
+            existing.Icon = category.Icon;
+            existing.Color = category.Color;
+            existing.MonthlyBudget = category.MonthlyBudget;
+            existing.SortOrder = category.SortOrder;
+            existing.IsActive = category.IsActive;
+            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedBy = userId;
+            
+            _logger.LogInformation("Updating budget category {CategoryId} '{CategoryName}'", category.Id, category.Name);
         }
+        
         await _db.SaveChangesAsync();
+        return ServiceResult.Ok();
     }
 
-    public async Task DeleteCategoryAsync(int id)
+    // Legacy method for backward compatibility
+    public async Task SaveCategoryAsync(BudgetCategory category) => await SaveCategoryAsync(category, null);
+
+    public async Task<ServiceResult> DeleteCategoryAsync(int id, string? userId = null)
     {
         var category = await _db.BudgetCategories.FirstOrDefaultAsync(c => c.Id == id);
-        if (category != null)
+        if (category == null)
         {
-            category.IsActive = false;
-            await _db.SaveChangesAsync();
+            _logger.LogWarning("Budget category {CategoryId} not found for deletion", id);
+            return ServiceResult.Fail("Categoria non trovata");
         }
+
+        // Soft delete
+        category.IsDeleted = true;
+        category.IsActive = false;
+        category.DeletedAt = DateTime.UtcNow;
+        category.DeletedBy = userId;
+        
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Soft-deleted budget category {CategoryId} '{CategoryName}'", id, category.Name);
+        
+        return ServiceResult.Ok();
     }
+
+    // Legacy method for backward compatibility
+    public async Task DeleteCategoryAsync(int id) => await DeleteCategoryAsync(id, null);
 
     public List<BudgetCategory> GetDefaultCategories() => new()
     {

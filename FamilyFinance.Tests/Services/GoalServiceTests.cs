@@ -2,6 +2,8 @@ using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace FamilyFinance.Tests.Services;
 
@@ -17,7 +19,8 @@ public class GoalServiceTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _service = new GoalService(_context);
+        var logger = new Mock<ILogger<GoalService>>();
+        _service = new GoalService(_context, logger.Object);
 
         SeedTestData();
     }
@@ -163,14 +166,31 @@ public class GoalServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteAsync_RemovesGoal()
+    public async Task DeleteAsync_SoftDeletesGoal()
     {
         // Act
         await _service.DeleteAsync(1);
 
-        // Assert
+        // Assert - Goal still exists but is marked as deleted
         var goal = await _context.Goals.FindAsync(1);
-        Assert.Null(goal);
+        Assert.NotNull(goal);
+        Assert.True(goal!.IsDeleted);
+        Assert.NotNull(goal.DeletedAt);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ExcludesDeletedGoals()
+    {
+        // Arrange - Soft delete a goal
+        var goal = await _context.Goals.FindAsync(1);
+        goal!.IsDeleted = true;
+        await _context.SaveChangesAsync();
+
+        // Act
+        var goals = await _service.GetAllAsync(1);
+
+        // Assert
+        Assert.DoesNotContain(goals, g => g.Id == 1);
     }
     
     [Fact]

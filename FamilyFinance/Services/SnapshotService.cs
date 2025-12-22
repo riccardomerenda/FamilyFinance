@@ -1,70 +1,134 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
+using FamilyFinance.Services.Validators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyFinance.Services;
 
 public class SnapshotService : ISnapshotService
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<SnapshotService> _logger;
 
-    public SnapshotService(AppDbContext db)
+    public SnapshotService(AppDbContext db, ILogger<SnapshotService> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     public async Task<List<Snapshot>> GetAllAsync(int familyId)
-        => await _db.Snapshots
-            .Where(s => s.FamilyId == familyId)
+    {
+        _logger.LogDebug("Fetching all snapshots for family {FamilyId}", familyId);
+        return await _db.Snapshots
+            .Where(s => s.FamilyId == familyId && !s.IsDeleted)
             .OrderByDescending(s => s.SnapshotDate)
             .ToListAsync();
+    }
 
     public async Task<Snapshot?> GetByIdAsync(int id)
-        => await _db.Snapshots
+    {
+        _logger.LogDebug("Fetching snapshot {SnapshotId}", id);
+        return await _db.Snapshots
             .Include(s => s.Lines).ThenInclude(l => l.Account)
             .Include(s => s.Investments).ThenInclude(i => i.Portfolio)
             .Include(s => s.Receivables)
             .Include(s => s.Expenses).ThenInclude(e => e.Category)
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+    }
 
     public async Task<Snapshot?> GetLatestAsync(int familyId)
-        => await _db.Snapshots
+    {
+        _logger.LogDebug("Fetching latest snapshot for family {FamilyId}", familyId);
+        return await _db.Snapshots
             .Include(s => s.Lines).ThenInclude(l => l.Account)
             .Include(s => s.Investments).ThenInclude(i => i.Portfolio)
             .Include(s => s.Receivables)
             .Include(s => s.Expenses).ThenInclude(e => e.Category)
-            .Where(s => s.FamilyId == familyId)
+            .Where(s => s.FamilyId == familyId && !s.IsDeleted)
             .OrderByDescending(s => s.SnapshotDate)
             .FirstOrDefaultAsync();
+    }
 
-    public async Task<int> SaveAsync(int familyId, int? snapshotId, DateOnly date,
+    public async Task<ServiceResult<int>> SaveAsync(int familyId, int? snapshotId, DateOnly date,
         List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
         List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)> investments,
-        List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
+        List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables,
+        string? userId = null)
     {
+        // Validate snapshot date
+        var validation = EntityValidators.ValidateSnapshot(date, familyId);
+        if (!validation.Success)
+        {
+            _logger.LogWarning("Snapshot validation failed: {Errors}", string.Join(", ", validation.Errors));
+            return ServiceResult<int>.Fail(validation.Errors);
+        }
+
+        // Validate investments
+        foreach (var inv in investments.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+        {
+            var asset = new InvestmentAsset { Name = inv.Name, CostBasis = inv.CostBasis, Value = inv.Value };
+            var invValidation = asset.Validate();
+            if (!invValidation.Success)
+            {
+                _logger.LogWarning("Investment validation failed for '{AssetName}': {Errors}", inv.Name, string.Join(", ", invValidation.Errors));
+                return ServiceResult<int>.Fail(invValidation.Errors);
+            }
+        }
+
+        // Validate receivables
+        foreach (var rec in receivables.Where(r => !string.IsNullOrWhiteSpace(r.Description)))
+        {
+            var receivable = new Receivable { Description = rec.Description, Amount = rec.Amount };
+            var recValidation = receivable.Validate();
+            if (!recValidation.Success)
+            {
+                _logger.LogWarning("Receivable validation failed for '{Description}': {Errors}", rec.Description, string.Join(", ", recValidation.Errors));
+                return ServiceResult<int>.Fail(recValidation.Errors);
+            }
+        }
+
         Snapshot snapshot;
         if (snapshotId is null)
         {
-            snapshot = new Snapshot { SnapshotDate = date, FamilyId = familyId };
+            snapshot = new Snapshot 
+            { 
+                SnapshotDate = date, 
+                FamilyId = familyId,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = userId
+            };
             _db.Snapshots.Add(snapshot);
             await _db.SaveChangesAsync();
+            _logger.LogInformation("Creating new snapshot for {SnapshotDate} for family {FamilyId}", date, familyId);
         }
         else
         {
-            snapshot = await _db.Snapshots
+            var existing = await _db.Snapshots
                 .Include(s => s.Lines)
                 .Include(s => s.Investments)
                 .Include(s => s.Receivables)
-                .FirstAsync(s => s.Id == snapshotId.Value);
+                .FirstOrDefaultAsync(s => s.Id == snapshotId.Value && !s.IsDeleted);
+            
+            if (existing == null)
+            {
+                _logger.LogWarning("Snapshot {SnapshotId} not found for update", snapshotId);
+                return ServiceResult<int>.Fail("Snapshot non trovato");
+            }
+            
+            snapshot = existing;
             snapshot.SnapshotDate = date;
+            snapshot.UpdatedAt = DateTime.UtcNow;
+            snapshot.UpdatedBy = userId;
+            _logger.LogInformation("Updating snapshot {SnapshotId} for {SnapshotDate}", snapshotId, date);
         }
 
         // Upsert Lines
         foreach (var (accountId, amount, contribBasis) in accountAmounts)
         {
-            var existing = snapshot.Lines.FirstOrDefault(l => l.AccountId == accountId);
-            if (existing is null)
+            var existingLine = snapshot.Lines.FirstOrDefault(l => l.AccountId == accountId);
+            if (existingLine is null)
             {
                 snapshot.Lines.Add(new SnapshotLine
                 {
@@ -76,8 +140,8 @@ public class SnapshotService : ISnapshotService
             }
             else
             {
-                existing.Amount = amount;
-                existing.ContributionBasis = contribBasis;
+                existingLine.Amount = amount;
+                existingLine.ContributionBasis = contribBasis;
             }
         }
 
@@ -107,24 +171,42 @@ public class SnapshotService : ISnapshotService
             }).ToList();
 
         await _db.SaveChangesAsync();
-        return snapshot.Id;
+        return ServiceResult<int>.Ok(snapshot.Id);
     }
 
-    public async Task DeleteAsync(int id)
+    // Legacy method for backward compatibility
+    public async Task<int> SaveAsync(int familyId, int? snapshotId, DateOnly date,
+        List<(int AccountId, decimal Amount, decimal ContributionBasis)> accountAmounts,
+        List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)> investments,
+        List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)> receivables)
     {
-        var snapshot = await _db.Snapshots
-            .Include(x => x.Lines)
-            .Include(x => x.Investments)
-            .Include(x => x.Receivables)
-            .Include(x => x.Expenses)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (snapshot != null)
-        {
-            _db.Snapshots.Remove(snapshot);
-            await _db.SaveChangesAsync();
-        }
+        var result = await SaveAsync(familyId, snapshotId, date, accountAmounts, investments, receivables, null);
+        return result.Success ? result.Value : throw new BusinessRuleException(result.Errors);
     }
+
+    public async Task<ServiceResult> DeleteAsync(int id, string? userId = null)
+    {
+        var snapshot = await _db.Snapshots.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (snapshot == null)
+        {
+            _logger.LogWarning("Snapshot {SnapshotId} not found for deletion", id);
+            return ServiceResult.Fail("Snapshot non trovato");
+        }
+
+        // Soft delete
+        snapshot.IsDeleted = true;
+        snapshot.DeletedAt = DateTime.UtcNow;
+        snapshot.DeletedBy = userId;
+        
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Soft-deleted snapshot {SnapshotId} for date {SnapshotDate}", id, snapshot.SnapshotDate);
+        
+        return ServiceResult.Ok();
+    }
+
+    // Legacy method for backward compatibility
+    public async Task DeleteAsync(int id) => await DeleteAsync(id, null);
 
     public Task<Totals> CalculateTotalsAsync(Snapshot snapshot)
     {
@@ -158,8 +240,9 @@ public class SnapshotService : ISnapshotService
     /// </summary>
     public async Task<List<SnapshotSummary>> GetAllWithTotalsAsync(int familyId)
     {
+        _logger.LogDebug("Fetching all snapshots with totals for family {FamilyId}", familyId);
         return await _db.Snapshots
-            .Where(s => s.FamilyId == familyId)
+            .Where(s => s.FamilyId == familyId && !s.IsDeleted)
             .OrderBy(s => s.SnapshotDate)
             .Select(s => new SnapshotSummary(
                 s.Id,
