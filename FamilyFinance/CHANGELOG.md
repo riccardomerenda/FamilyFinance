@@ -7,6 +7,62 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.0.0] - 2025-12-22 🎨 UI REDESIGN
+
+### 🎨 Redesign Completo Dashboard
+
+Major release con redesign completo dell'interfaccia utente per una UX moderna e distintiva.
+
+#### Layout Bento Grid
+- **Nuova dashboard** con layout Bento Grid stile Apple/Linear
+- **Hero card** prominente per Patrimonio Netto con gradient viola
+- **Cards ottimizzate** per Liquidità e Investimenti con metriche chiare
+- **Widget Goals** integrato nella dashboard con progress bars animate
+- **Quick Actions** per accesso rapido a funzionalità chiave
+- **Grid responsive** 12 colonne che si adatta a mobile/tablet/desktop
+
+#### Nuova Tipografia
+- **Font Outfit**: Sostituisce Inter per un look più distintivo e moderno
+- **Font JetBrains Mono**: Per valori monetari con classe `.money`
+- **Gerarchia tipografica** migliorata con pesi font da 300 a 900
+
+#### Effetti Visivi
+- **Glassmorphism**: Cards con backdrop-filter blur e bordi trasparenti
+- **Mesh gradient background**: Sfondo con gradienti radiali sfumati
+- **Glow effects**: Ombre colorate per elementi hero
+- **Animazioni stagger**: Fade-in progressivo degli elementi
+- **Progress bar animate**: Barre di avanzamento con animazione CSS
+
+#### Sidebar Rinnovata
+- **Effetto glass**: Sidebar con blur e trasparenza
+- **Logo più grande**: Icona 48px con shadow glow
+- **Nav items migliorati**: Hover con gradient e translateX
+- **Active state**: Indicator laterale con gradient + glow shadow
+- **Transizioni fluide**: Cubic-bezier per animazioni smooth
+
+#### Nuove Classi CSS
+- `.bento-card`: Card base con glassmorphism e hover effect
+- `.hero-gradient`: Gradient viola per card principali  
+- `.mesh-bg`: Background con gradienti radiali
+- `.money`: Font mono per valori monetari
+- `.animate-in`, `.delay-1` a `.delay-5`: Animazioni stagger
+- `.glow-primary`, `.glow-emerald`, `.glow-amber`: Effetti glow
+
+### 🌍 Localizzazione
+
+#### Nuove stringhe Demo Mode (IT/EN)
+- `DemoMode`: "Modalità Demo" / "Demo Mode"
+- `DemoModeDescription`: Descrizione modalità demo
+- `DemoModeCredentials`: Istruzioni credenziali demo
+- `RequestAccess`: "Richiedi Accesso" / "Request Access"
+- `InterestedPersonalVersion`: Call-to-action versione personale
+- `RequestAccessLinkedIn`: Link LinkedIn
+
+### 🐛 Bug Fix
+- **Localizzazione banner demo**: Testi hardcoded sostituiti con risorse localizzate
+
+---
+
 ## [2.9.1] - 2025-12-22
 
 ### 🐛 Bug Fix & Quick Wins

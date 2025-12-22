@@ -397,6 +397,14 @@
   <data name="GenericError" xml:space="preserve"><value>An error occurred</value></data>
   <data name="OperationSuccess" xml:space="preserve"><value>Operation completed</value></data>
 
+  <!-- Demo Mode -->
+  <data name="DemoMode" xml:space="preserve"><value>Demo Mode</value></data>
+  <data name="DemoModeDescription" xml:space="preserve"><value>You are exploring with sample data. Data may be reset periodically.</value></data>
+  <data name="DemoModeCredentials" xml:space="preserve"><value>Use demo credentials to explore the app:</value></data>
+  <data name="RequestAccess" xml:space="preserve"><value>Request Access</value></data>
+  <data name="InterestedPersonalVersion" xml:space="preserve"><value>Interested in a personal version?</value></data>
+  <data name="RequestAccessLinkedIn" xml:space="preserve"><value>Request Access on LinkedIn</value></data>
+
   <!-- Pagination -->
   <data name="Show" xml:space="preserve"><value>Show</value></data>
   <data name="PerPage" xml:space="preserve"><value>per page</value></data>
