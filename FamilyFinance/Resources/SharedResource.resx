@@ -500,7 +500,7 @@
   <data name="Family" xml:space="preserve"><value>Famiglia</value></data>
 
   <!-- Activity Log -->
-  <data name="ActivityLog" xml:space="preserve"><value>Activity Log</value></data>
+  <data name="ActivityLog" xml:space="preserve"><value>Log Attività</value></data>
   <data name="ActivityLogDesc" xml:space="preserve"><value>Cronologia delle attività degli utenti</value></data>
   <data name="TotalActivities" xml:space="preserve"><value>Attività Totali</value></data>
   <data name="Logins" xml:space="preserve"><value>Login</value></data>
