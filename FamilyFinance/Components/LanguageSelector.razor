@@ -1,5 +1,5 @@
-@using System.Globalization
 @inject NavigationManager Nav
+@using System.Globalization
 
 <div class="relative">
     <button @onclick="Toggle" @onclick:stopPropagation="true"
@@ -15,7 +15,7 @@
     {
         <div class="absolute right-0 mt-2 w-44 rounded-2xl bg-white dark:bg-gray-800 shadow-xl ring-1 ring-gray-200 dark:ring-gray-700 z-50 overflow-hidden animate-fade-in">
             <div class="p-2">
-                <a href="/Culture/Set/it-IT?returnUrl=@Uri.EscapeDataString(Nav.Uri)"
+                <a href="/Culture/Set/it-IT?returnUrl=@Uri.EscapeDataString(GetReturnUrl())"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200
                           @(IsItalian ? "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300" : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300")">
                     <span class="text-xl">🇮🇹</span>
@@ -31,7 +31,7 @@
                     }
                 </a>
                 
-                <a href="/Culture/Set/en-US?returnUrl=@Uri.EscapeDataString(Nav.Uri)"
+                <a href="/Culture/Set/en-US?returnUrl=@Uri.EscapeDataString(GetReturnUrl())"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200
                           @(!IsItalian ? "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300" : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300")">
                     <span class="text-xl">🇬🇧</span>
@@ -72,6 +72,18 @@
     private bool IsItalian => CultureInfo.CurrentUICulture.Name.StartsWith("it");
     private string GetCurrentFlag() => IsItalian ? "🇮🇹" : "🇬🇧";
     private string GetCurrentCode() => IsItalian ? "IT" : "EN";
+
+    private string GetReturnUrl()
+    {
+        try
+        {
+            return new Uri(Nav.Uri).PathAndQuery;
+        }
+        catch
+        {
+            return "/";
+        }
+    }
     
     private void Toggle() => _isOpen = !_isOpen;
     private void Close() => _isOpen = false;
