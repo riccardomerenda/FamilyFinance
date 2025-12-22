@@ -7,6 +7,28 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [2.9.1] - 2025-12-22
+
+### 🐛 Bug Fix & Quick Wins
+
+#### Warning Compiler Risolti
+- **4 warning CS8602** in `Index.razor`: Risolti warning di null-reference con operatore `!` nelle linee 305, 352, 450, 469
+- Codice più pulito, zero warning in compilazione
+
+#### Paginazione Snapshots
+- **Nuova UI paginazione** nella pagina Storico Snapshots
+- **Selezione elementi per pagina**: 10, 25, 50, 100
+- **Navigazione intelligente**: Prima, Precedente, numeri pagina, Successivo, Ultima
+- **Ellissi dinamiche**: Per liste lunghe (>7 pagine)
+- **Info pagina**: "Visualizzati 1-12 di 48"
+- **Responsive**: Layout adattivo mobile/desktop
+- **Toast feedback**: Notifica successo/errore su eliminazione
+
+### 🌍 Localizzazione
+- 4 nuove stringhe: `Show`, `PerPage`, `Showing`, `Of` (IT/EN)
+
+---
+
 ## [2.9.0] - 2025-12-22
 
 ### 🏗️ Architettura Enterprise

@@ -302,7 +302,7 @@ else
         </div>
 
         <!-- Pending Credits -->
-        @if (_latest.Receivables.Any(x => x.Status == ReceivableStatus.Open))
+        @if (_latest!.Receivables.Any(x => x.Status == ReceivableStatus.Open))
         {
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["PendingCredits"]</h3>
@@ -349,7 +349,7 @@ else
 
         <!-- Portfolio Cards (Collapsible) -->
         <div class="space-y-3">
-            @foreach (var group in _latest.Investments.GroupBy(i => i.Portfolio).OrderBy(g => g.Key?.Name ?? "zzz"))
+            @foreach (var group in _latest!.Investments.GroupBy(i => i.Portfolio).OrderBy(g => g.Key?.Name ?? "zzz"))
             {
                 var portfolio = group.Key;
                 var portfolioId = portfolio?.Id;
@@ -447,7 +447,7 @@ else
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["AccumulatedInterests"]</h3>
                 <div class="space-y-3">
-                    @foreach (var l in _latest.Lines.Where(x => x.Account.IsInterest))
+                    @foreach (var l in _latest!.Lines.Where(x => x.Account.IsInterest))
                     {
                         <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                             <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
@@ -466,7 +466,7 @@ else
 
     @if (Tab == "pen")
     {
-        var pensionLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Pension).ToList();
+        var pensionLines = _latest!.Lines.Where(x => x.Account.Category == AccountCategory.Pension).ToList();
         var insuranceLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Insurance).ToList();
         var allPensionLines = _latest.Lines.Where(x => x.Account.Category is AccountCategory.Pension or AccountCategory.Insurance).ToList();
         
