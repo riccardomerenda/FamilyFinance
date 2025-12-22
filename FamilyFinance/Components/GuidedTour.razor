@@ -178,14 +178,20 @@
 
         try
         {
-            // Retry getting element position up to 3 times with delays
+            // First scroll the element into view
+            await JS.InvokeVoidAsync("scrollTourElementIntoView", step.TargetSelector);
+            
+            // Wait for scroll animation to complete
+            await Task.Delay(400);
+            
+            // Now get the position (after scroll)
             ElementRect? rect = null;
-            for (int retry = 0; retry < 3; retry++)
+            for (int retry = 0; retry < 5; retry++)
             {
                 rect = await JS.InvokeAsync<ElementRect>("getTourElementRect", step.TargetSelector);
                 if (rect != null && rect.Width > 0 && rect.Height > 0)
                     break;
-                await Task.Delay(200);
+                await Task.Delay(150);
             }
             
             if (rect != null && rect.Width > 0 && rect.Height > 0)
@@ -197,30 +203,42 @@
                 // Tooltip position based on placement
                 var tooltipOffset = 20;
                 var tooltipWidth = 320; // w-80 = 20rem = 320px
+                var tooltipHeight = 200; // approximate
+                
+                // Ensure tooltip stays within viewport
+                var viewportWidth = 1200; // fallback
+                var viewportHeight = 800; // fallback
+                
+                double tooltipTop, tooltipLeft;
                 
                 switch (step.Placement)
                 {
                     case TooltipPlacement.Bottom:
-                        _tooltipStyle = $"top: {rect.Bottom + tooltipOffset}px; left: {Math.Max(16, rect.Left + rect.Width / 2 - tooltipWidth / 2)}px;";
+                        tooltipTop = rect.Bottom + tooltipOffset;
+                        tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
+                        _tooltipStyle = $"top: {tooltipTop}px; left: {tooltipLeft}px;";
                         _arrowStyle = "top: -8px; left: 50%; margin-left: -8px;";
                         break;
                     case TooltipPlacement.Top:
-                        _tooltipStyle = $"top: {rect.Top - tooltipOffset - 200}px; left: {Math.Max(16, rect.Left + rect.Width / 2 - tooltipWidth / 2)}px;";
+                        tooltipTop = rect.Top - tooltipOffset - tooltipHeight;
+                        tooltipLeft = Math.Max(16, Math.Min(rect.Left + rect.Width / 2 - tooltipWidth / 2, viewportWidth - tooltipWidth - 16));
+                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {tooltipLeft}px;";
                         _arrowStyle = "bottom: -8px; left: 50%; margin-left: -8px; transform: rotate(225deg);";
                         break;
                     case TooltipPlacement.Left:
-                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 100}px; left: {rect.Left - tooltipWidth - tooltipOffset}px;";
+                        tooltipTop = rect.Top + rect.Height / 2 - 100;
+                        tooltipLeft = rect.Left - tooltipWidth - tooltipOffset;
+                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {Math.Max(16, tooltipLeft)}px;";
                         _arrowStyle = "right: -8px; top: 50%; margin-top: -8px; transform: rotate(135deg);";
                         break;
                     case TooltipPlacement.Right:
                     default:
-                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 100}px; left: {rect.Right + tooltipOffset}px;";
+                        tooltipTop = rect.Top + rect.Height / 2 - 100;
+                        tooltipLeft = rect.Right + tooltipOffset;
+                        _tooltipStyle = $"top: {Math.Max(16, tooltipTop)}px; left: {tooltipLeft}px;";
                         _arrowStyle = "left: -8px; top: 50%; margin-top: -8px; transform: rotate(-45deg);";
                         break;
                 }
-
-                // Scroll element into view if needed
-                await JS.InvokeVoidAsync("scrollTourElementIntoView", step.TargetSelector);
             }
             else
             {
@@ -232,8 +250,9 @@
                 return;
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Tour error: {ex.Message}");
             // Element not found, skip to next step or end tour
             if (_currentStep < _steps.Count - 1)
                 await NextStep();
