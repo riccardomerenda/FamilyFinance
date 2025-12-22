@@ -7,6 +7,25 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.0.1] - 2025-12-22
+
+### 🐛 Hotfix Critico
+
+#### Goal.Id Type Mismatch
+- **Problema**: L'app in produzione crashava con `OverflowException` durante la lettura degli obiettivi
+- **Causa**: Goal.Id era stato cambiato da `long` a `int`, ma i dati esistenti contenevano ID molto grandi (timestamp in millisecondi)
+- **Soluzione**: Ripristinato `Goal.Id` a tipo `long` per compatibilità con dati esistenti
+
+#### File Modificati
+- `Goal.cs`: `Id` torna a `long`
+- `IGoalService.cs`: Parametri `long id`
+- `GoalService.cs`: Parametri `long id`
+- `FinanceService.cs`: `DeleteGoalAsync(long id)`
+- `Goals.razor`: `Del(long id)`
+- Test aggiornati per tipo `long`
+
+---
+
 ## [3.0.0] - 2025-12-22 🎨 UI REDESIGN
 
 ### 🎨 Redesign Completo Dashboard

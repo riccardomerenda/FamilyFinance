@@ -2,7 +2,7 @@ namespace FamilyFinance.Models;
 
 public class Goal : IFamilyOwned
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; } = "";
     public decimal Target { get; set; }
     public decimal AllocatedAmount { get; set; }

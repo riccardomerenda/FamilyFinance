@@ -27,7 +27,7 @@ public class GoalService : IGoalService
             .ToListAsync();
     }
 
-    public async Task<Goal?> GetByIdAsync(int id)
+    public async Task<Goal?> GetByIdAsync(long id)
     {
         _logger.LogDebug("Fetching goal {GoalId}", id);
         return await _db.Goals.FirstOrDefaultAsync(g => g.Id == id && !g.IsDeleted);
@@ -81,7 +81,7 @@ public class GoalService : IGoalService
     // Legacy method for backward compatibility
     public async Task SaveAsync(Goal goal) => await SaveAsync(goal, null);
 
-    public async Task<ServiceResult> DeleteAsync(int id, string? userId = null)
+    public async Task<ServiceResult> DeleteAsync(long id, string? userId = null)
     {
         var goal = await _db.Goals.FirstOrDefaultAsync(g => g.Id == id);
         if (goal == null)
@@ -102,6 +102,6 @@ public class GoalService : IGoalService
     }
 
     // Legacy method for backward compatibility
-    public async Task DeleteAsync(int id) => await DeleteAsync(id, null);
+    public async Task DeleteAsync(long id) => await DeleteAsync(id, null);
 }
 

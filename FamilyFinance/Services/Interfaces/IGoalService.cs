@@ -5,8 +5,8 @@ namespace FamilyFinance.Services.Interfaces;
 public interface IGoalService
 {
     Task<List<Goal>> GetAllAsync(int familyId);
-    Task<Goal?> GetByIdAsync(int id);
+    Task<Goal?> GetByIdAsync(long id);
     Task SaveAsync(Goal goal);
-    Task DeleteAsync(int id);
+    Task DeleteAsync(long id);
 }
 
