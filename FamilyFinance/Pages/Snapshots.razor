@@ -4,25 +4,34 @@
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
+@inject NotificationService Toast
 @attribute [Authorize]
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["SnapshotsHistory"]</h1>
-    <a href="/snapshots/new" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        @L["NewSnapshot"]
-    </a>
+    <div class="flex items-center gap-3">
+        @if (_allItems?.Count > 0)
+        {
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+                @_allItems.Count @L["Total"]
+            </span>
+        }
+        <a href="/snapshots/new" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            @L["NewSnapshot"]
+        </a>
+    </div>
 </div>
 
-@if (_items == null)
+@if (_allItems == null)
 {
     <div class="flex items-center justify-center h-64">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
     </div>
 }
-else if (!_items.Any())
+else if (!_allItems.Any())
 {
     <div class="text-center py-16">
         <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
@@ -37,7 +46,7 @@ else
 {
     <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
         <div class="divide-y divide-gray-200 dark:divide-gray-800">
-            @foreach (var s in _items)
+            @foreach (var s in PagedItems)
             {
                 <div class="flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                     <div class="flex items-center gap-4">
@@ -60,12 +69,122 @@ else
                 </div>
             }
         </div>
+        
+        <!-- Pagination Controls -->
+        @if (TotalPages > 1)
+        {
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                <!-- Page Size Selector -->
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span>@L["Show"]</span>
+                    <select @bind="_pageSize" @bind:after="() => _currentPage = 1" class="px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary-500">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>@L["PerPage"]</span>
+                </div>
+                
+                <!-- Page Info -->
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    @L["Showing"] @((_currentPage - 1) * _pageSize + 1)-@Math.Min(_currentPage * _pageSize, _allItems.Count) @L["Of"] @_allItems.Count
+                </div>
+                
+                <!-- Page Navigation -->
+                <div class="flex items-center gap-1">
+                    <button @onclick="() => _currentPage = 1" disabled="@(_currentPage == 1)"
+                        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button @onclick="() => _currentPage--" disabled="@(_currentPage == 1)"
+                        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    @foreach (var page in GetPageNumbers())
+                    {
+                        @if (page == -1)
+                        {
+                            <span class="px-2 text-gray-400">...</span>
+                        }
+                        else
+                        {
+                            <button @onclick="() => _currentPage = page"
+                                class="w-8 h-8 rounded-lg text-sm font-medium transition-colors @(page == _currentPage ? "bg-primary-500 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300")">
+                                @(page)
+                            </button>
+                        }
+                    }
+                    
+                    <button @onclick="() => _currentPage++" disabled="@(_currentPage == TotalPages)"
+                        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <button @onclick="() => _currentPage = TotalPages" disabled="@(_currentPage == TotalPages)"
+                        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 }
 
 @code {
-    List<Snapshot>? _items;
+    List<Snapshot>? _allItems;
     int _familyId;
+    
+    // Pagination
+    int _currentPage = 1;
+    int _pageSize = 12;
+    
+    int TotalPages => _allItems == null ? 1 : (int)Math.Ceiling(_allItems.Count / (double)_pageSize);
+    
+    IEnumerable<Snapshot> PagedItems => _allItems?
+        .Skip((_currentPage - 1) * _pageSize)
+        .Take(_pageSize) ?? Enumerable.Empty<Snapshot>();
+    
+    IEnumerable<int> GetPageNumbers()
+    {
+        var pages = new List<int>();
+        var total = TotalPages;
+        var current = _currentPage;
+        
+        if (total <= 7)
+        {
+            // Show all pages if 7 or less
+            for (int i = 1; i <= total; i++) pages.Add(i);
+        }
+        else
+        {
+            // Always show first page
+            pages.Add(1);
+            
+            if (current > 3) pages.Add(-1); // Ellipsis
+            
+            // Show pages around current
+            var start = Math.Max(2, current - 1);
+            var end = Math.Min(total - 1, current + 1);
+            
+            for (int i = start; i <= end; i++) pages.Add(i);
+            
+            if (current < total - 2) pages.Add(-1); // Ellipsis
+            
+            // Always show last page
+            if (!pages.Contains(total)) pages.Add(total);
+        }
+        
+        return pages;
+    }
     
     protected override async Task OnInitializedAsync()
     {
@@ -76,12 +195,25 @@ else
             var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
-        _items = await Finance.GetSnapshotsAsync(_familyId);
+        _allItems = await Finance.GetSnapshotsAsync(_familyId);
     }
     
     async Task Delete(int id)
     {
-        await Finance.DeleteSnapshotAsync(id);
-        _items = await Finance.GetSnapshotsAsync(_familyId);
+        try
+        {
+            await Finance.DeleteSnapshotAsync(id);
+            _allItems = await Finance.GetSnapshotsAsync(_familyId);
+            
+            // Adjust current page if we deleted the last item on it
+            if (_currentPage > TotalPages && TotalPages > 0)
+                _currentPage = TotalPages;
+                
+            Toast.ShowSuccess(L["SnapshotDeleted"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(ex.Message);
+        }
     }
 }

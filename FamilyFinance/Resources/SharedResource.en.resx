@@ -396,5 +396,11 @@
   <data name="ValidationError" xml:space="preserve"><value>Validation error</value></data>
   <data name="GenericError" xml:space="preserve"><value>An error occurred</value></data>
   <data name="OperationSuccess" xml:space="preserve"><value>Operation completed</value></data>
+
+  <!-- Pagination -->
+  <data name="Show" xml:space="preserve"><value>Show</value></data>
+  <data name="PerPage" xml:space="preserve"><value>per page</value></data>
+  <data name="Showing" xml:space="preserve"><value>Showing</value></data>
+  <data name="Of" xml:space="preserve"><value>of</value></data>
 </root>
 
