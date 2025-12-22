@@ -1,0 +1,547 @@
+@page "/data"
+@using System.Text
+@using System.Text.Json
+@using System.IO
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Authorization
+@using FamilyFinance.Services
+@inject FinanceService Finance
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@inject FamilyFinance.Services.AuthService Auth
+@inject NotificationService Toast
+
+<PageTitle>@L["DataManagement"] - FamilyFinance</PageTitle>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="animate-in">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["DataManagement"]</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">@L["DataManagementDesc"]</p>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 lg:gap-6">
+        <!-- Import Section - Hero Card -->
+        <div class="col-span-12 lg:col-span-6 bento-card p-6 lg:p-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white animate-in delay-1">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold">@L["ImportData"]</h3>
+                    <p class="text-emerald-100 text-sm">@L["ImportDataDesc"]</p>
+                </div>
+            </div>
+            
+            @if (_importPreview == null && _importResult == null)
+            {
+                <label class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    @L["SelectBackupFile"]
+                    <InputFile OnChange="OnFileSelected" accept=".json" class="hidden" />
+                </label>
+            }
+            
+            @if (_importPreview != null)
+            {
+                <!-- Preview -->
+                <div class="bg-white/10 rounded-xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="font-medium">@L["BackupPreview"]</span>
+                        @if (_importPreview.ExportDate.HasValue)
+                        {
+                            <span class="text-sm text-emerald-200">@_importPreview.ExportDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                    </div>
+                    
+                    @if (!_importPreview.IsValid)
+                    {
+                        <div class="bg-red-500/20 border border-red-300/30 rounded-lg p-3 text-sm">
+                            ⚠️ @_importPreview.Error
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="grid grid-cols-2 lg:grid-cols-5 gap-2 text-sm">
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <p class="text-emerald-200 text-xs">@L["Accounts"]</p>
+                                <p class="text-lg font-bold">@_importPreview.TotalAccounts</p>
+                                <p class="text-xs text-emerald-200">
+                                    <span class="text-green-300">+@_importPreview.NewAccounts</span>
+                                </p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <p class="text-emerald-200 text-xs">@L["Portfolios"]</p>
+                                <p class="text-lg font-bold">@_importPreview.TotalPortfolios</p>
+                                <p class="text-xs text-emerald-200">
+                                    <span class="text-green-300">+@_importPreview.NewPortfolios</span>
+                                </p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <p class="text-emerald-200 text-xs">@L["Goals"]</p>
+                                <p class="text-lg font-bold">@_importPreview.TotalGoals</p>
+                                <p class="text-xs text-emerald-200">
+                                    <span class="text-green-300">+@_importPreview.NewGoals</span>
+                                </p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <p class="text-emerald-200 text-xs">@L["Budget"]</p>
+                                <p class="text-lg font-bold">@_importPreview.TotalBudgetCategories</p>
+                                <p class="text-xs text-emerald-200">
+                                    <span class="text-green-300">+@_importPreview.NewBudgetCategories</span>
+                                </p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3">
+                                <p class="text-emerald-200 text-xs">@L["Snapshots"]</p>
+                                <p class="text-lg font-bold">@_importPreview.TotalSnapshots</p>
+                                <p class="text-xs text-emerald-200">
+                                    <span class="text-green-300">+@_importPreview.NewSnapshots</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Import Options -->
+                        <div class="mt-4">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" @bind="_replaceExisting" class="w-5 h-5 rounded border-white/30 bg-white/10 text-emerald-400 focus:ring-emerald-400" />
+                                <span class="text-sm">@L["ReplaceExisting"]</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+                
+                <div class="flex gap-3">
+                    @if (_importPreview.IsValid)
+                    {
+                        <button @onclick="ExecuteImport" disabled="@_isImporting" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transition-all disabled:opacity-50">
+                            @if (_isImporting)
+                            {
+                                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>@L["Importing"]...</span>
+                            }
+                            else
+                            {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>@L["ConfirmImport"]</span>
+                            }
+                        </button>
+                    }
+                    <button @onclick="CancelImport" class="px-4 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all">
+                        @L["Cancel"]
+                    </button>
+                </div>
+            }
+            
+            @if (_importResult != null)
+            {
+                <div class="@(_importResult.Success ? "bg-white/10" : "bg-red-500/20") rounded-xl p-4">
+                    @if (_importResult.Success)
+                    {
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-green-400 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">@L["ImportSuccess"]</p>
+                                <p class="text-sm text-emerald-200">@L["ImportSuccessDesc"]</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 text-center text-sm">
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <p class="text-lg font-bold">@_importResult.AccountsImported</p>
+                                <p class="text-xs text-emerald-200">@L["Accounts"]</p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <p class="text-lg font-bold">@_importResult.PortfoliosImported</p>
+                                <p class="text-xs text-emerald-200">@L["Portfolios"]</p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <p class="text-lg font-bold">@_importResult.GoalsImported</p>
+                                <p class="text-xs text-emerald-200">@L["Goals"]</p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <p class="text-lg font-bold">@_importResult.BudgetCategoriesImported</p>
+                                <p class="text-xs text-emerald-200">@L["Budget"]</p>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-2">
+                                <p class="text-lg font-bold">@_importResult.SnapshotsImported</p>
+                                <p class="text-xs text-emerald-200">@L["Snapshots"]</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">@L["ImportError"]</p>
+                                <p class="text-sm">@_importResult.Error</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button @onclick="ResetImport" class="mt-3 w-full px-4 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all">
+                    @L["Close"]
+                </button>
+            }
+        </div>
+
+        <!-- Export Section - Hero Card -->
+        <div class="col-span-12 lg:col-span-6 bento-card p-6 lg:p-8 bg-gradient-to-br from-primary-500 via-violet-500 to-purple-500 text-white animate-in delay-2">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold">@L["ExportData"]</h3>
+                    <p class="text-purple-100 text-sm">@L["ExportDataDesc"]</p>
+                </div>
+            </div>
+            
+            <!-- Full Backup -->
+            <button @onclick="ExportFullBackup" class="w-full flex items-center gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-all mb-4">
+                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                    </svg>
+                </div>
+                <div class="text-left flex-1">
+                    <h4 class="font-bold">@L["FullBackup"]</h4>
+                    <p class="text-sm text-purple-200">@L["FullBackupDesc"]</p>
+                </div>
+                <div class="px-3 py-1 bg-white/20 rounded-lg text-sm font-medium">JSON</div>
+            </button>
+        </div>
+
+        <!-- Export Options Grid -->
+        <div class="col-span-12 lg:col-span-4 bento-card p-5 animate-in delay-3">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">@L["SnapshotsCsv"]</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">@L["SnapshotsCsvDesc"]</p>
+                </div>
+            </div>
+            <button @onclick="ExportCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                @L["DownloadCsv"]
+            </button>
+        </div>
+
+        <div class="col-span-12 lg:col-span-4 bento-card p-5 animate-in delay-4">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsCsv"]</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">@L["InvestmentsCsvDesc"]</p>
+                </div>
+            </div>
+            <button @onclick="ExportInvestmentsCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                @L["DownloadCsv"]
+            </button>
+        </div>
+
+        <div class="col-span-12 lg:col-span-4 bento-card p-5 animate-in delay-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">@L["GoalsCsv"]</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">@L["GoalsCsvDesc"]</p>
+                </div>
+            </div>
+            <button @onclick="ExportGoalsCsv" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                @L["DownloadCsv"]
+            </button>
+        </div>
+
+        <!-- Info Card -->
+        <div class="col-span-12 bento-card p-5 animate-in delay-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-1">@L["ExportTip"]</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">@L["ExportTipDesc"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ImportPreview? _importPreview;
+    private ImportResult? _importResult;
+    private bool _replaceExisting = false;
+    private bool _isImporting = false;
+    private int _familyId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+            }
+        }
+    }
+
+    async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file == null)
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "Nessun file selezionato" };
+                return;
+            }
+
+            using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var reader = new StreamReader(stream);
+            var fileContent = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrEmpty(fileContent))
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "File vuoto o non leggibile" };
+                return;
+            }
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var backup = JsonSerializer.Deserialize<BackupDto>(fileContent, options);
+            
+            if (backup == null)
+            {
+                _importPreview = new ImportPreview { IsValid = false, Error = "Formato file non valido" };
+                return;
+            }
+
+            _importPreview = await Finance.PreviewImportAsync(backup, _familyId);
+        }
+        catch (JsonException ex)
+        {
+            _importPreview = new ImportPreview { IsValid = false, Error = $"Errore parsing JSON: {ex.Message}" };
+        }
+        catch (Exception ex)
+        {
+            _importPreview = new ImportPreview { IsValid = false, Error = ex.Message };
+        }
+        
+        StateHasChanged();
+    }
+
+    async Task ExecuteImport()
+    {
+        if (_importPreview?.Data == null) return;
+        
+        _isImporting = true;
+        StateHasChanged();
+        
+        try
+        {
+            _importResult = await Finance.ImportDataAsync(_importPreview.Data!, _replaceExisting, _familyId);
+            _importPreview = null;
+        }
+        catch (Exception ex)
+        {
+            _importResult = new ImportResult { Success = false, Error = ex.Message };
+        }
+        finally
+        {
+            _isImporting = false;
+        }
+    }
+
+    void CancelImport()
+    {
+        _importPreview = null;
+        _replaceExisting = false;
+    }
+
+    void ResetImport()
+    {
+        _importResult = null;
+        _replaceExisting = false;
+    }
+
+    async Task ExportFullBackup()
+    {
+        try
+        {
+            var snapshots = await Finance.GetSnapshotsAsync(_familyId);
+            var fullSnapshots = new List<object>();
+            foreach (var s in snapshots) 
+            { 
+                var snap = await Finance.GetSnapshotAsync(s.Id); 
+                if (snap != null)
+                {
+                    fullSnapshots.Add(new
+                    {
+                        snap.Id,
+                        Date = snap.SnapshotDate.ToString("yyyy-MM-dd"),
+                        Lines = snap.Lines.Select(l => new { l.AccountId, AccountName = l.Account.Name, l.Amount, l.ContributionBasis }),
+                        Investments = snap.Investments.Select(i => new { i.Name, i.CostBasis, i.Value, i.PortfolioId, PortfolioName = i.Portfolio?.Name }),
+                        Receivables = snap.Receivables.Select(r => new { r.Description, r.Amount, Status = r.Status.ToString() }),
+                        MonthlyExpenses = snap.Expenses.Select(e => new { e.CategoryId, CategoryName = e.Category?.Name, e.Amount })
+                    });
+                }
+            }
+            
+            var accounts = await Finance.GetAccountsAsync(_familyId);
+            var goals = await Finance.GetGoalsAsync(_familyId);
+            var portfolios = await Finance.GetPortfoliosAsync(_familyId);
+            var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
+            
+            var backup = new 
+            { 
+                ExportDate = DateTime.UtcNow,
+                Version = "2.1",
+                Accounts = accounts.Select(a => new { a.Id, a.Name, Category = a.Category.ToString(), a.Owner, a.IsInterest, a.IsActive }),
+                Portfolios = portfolios.Select(p => new { p.Id, p.Name, p.Description, p.TimeHorizonYears, p.TargetYear, p.Color, p.IsActive }),
+                Goals = goals.Select(g => new { g.Id, g.Name, g.Target, g.AllocatedAmount, Deadline = g.DeadlineDisplay, Priority = g.Priority.ToString(), Category = g.Category.ToString(), g.ShowMonthlyTarget }),
+                BudgetCategories = budgetCategories.Select(b => new { b.Id, b.Name, b.Icon, b.Color, b.MonthlyBudget, b.IsActive }),
+                Snapshots = fullSnapshots
+            };
+            
+            var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(backup, jsonOptions);
+            var filename = $"familyfinance_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+            await JS.InvokeVoidAsync("downloadFile", filename, "application/json", Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
+            
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
+        }
+    }
+
+    async Task ExportCsv()
+    {
+        try
+        {
+            var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+            var sb = new StringBuilder();
+            sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
+            
+            foreach (var s in summaries)
+            {
+                sb.AppendLine($"{s.Date:yyyy-MM-dd},{s.Liquidity},{s.InterestLiquidity},{s.InvestmentsCost},{s.InvestmentsValue},{s.InvestmentsGainLoss},{s.CreditsOpen},{s.PensionInsuranceContrib},{s.PensionInsuranceValue},{s.PensionInsuranceGainLoss},{s.CurrentTotal},{s.ProjectedTotal},{s.GrandTotal}");
+            }
+            
+            var filename = $"snapshots_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
+        }
+    }
+
+    async Task ExportInvestmentsCsv()
+    {
+        try
+        {
+            var all = await Finance.GetSnapshotsAsync(_familyId);
+            var sb = new StringBuilder();
+            sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
+            
+            foreach (var s in all.OrderBy(x => x.SnapshotDate))
+            {
+                var sn = await Finance.GetSnapshotAsync(s.Id);
+                if (sn == null) continue;
+                
+                foreach (var inv in sn.Investments)
+                {
+                    var gl = inv.Value - inv.CostBasis;
+                    var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
+                    var portfolioName = inv.Portfolio?.Name ?? "Non categorizzato";
+                    sb.AppendLine($"{s.SnapshotDate:yyyy-MM-dd},{portfolioName},{inv.Name},{inv.CostBasis},{inv.Value},{gl},{pct:F2}");
+                }
+            }
+            
+            var filename = $"investments_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
+        }
+    }
+
+    async Task ExportGoalsCsv()
+    {
+        try
+        {
+            var goals = await Finance.GetGoalsAsync(_familyId);
+            var sb = new StringBuilder();
+            sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
+            
+            foreach (var g in goals.OrderBy(x => x.Priority).ThenBy(x => x.Deadline))
+            {
+                var completed = g.IsCompleted ? "Sì" : "No";
+                var priority = g.Priority.ToString();
+                sb.AppendLine($"{g.Name},{g.Target},{g.AllocatedAmount},{g.Missing},{g.ProgressPercent:F1},{g.DeadlineDisplay},{priority},{completed}");
+            }
+            
+            var filename = $"goals_{DateTime.Now:yyyyMMdd}.csv";
+            await JS.InvokeVoidAsync("downloadFile", filename, "text/csv;charset=utf-8", Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString())));
+            
+            Toast.ShowSuccess(L["ExportSuccess"].Value);
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
+        }
+    }
+}
+

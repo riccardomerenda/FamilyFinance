@@ -7,6 +7,57 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.2.0] - 2025-12-22 🧭 NAVIGATION REDESIGN
+
+### 🧭 Ristrutturazione Navigazione
+
+Major refactoring dell'architettura di navigazione: i tab della dashboard sono ora pagine separate con URL dedicati.
+
+#### Nuove Pagine
+- **`/investments`** - Investments.razor: Panoramica completa del portafoglio investimenti
+- **`/interests`** - Interests.razor: Interessi accumulati con grafici e dettagli per conto
+- **`/pension`** - Pension.razor: Fondi pensione e polizze assicurative
+- **`/data`** - DataManagement.razor: Import/Export dati consolidato
+
+#### Dashboard Semplificata
+- **Index.razor ripulito**: Rimossi tutti i tab, resta solo la dashboard principale
+- **Cards cliccabili**: Liquidità, Investimenti, Previdenza, Interessi ora sono link alle rispettive pagine
+- **Quick Actions aggiornate**: Link alle nuove pagine
+
+#### Sidebar Riorganizzata con Gruppi Logici
+- **Panoramica**: Dashboard, Snapshots
+- **Patrimonio**: Conti, Investimenti, Interessi, Previdenza, Portafogli
+- **Pianificazione**: Obiettivi, Budget, Proiezioni
+- **Analisi**: Confronto
+- **Impostazioni**: Membri Famiglia, Gestione Dati, Log Sistema
+
+#### Vantaggi
+- **URL diretti**: Ogni sezione ha un URL bookmarkable/condivisibile
+- **Navigazione chiara**: Niente più confusione tra tab e pagine
+- **Struttura logica**: Menu organizzato per funzione
+- **Coerenza UX**: Stesso pattern di navigazione ovunque
+
+### 🌍 Localizzazione
+
+#### 50+ nuove stringhe (IT/EN)
+- Navigation groups: `NavOverview`, `NavAssets`, `NavPlanning`, `NavAnalysis`, `NavSettings`
+- Page titles & descriptions: `InvestmentsPageDesc`, `InterestsPageDesc`, `PensionInsurancePageDesc`
+- Empty states: `NoInvestmentsYet`, `NoInterestAccountsYet`, `NoPensionInsuranceYet`
+- Actions: `ManagePortfolios`, `ManageAccounts`
+- Interests: `TotalInterests`, `InterestsByAccount`, `HighestInterest`, `OfTotal`
+- Investments: `AssetAllocation`, `PortfolioBreakdown`, `TotalGainLoss`, `OverallReturn`
+- Pension: `ContributionsVsValue`, `TotalContributions`, `PensionPlusInsurance`
+
+### 📊 Design Bento Grid
+
+Tutte le nuove pagine seguono il design Bento Grid introdotto in v3.0:
+- Hero cards con gradienti per metriche principali
+- Cards statistiche con icone e animazioni stagger
+- Grafici Chart.js integrati
+- Layout responsive 12 colonne
+
+---
+
 ## [3.1.0] - 2025-12-22 🎨 PAGE REDESIGN
 
 ### 🎨 Redesign Completo Pagine Secondarie
