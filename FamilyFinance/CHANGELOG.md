@@ -7,6 +7,24 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.2.1] - 2025-12-22 🔐 SYSTEM LOGS IMPROVEMENTS
+
+### 🔐 Sicurezza
+- **Pagina Log solo Admin**: La pagina `/logs` ora è accessibile solo agli utenti con ruolo Admin
+- **Autorizzazione sidebar**: Il link ai Log di Sistema è nascosto per gli utenti non-Admin
+
+### 🎨 UI Log di Sistema Migliorata
+- **Layout professionale**: Tabella strutturata con colonne separate per timestamp, livello, sorgente e messaggio
+- **Statistiche in tempo reale**: Cards con conteggi per Info, Warning ed Error
+- **Filtri avanzati**: Filtra per livello (Info/Warning/Error) e nascondi log di sistema (Microsoft.*)
+- **Menu dropdown migliorato**: Sfondo e contrasto corretti per dark mode
+- **Parser log intelligente**: Estrae e formatta automaticamente le componenti del log
+
+### 🌍 Localizzazione
+- Nuove stringhe IT/EN per filtri, statistiche e messaggi admin
+
+---
+
 ## [3.2.0] - 2025-12-22 🧭 NAVIGATION REDESIGN
 
 ### 🧭 Ristrutturazione Navigazione

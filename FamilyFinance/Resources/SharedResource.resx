@@ -473,5 +473,13 @@
 
   <!-- Demo Mode -->
   <data name="DemoModeTitle" xml:space="preserve"><value>Modalità Demo</value></data>
+
+  <!-- System Logs -->
+  <data name="SystemLogsDesc" xml:space="preserve"><value>Monitoraggio e debug dell'applicazione</value></data>
+  <data name="Filter" xml:space="preserve"><value>Filtro</value></data>
+  <data name="HideSystemLogs" xml:space="preserve"><value>Nascondi log di sistema</value></data>
+  <data name="LogEntries" xml:space="preserve"><value>voci</value></data>
+  <data name="AdminOnlyPage" xml:space="preserve"><value>Pagina riservata agli amministratori</value></data>
+  <data name="AdminOnlyPageDesc" xml:space="preserve"><value>Questa pagina è accessibile solo agli utenti con ruolo Admin. I log di sistema contengono informazioni tecniche utili per il debug.</value></data>
 </root>
 
