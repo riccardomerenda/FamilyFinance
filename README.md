@@ -2,347 +2,69 @@
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Blazor](https://img.shields.io/badge/Blazor-Server-512BD4?logo=blazor)](https://blazor.net/)
-[![Deploy on Fly.io](https://img.shields.io/badge/Deploy-Fly.io-7c3aed?logo=fly.io)](https://fly.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A comprehensive **family wealth management application** built with Blazor Server and Entity Framework Core. Track your net worth, investments, goals, and expenses — all in one place.
+A modern, comprehensive **wealth management application** for families. Track net worth, investments, goals, and expenses in one beautiful, private dashboard.
 
 🌐 **Live Demo**: [familyfinance-riccardo.fly.dev](https://familyfinance-riccardo.fly.dev)
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Fly.io Deploy](#-flyio-deploy) • [Docker](#-docker) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
-
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-### 🎨 Modern UI Design (v3.2)
-- **Bento Grid Layout**: Apple/Linear-inspired dashboard design
-- **Glassmorphism Effects**: Frosted glass cards with backdrop blur
-- **Outfit Typography**: Modern, distinctive font family
-- **Mesh Gradient Background**: Atmospheric depth with radial gradients
-- **Stagger Animations**: Smooth reveal effects on page load
-- **Dark/Light Theme**: Automatic system detection with manual toggle
-- **Organized Navigation**: Sidebar with logical groups (Assets, Planning, Analysis, Settings)
-
-### 📊 Financial Dashboard
-- **Net Worth Hero Card**: Prominent display with gradient accent
-- **Trend Charts**: Visualize wealth growth over time
-- **Monthly Snapshots**: Complete financial picture each month
-- **Quick Actions Widget**: One-click access to common tasks
-- **Goals Progress**: Visual progress bars in dashboard
-- **Clickable Cards**: Navigate directly to detailed views
-
-### 💰 Dedicated Asset Pages (v3.2)
-- **Investments**: Full portfolio view with collapsible portfolios and performance metrics
-- **Interests**: Accumulated interest breakdown by account with charts
-- **Pension & Insurance**: Pension funds and policies with contribution tracking
-- **Data Management**: Centralized import/export hub
-
-### 📈 Projections & Forecasting
-- **Growth Projections**: 1-10 year wealth forecasts based on historical data
-- **"When Will I Reach?"**: Calculate time to reach financial targets
-- **What-If Simulator**: Model different savings scenarios
-- **Goal Timeline**: Estimated completion dates for all goals
-
-### 💼 Investment Management
-- **Portfolio Grouping**: Organize by strategy (DCA, Crypto, Retirement)
-- **Cost Basis Tracking**: Track gains/losses with performance %
-- **Time Horizons**: Set target years for each portfolio
-- **Collapsible Views**: Clean interface with expandable details
-
-### 🎯 Goal Planning
-- **Financial Goals**: Set targets with deadlines and priority levels
-- **Manual Allocation**: Assign funds to specific goals
-- **Progress Tracking**: Visual progress bars and completion status
-- **Monthly Projections**: Required savings to reach goals on time
-
-### 💳 Budget & Expenses
-- **Custom Categories**: Create categories with emoji icons and colors
-- **Monthly Budgets**: Set spending limits per category
-- **Visual Progress**: See budget usage with progress bars
-- **Overspend Alerts**: Get warned when exceeding budget
-
-### 📊 Monthly Comparison
-- **Side-by-Side View**: Compare any two months
-- **Delta Analysis**: See what changed and by how much
-- **Category Breakdown**: Detailed changes per account type
-- **Growth Metrics**: Percentage changes highlighted
-
-### 👤 User Profile (v3.3)
-- **Profile Page**: Dedicated page to manage personal settings
-- **Auto-Generated Avatar**: Colorful initials based on user ID
-- **Edit Display Name**: Update your name anytime
-- **Change Password**: Secure password update with validation
-- **Account Info**: View role, family, member since, account status
-- **Header Dropdown**: Quick access to profile and logout
-
-### 📋 Activity Log (v3.4)
-- **Audit Trail**: Track all user activities (login, logout, data changes)
-- **Failed Logins**: Monitor security with failed login attempts
-- **Admin Dashboard**: Stats for total activities, logins, active users
-- **Filters**: By action type, user, and time period (7/30/90 days)
-- **IP Tracking**: See where users connect from
-- **90-Day Retention**: Automatic cleanup of old logs
-
-### 🎓 Onboarding & Help (v3.5)
-- **Interactive Tour**: Guided walkthrough on first login with spotlight effects
-- **Landing Page**: Professional public page at `/welcome` with features showcase
-- **Help Tooltips**: Contextual (?) icons on every main page explaining features
-- **"How It Works"**: 3-step guide on landing page
-- **Restart Tour**: Option in profile menu to replay the guided tour
-- **Localized**: Full IT/EN support for all onboarding content
-
-### 👨‍👩‍👧‍👦 Multi-Family Support
-- **Isolated Data**: Each family's data is completely separate
-- **User Roles**: Admin and Member permissions
-- **Family Management**: Add/remove family members
-
-### 📦 Import/Export
-- **Full JSON Backup**: Complete data export
-- **CSV Exports**: Snapshots, investments, goals separately
-- **Smart Import**: Preview before importing with merge options
-- **Data Portability**: Easy backup and restore
-
-### 🌐 Internationalization
-- 🇮🇹 Italian (default)
-- 🇬🇧 English
-- 🌙 Dark/Light theme with persistence
+*   **📊 Interactive Dashboard**: Visual overview of your financial health with Bento-grid layout.
+*   **💰 Asset Tracking**: Detailed views for Investments (Portfolios), Liquidity (Accounts), and Pensions.
+*   **🔮 Projections**: Forecast your wealth 10+ years into the future with "What-If" scenarios.
+*   **🎯 Smart Goals**: Track progress towards financial targets with deadlines and priority.
+*   **💳 Budgeting**: Categorize monthly expenses and set limits with visual alerts.
+*   **📈 Comparison**: Analyze changes month-over-month with detailed deltas.
+*   **👨‍👩‍👧‍👦 Multi-User**: Family-based isolation with granular permissions (Admin/Member).
+*   **🎨 Modern UI**: Fully responsive design with Dark/Light modes and glassmorphism.
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- (Optional) [Docker](https://www.docker.com/) for containerized deployment
+*   [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 
 ### Run Locally
-
 ```bash
-# Clone the repository
 git clone https://github.com/riccardomerenda/FamilyFinance.git
-cd FamilyFinance
-
-# Run the application
-cd FamilyFinance
+cd FamilyFinance/FamilyFinance
 dotnet run
 ```
-
-Open your browser at **http://localhost:5044**
-
-> 💡 **Tip**: For production deployment, use [Fly.io](#-flyio-deploy) or [Docker](#-docker)
-
-### First Setup
-
-1. **Register** a new account
-2. **Create your family** (give it a name)
-3. **Add accounts** (bank, savings, pension, etc.)
-4. **Create your first snapshot** with current balances
-5. **Set up goals** and track your progress!
-
----
-
-## ☁️ Fly.io Deploy
-
-The fastest way to deploy FamilyFinance to the cloud (free tier available).
-
-### Quick Deploy
-
-```bash
-# Install Fly CLI
-curl -L https://fly.io/install.sh | sh
-
-# Login (create free account)
-fly auth signup
-
-# Clone and deploy
-git clone https://github.com/riccardomerenda/FamilyFinance.git
-cd FamilyFinance
-
-# Create app and volume
-fly apps create your-app-name
-fly volumes create familyfinance_data --region fra --size 1
-
-# Deploy!
-fly deploy
-```
-
-Your app will be live at `https://your-app-name.fly.dev`
-
-### What's included
-- ✅ 256MB RAM (free tier)
-- ✅ 1GB persistent storage for SQLite
-- ✅ Auto-sleep when idle (saves resources)
-- ✅ Automatic HTTPS
-- ✅ Frankfurt region (low latency for EU)
-
----
-
-## 🐳 Docker
-
-### Using Docker Compose (Recommended)
-
-```bash
-# Build and run
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
-```
-
-### Using Docker directly
-
-```bash
-# Build the image
-docker build -t familyfinance .
-
-# Run the container
-docker run -d -p 5044:8080 \
-  -v familyfinance-data:/app/data \
-  --name familyfinance \
-  familyfinance
-```
-
 Access at **http://localhost:5044**
 
----
-
-## 📸 Screenshots
-
-> Add your screenshots here!
-
-<details>
-<summary>📊 Dashboard</summary>
-
-![Dashboard](docs/screenshots/dashboard.png)
-</details>
-
-<details>
-<summary>📈 Projections</summary>
-
-![Projections](docs/screenshots/projections.png)
-</details>
-
-<details>
-<summary>💼 Investments</summary>
-
-![Investments](docs/screenshots/investments.png)
-</details>
+### 🐳 Docker
+```bash
+docker-compose up -d
+```
 
 ---
 
-## 🏗️ Project Structure
+## 📸 Gallery
 
-```
-FamilyFinance/
-├── FamilyFinance.sln          # Solution file
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md
-├── Dockerfile
-├── docker-compose.yml
-├── .github/
-│   └── workflows/
-│       └── dotnet.yml         # CI/CD pipeline
-└── FamilyFinance/
-    ├── Components/            # Reusable Blazor components
-    │   └── Dashboard/         # Dashboard-specific components
-    ├── Controllers/           # Auth & Culture controllers
-    ├── Data/                  # DbContext configuration
-    ├── Migrations/            # EF Core migrations
-    ├── Models/                # Domain entities & DTOs
-    ├── Pages/                 # Blazor pages (routes)
-    ├── Resources/             # Localization (.resx files)
-    ├── Services/              # Business logic layer
-    │   └── Interfaces/        # Service contracts
-    ├── Shared/                # Layout components
-    └── wwwroot/               # Static assets (CSS, JS)
-```
+| Dashboard | Projections |
+|:---:|:---:|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Projections](docs/screenshots/projections.png) |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| [.NET 9.0](https://dotnet.microsoft.com/) | Runtime & SDK |
-| [Blazor Server](https://blazor.net/) | Interactive UI framework |
-| [Entity Framework Core](https://docs.microsoft.com/ef/) | ORM & data access |
-| [SQLite](https://sqlite.org/) | Embedded database |
-| [ASP.NET Core Identity](https://docs.microsoft.com/aspnet/core/security/authentication/identity) | Authentication |
-| [Tailwind CSS](https://tailwindcss.com/) | Utility-first styling |
-| [Chart.js](https://www.chartjs.org/) | Data visualization |
-| [Serilog](https://serilog.net/) | Structured logging |
-| [Outfit Font](https://fonts.google.com/specimen/Outfit) | Modern typography |
+*   **Core**: .NET 9, Blazor Server, Entity Framework Core
+*   **Data**: SQLite (Embedded), Serilog
+*   **UI**: Tailwind CSS, Chart.js, Outfit Font
+*   **Auth**: ASP.NET Core Identity (Multi-family support)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a PR.
-
-### Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/riccardomerenda/FamilyFinance.git
-cd FamilyFinance
-
-# Create a branch
-git checkout -b feature/amazing-feature
-
-# Make changes and test
-cd FamilyFinance
-dotnet run
-
-# Commit and push
-git commit -m "feat: Add amazing feature"
-git push origin feature/amazing-feature
-```
-
-### Running Tests
-
-```bash
-cd FamilyFinance.Tests
-dotnet test
-```
-
----
-
-## 📋 Roadmap
-
-- [x] ~~Mobile-responsive improvements~~ (v3.0)
-- [x] ~~Modern UI redesign~~ (v3.0)
-- [x] ~~Structured logging~~ (v2.9)
-- [x] ~~Navigation restructure~~ (v3.2) - Tab → Pages
-- [ ] Recurring transactions
-- [ ] Bank statement import (CSV/OFX)
-- [ ] Multiple currencies with conversion
-- [ ] Email notifications for goals
-- [ ] API for external integrations
-- [ ] PWA support
-
----
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## 📄 License
+MIT License - see [LICENSE](LICENSE).
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Built with ❤️ using [Blazor](https://blazor.net/)
-- Icons by [Heroicons](https://heroicons.com/)
-- Charts by [Chart.js](https://www.chartjs.org/)
-
----
-
-<p align="center">
-  <sub>Made with ☕ by <a href="https://github.com/riccardomerenda">Riccardo Merenda</a></sub>
-</p>
+<p align="center"><sub>Built with ❤️ by <a href="https://github.com/riccardomerenda">Riccardo Merenda</a></sub></p>

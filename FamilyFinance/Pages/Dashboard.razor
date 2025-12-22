@@ -3,10 +3,11 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services
+@using FamilyFinance.Services.Interfaces
 @using FamilyFinance.Components
 @using static FamilyFinance.Components.GuidedTour
-@inject FinanceService Finance
+@inject ISnapshotService Snapshots
+@inject IGoalService Goals
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
@@ -325,11 +326,11 @@ else
             }
         }
         
-        _latest = await Finance.GetLatestSnapshotAsync(_familyId);
+        _latest = await Snapshots.GetLatestAsync(_familyId);
         if (_latest != null)
         {
-            _t = await Finance.CalculateTotalsAsync(_latest);
-            _goals = (await Finance.GetGoalsAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
+            _t = await Snapshots.CalculateTotalsAsync(_latest);
+            _goals = (await Goals.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
             await BuildCharts();
         }
         
@@ -399,7 +400,7 @@ else
 
     async Task BuildCharts()
     {
-        var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+        var summaries = await Snapshots.GetAllWithTotalsAsync(_familyId);
         var full = summaries.Select(s => (d: s.Date.ToString("MM/yy"), v: s.GrandTotal)).ToList();
 
         _trendConfig = new

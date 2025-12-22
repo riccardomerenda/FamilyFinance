@@ -1,11 +1,11 @@
 @page "/investments"
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services
-@inject FinanceService Finance
+@using FamilyFinance.Services.Interfaces
+@inject ISnapshotService Snapshots
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
-@inject FamilyFinance.Services.AuthService Auth
+@inject IAuthService Auth
 
 <PageTitle>@L["Investments"] - FamilyFinance</PageTitle>
 
@@ -245,10 +245,10 @@ else
             }
         }
 
-        _latest = await Finance.GetLatestSnapshotAsync(_familyId);
+        _latest = await Snapshots.GetLatestAsync(_familyId);
         if (_latest != null)
         {
-            _t = await Finance.CalculateTotalsAsync(_latest);
+            _t = await Snapshots.CalculateTotalsAsync(_latest);
             BuildCharts();
         }
         

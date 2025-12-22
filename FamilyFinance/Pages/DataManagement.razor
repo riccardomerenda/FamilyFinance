@@ -5,12 +5,17 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services
-@inject FinanceService Finance
+@using FamilyFinance.Services.Interfaces
+@inject IImportExportService ImportExport
+@inject ISnapshotService Snapshots
+@inject IAccountService Accounts
+@inject IGoalService Goals
+@inject IPortfolioService Portfolios
+@inject IBudgetService Budget
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
-@inject FamilyFinance.Services.AuthService Auth
+@inject IAuthService Auth
 @inject NotificationService Toast
 
 <PageTitle>@L["DataManagement"] - FamilyFinance</PageTitle>
@@ -361,7 +366,7 @@
                 return;
             }
 
-            _importPreview = await Finance.PreviewImportAsync(backup, _familyId);
+            _importPreview = await ImportExport.PreviewImportAsync(backup, _familyId);
         }
         catch (JsonException ex)
         {
@@ -384,7 +389,7 @@
         
         try
         {
-            _importResult = await Finance.ImportDataAsync(_importPreview.Data!, _replaceExisting, _familyId);
+            _importResult = await ImportExport.ImportDataAsync(_importPreview.Data!, _replaceExisting, _familyId);
             _importPreview = null;
         }
         catch (Exception ex)
@@ -413,11 +418,11 @@
     {
         try
         {
-            var snapshots = await Finance.GetSnapshotsAsync(_familyId);
+            var snapshots = await Snapshots.GetAllAsync(_familyId);
             var fullSnapshots = new List<object>();
             foreach (var s in snapshots) 
             { 
-                var snap = await Finance.GetSnapshotAsync(s.Id); 
+                var snap = await Snapshots.GetByIdAsync(s.Id); 
                 if (snap != null)
                 {
                     fullSnapshots.Add(new
@@ -432,10 +437,10 @@
                 }
             }
             
-            var accounts = await Finance.GetAccountsAsync(_familyId);
-            var goals = await Finance.GetGoalsAsync(_familyId);
-            var portfolios = await Finance.GetPortfoliosAsync(_familyId);
-            var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
+            var accounts = await Accounts.GetAllAsync(_familyId);
+            var goals = await Goals.GetAllAsync(_familyId);
+            var portfolios = await Portfolios.GetAllAsync(_familyId);
+            var budgetCategories = await Budget.GetCategoriesAsync(_familyId);
             
             var backup = new 
             { 
@@ -465,7 +470,7 @@
     {
         try
         {
-            var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+            var summaries = await Snapshots.GetAllWithTotalsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
             
@@ -489,13 +494,13 @@
     {
         try
         {
-            var all = await Finance.GetSnapshotsAsync(_familyId);
+            var all = await Snapshots.GetAllAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
             
             foreach (var s in all.OrderBy(x => x.SnapshotDate))
             {
-                var sn = await Finance.GetSnapshotAsync(s.Id);
+                var sn = await Snapshots.GetByIdAsync(s.Id);
                 if (sn == null) continue;
                 
                 foreach (var inv in sn.Investments)
@@ -522,7 +527,7 @@
     {
         try
         {
-            var goals = await Finance.GetGoalsAsync(_familyId);
+            var goals = await Goals.GetAllAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
             

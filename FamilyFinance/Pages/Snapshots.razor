@@ -1,10 +1,11 @@
 @page "/snapshots"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@inject FinanceService Finance
+@inject ISnapshotService SnapshotSvc
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
+@inject IAuthService Auth
 @inject NotificationService Toast
 @attribute [Authorize]
 
@@ -196,18 +197,18 @@ else
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            var user = await Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
-        _allItems = await Finance.GetSnapshotsAsync(_familyId);
+        _allItems = await SnapshotSvc.GetAllAsync(_familyId);
     }
     
     async Task Delete(int id)
     {
         try
         {
-            await Finance.DeleteSnapshotAsync(id);
-            _allItems = await Finance.GetSnapshotsAsync(_familyId);
+            await SnapshotSvc.DeleteAsync(id);
+            _allItems = await SnapshotSvc.GetAllAsync(_familyId);
             
             // Adjust current page if we deleted the last item on it
             if (_currentPage > TotalPages && TotalPages > 0)

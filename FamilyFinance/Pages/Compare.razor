@@ -1,7 +1,9 @@
 @page "/compare"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@inject FinanceService Finance
+@using FamilyFinance.Services.Interfaces
+@inject ISnapshotService Snapshots
+@inject IAuthService Auth
 @inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthState
@@ -297,11 +299,11 @@ else
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
+            var user = await Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
 
-        _snapshots = await Finance.GetSnapshotsAsync(_familyId);
+        _snapshots = await Snapshots.GetAllAsync(_familyId);
         
         if (_snapshots.Count >= 2)
         {
@@ -322,14 +324,14 @@ else
         if (_selectedFrom == 0 || _selectedTo == 0 || _selectedFrom == _selectedTo)
             return;
 
-        var fromSnapshot = await Finance.GetSnapshotAsync(_selectedFrom);
-        var toSnapshot = await Finance.GetSnapshotAsync(_selectedTo);
+        var fromSnapshot = await Snapshots.GetByIdAsync(_selectedFrom);
+        var toSnapshot = await Snapshots.GetByIdAsync(_selectedTo);
 
         if (fromSnapshot == null || toSnapshot == null)
             return;
 
-        var fromTotals = await Finance.CalculateTotalsAsync(fromSnapshot);
-        var toTotals = await Finance.CalculateTotalsAsync(toSnapshot);
+        var fromTotals = await Snapshots.CalculateTotalsAsync(fromSnapshot);
+        var toTotals = await Snapshots.CalculateTotalsAsync(toSnapshot);
 
         // Ensure from is before to
         if (fromSnapshot.SnapshotDate > toSnapshot.SnapshotDate)
