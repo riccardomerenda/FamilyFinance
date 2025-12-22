@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using Microsoft.AspNetCore.RateLimiting;
 
 // Configure Serilog early for startup logging
 Log.Logger = new LoggerConfiguration()
@@ -121,7 +122,8 @@ builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IImportExportService, ImportExportService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthService>(); // Temporary Keep self-registration for backward compatibility if needed, or remove if confident
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
 builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
@@ -134,6 +136,41 @@ builder.Services.AddScoped<FinanceService>();
 
 // Demo data seeder
 builder.Services.AddScoped<DemoDataSeeder>();
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    // Global Limit: 100 requests per minute per IP
+    options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
+            factory: partition => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 2,
+                Window = TimeSpan.FromMinutes(1)
+            });
+    });
+
+    // Strict Auth Policy: 5 requests per minute per IP (Protection against Brute Force)
+    options.AddPolicy("AuthPolicy", context =>
+    {
+        return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? context.Request.Headers.Host.ToString(),
+            factory: partition => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            });
+    });
+
+    // Return 429 consistently
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 var app = builder.Build();
 
@@ -169,6 +206,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

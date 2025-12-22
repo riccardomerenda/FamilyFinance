@@ -7,6 +7,20 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.8.0] - 2025-12-22 🛡️ SECURITY & TESTING
+
+### 🛡️ Security Hardening
+- **Rate Limiting**: Implementato middleware anti-bruteforce.
+  - **Global**: 100 req/min generiche.
+  - **Auth Strict**: Limitati Login e Registrazione a 5 tentativi/minuto per IP.
+
+### 🧪 Quality Assurance
+- **UI Testing**: Nuovo progetto `FamilyFinance.Tests.UI` con **bUnit**.
+- **Login Tests**: Test automatici per visualizzazione form, errori e banner demo.
+- **Refactoring**: Estratta interfaccia `IAuthService` per disaccoppiare la logica e facilitare i test.
+
+---
+
 ## [3.7.3] - 2025-12-22 🔥 DEMO UNLOCK FINAL FIX
 
 ### 🐛 Bug Fix

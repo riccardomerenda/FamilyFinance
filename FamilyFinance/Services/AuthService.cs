@@ -3,9 +3,11 @@ using FamilyFinance.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using FamilyFinance.Services.Interfaces;
+
 namespace FamilyFinance.Services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly SignInManager<AppUser> _signInManager;
