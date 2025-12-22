@@ -30,11 +30,11 @@ public class DemoDataSeeder
             if (!await _userManager.CheckPasswordAsync(existingUser, DemoPassword))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
-                var result = await _userManager.ResetPasswordAsync(existingUser, token, DemoPassword);
+                var resetResult = await _userManager.ResetPasswordAsync(existingUser, token, DemoPassword);
                 
-                if (!result.Succeeded)
+                if (!resetResult.Succeeded)
                 {
-                    throw new Exception($"Failed to update demo user password: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Failed to update demo user password: {string.Join(", ", resetResult.Errors.Select(e => e.Description))}");
                 }
             }
             

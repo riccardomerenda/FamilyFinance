@@ -33,7 +33,8 @@ public class AuthController : Controller
         }
         
         // Pass error via query string
-        return Redirect($"/Account/Login?error={Uri.EscapeDataString(error)}");
+        // Use error ?? "Login fallito" to handle potential nulls, though LoginAsync usually returns an error string on failure
+        return Redirect($"/Account/Login?error={Uri.EscapeDataString(error ?? "Login fallito")}");
     }
 
     [HttpPost]
