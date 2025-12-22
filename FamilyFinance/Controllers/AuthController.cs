@@ -1,23 +1,26 @@
 using FamilyFinance.Models;
 using FamilyFinance.Services;
+using FamilyFinance.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FamilyFinance.Controllers;
 
 [Route("[controller]/[action]")]
 public class AuthController : Controller
 {
-    private readonly AuthService _auth;
+    private readonly IAuthService _auth;
     private readonly SignInManager<AppUser> _signIn;
 
-    public AuthController(AuthService auth, SignInManager<AppUser> signIn)
+    public AuthController(IAuthService auth, SignInManager<AppUser> signIn)
     {
         _auth = auth;
         _signIn = signIn;
     }
 
     [HttpPost]
+    [EnableRateLimiting("AuthPolicy")]
     public async Task<IActionResult> Login(string email, string password, string? returnUrl = null)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -38,6 +41,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
+    [EnableRateLimiting("AuthPolicy")]
     public async Task<IActionResult> Setup(string familyName, string displayName, string email, string password)
     {
         var (success, error) = await _auth.RegisterFirstUserAsync(email, password, displayName, familyName);
