@@ -7,6 +7,27 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.6.0] - 2025-12-22 🚀 WELCOME PAGE REDIRECT
+
+### 🌐 Flusso di Navigazione Migliorato
+Implementato redirect automatico alla Welcome Page per utenti non autenticati.
+
+#### Nuovo Flusso
+1. **Visitatore arriva su `/`** → Redirect automatico a `/welcome`
+2. **Dalla Welcome Page** → Clicca "Prova la Demo" → Login
+3. **Dopo il Login** → Redirect alla Dashboard `/`
+4. **Utente già autenticato su `/welcome`** → Redirect automatico a `/`
+
+#### Modifiche Tecniche
+- **Index.razor**: Aggiunto `[AllowAnonymous]` e check autenticazione in `OnInitializedAsync`
+- **Welcome.razor**: Redirect a dashboard se già autenticato
+
+### 🐛 Correzioni
+- **Localizzazione "Activity Log"**: Corretto in italiano "Log Attività" nel dropdown menu
+- **Tour Tooltip Placement**: Migliorato posizionamento dei tooltip per step 3 (Chart) e 4 (Actions)
+
+---
+
 ## [3.5.0] - 2025-12-22 🎓 ONBOARDING & HELP
 
 ### 🎯 Sistema di Onboarding

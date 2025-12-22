@@ -2,9 +2,11 @@
 @layout EmptyLayout
 @attribute [AllowAnonymous]
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Nav
 @inject IWebHostEnvironment Env
+@inject AuthenticationStateProvider AuthState
 
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-primary-950 to-gray-900 text-white overflow-hidden">
     <!-- Animated Background -->
@@ -300,12 +302,15 @@
 </div>
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // In development, redirect to login directly
-        if (Env.IsDevelopment())
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        
+        // If already authenticated, redirect to dashboard
+        if (authState.User?.Identity?.IsAuthenticated == true)
         {
-            Nav.NavigateTo("/Account/Login");
+            Nav.NavigateTo("/", forceLoad: true);
+            return;
         }
     }
 }
