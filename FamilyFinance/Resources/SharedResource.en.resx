@@ -534,5 +534,65 @@
   <data name="LogEntries" xml:space="preserve"><value>entries</value></data>
   <data name="AdminOnlyPage" xml:space="preserve"><value>Admin-only page</value></data>
   <data name="AdminOnlyPageDesc" xml:space="preserve"><value>This page is only accessible to Admin users. System logs contain technical information useful for debugging.</value></data>
+
+  <!-- Guided Tour -->
+  <data name="TourStep" xml:space="preserve"><value>Step</value></data>
+  <data name="Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Next" xml:space="preserve"><value>Next</value></data>
+  <data name="StartUsing" xml:space="preserve"><value>Start using</value></data>
+  <data name="SkipTour" xml:space="preserve"><value>Skip tour</value></data>
+  <data name="TourWelcomeTitle" xml:space="preserve"><value>Welcome to FamilyFinance!</value></data>
+  <data name="TourWelcomeDesc" xml:space="preserve"><value>This is your financial dashboard. From here you can monitor your entire family wealth.</value></data>
+  <data name="TourTotalTitle" xml:space="preserve"><value>Your Wealth</value></data>
+  <data name="TourTotalDesc" xml:space="preserve"><value>Here you see the updated total of your wealth, including liquidity, investments and credits.</value></data>
+  <data name="TourChartTitle" xml:space="preserve"><value>Trend Over Time</value></data>
+  <data name="TourChartDesc" xml:space="preserve"><value>This chart shows how your wealth has changed over time. Each point is a snapshot.</value></data>
+  <data name="TourGoalsTitle" xml:space="preserve"><value>Your Goals</value></data>
+  <data name="TourGoalsDesc" xml:space="preserve"><value>Set financial goals and track progress. You can set deadlines and target amounts.</value></data>
+  <data name="TourSidebarTitle" xml:space="preserve"><value>Navigation</value></data>
+  <data name="TourSidebarDesc" xml:space="preserve"><value>Use the sidebar to access all sections: Snapshots, Accounts, Budget, Goals and more.</value></data>
+  <data name="TourActionsTitle" xml:space="preserve"><value>Quick Actions</value></data>
+  <data name="TourActionsDesc" xml:space="preserve"><value>Quickly create new snapshots, set goals or manage your accounts from here.</value></data>
+  <data name="TourComplete" xml:space="preserve"><value>You're ready!</value></data>
+  <data name="TourCompleteDesc" xml:space="preserve"><value>Now you know everything you need. If you need help, look for the (?) icons in various sections.</value></data>
+  <data name="RestartTour" xml:space="preserve"><value>Restart tour</value></data>
+
+  <!-- Landing Page -->
+  <data name="LandingHeroTitle" xml:space="preserve"><value>Manage family finances with ease</value></data>
+  <data name="LandingHeroSubtitle" xml:space="preserve"><value>Monitor wealth, investments and goals in one intuitive dashboard</value></data>
+  <data name="TryDemo" xml:space="preserve"><value>Try the Demo</value></data>
+  <data name="WatchHow" xml:space="preserve"><value>See how it works</value></data>
+  <data name="FeatureSnapshotsTitle" xml:space="preserve"><value>Periodic Snapshots</value></data>
+  <data name="FeatureSnapshotsDesc" xml:space="preserve"><value>Capture the state of your finances at any time. Compare over time and analyze trends.</value></data>
+  <data name="FeatureGoalsTitle" xml:space="preserve"><value>Financial Goals</value></data>
+  <data name="FeatureGoalsDesc" xml:space="preserve"><value>Set savings or investment goals. Track progress with visual indicators.</value></data>
+  <data name="FeatureBudgetTitle" xml:space="preserve"><value>Monthly Budget</value></data>
+  <data name="FeatureBudgetDesc" xml:space="preserve"><value>Categorize expenses and keep the family budget under control month by month.</value></data>
+  <data name="FeatureChartsTitle" xml:space="preserve"><value>Interactive Charts</value></data>
+  <data name="FeatureChartsDesc" xml:space="preserve"><value>Visualize wealth trends with clear charts and future projections.</value></data>
+  <data name="FeatureFamilyTitle" xml:space="preserve"><value>Multi-User</value></data>
+  <data name="FeatureFamilyDesc" xml:space="preserve"><value>Share access with family members. Each family has its own isolated data.</value></data>
+  <data name="FeatureSecurityTitle" xml:space="preserve"><value>Secure and Private</value></data>
+  <data name="FeatureSecurityDesc" xml:space="preserve"><value>Your data is protected with encryption and is not shared with third parties.</value></data>
+  <data name="HowItWorksTitle" xml:space="preserve"><value>How It Works</value></data>
+  <data name="HowItWorksStep1Title" xml:space="preserve"><value>1. Set Up Accounts</value></data>
+  <data name="HowItWorksStep1Desc" xml:space="preserve"><value>Add your bank accounts, investments and other assets. No need to connect anything, just enter the names.</value></data>
+  <data name="HowItWorksStep2Title" xml:space="preserve"><value>2. Create Snapshots</value></data>
+  <data name="HowItWorksStep2Desc" xml:space="preserve"><value>Periodically create a snapshot by entering current balances. It only takes a few minutes per month.</value></data>
+  <data name="HowItWorksStep3Title" xml:space="preserve"><value>3. Monitor and Plan</value></data>
+  <data name="HowItWorksStep3Desc" xml:space="preserve"><value>View trends, set goals and make informed decisions about your finances.</value></data>
+  <data name="ReadyToStart" xml:space="preserve"><value>Ready to start?</value></data>
+  <data name="ReadyToStartDesc" xml:space="preserve"><value>Try the demo with sample data or request access for your family.</value></data>
+
+  <!-- Help Tooltips -->
+  <data name="HelpTitle" xml:space="preserve"><value>Help</value></data>
+  <data name="HelpSnapshot" xml:space="preserve"><value>A Snapshot is a "photograph" of your finances at a specific moment. Create snapshots regularly to track your wealth over time.</value></data>
+  <data name="HelpAccounts" xml:space="preserve"><value>Accounts represent where you keep your money: checking accounts, savings accounts, brokers, etc. Set them up once and use them in snapshots.</value></data>
+  <data name="HelpGoals" xml:space="preserve"><value>Goals help you save for specific milestones. Set a target amount, a deadline and the app will calculate how much you need to set aside each month.</value></data>
+  <data name="HelpBudget" xml:space="preserve"><value>Budget allows you to categorize monthly expenses and compare them with the limits you've set.</value></data>
+  <data name="HelpPortfolios" xml:space="preserve"><value>Portfolios group your investments. You can track stocks, ETFs, funds and calculate returns.</value></data>
+  <data name="HelpProjections" xml:space="preserve"><value>Projections show where your wealth will be in the future, based on historical trends.</value></data>
+  <data name="HelpCompare" xml:space="preserve"><value>Compare two snapshots to see what changed between one period and another.</value></data>
+  <data name="GotIt" xml:space="preserve"><value>Got it</value></data>
 </root>
 

@@ -1,0 +1,255 @@
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+@if (_isActive && _currentStep < _steps.Count)
+{
+    <!-- Overlay -->
+    <div class="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+         @onclick="SkipTour"></div>
+    
+    <!-- Spotlight on target element -->
+    <div id="tour-spotlight" 
+         class="fixed z-[9999] rounded-xl ring-4 ring-primary-500 ring-offset-4 ring-offset-transparent shadow-2xl shadow-primary-500/50 transition-all duration-500 pointer-events-none"
+         style="@_spotlightStyle">
+    </div>
+
+    <!-- Tooltip -->
+    <div class="fixed z-[10000] w-80 animate-in slide-in-from-bottom-4 duration-300"
+         style="@_tooltipStyle">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary-500 to-accent-500 px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-white/80 text-sm font-medium">
+                        @L["TourStep"] @(_currentStep + 1) / @_steps.Count
+                    </span>
+                    <button @onclick="SkipTour" 
+                            class="text-white/60 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    @CurrentStep.Title
+                </h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                    @CurrentStep.Description
+                </p>
+            </div>
+            
+            <!-- Footer -->
+            <div class="px-4 pb-4 flex items-center justify-between">
+                <!-- Progress dots -->
+                <div class="flex gap-1.5">
+                    @for (int i = 0; i < _steps.Count; i++)
+                    {
+                        var idx = i;
+                        <button @onclick="() => GoToStep(idx)"
+                                class="w-2 h-2 rounded-full transition-all duration-300 @(i == _currentStep ? "bg-primary-500 w-6" : "bg-gray-300 dark:bg-gray-600 hover:bg-primary-300")">
+                        </button>
+                    }
+                </div>
+                
+                <!-- Navigation -->
+                <div class="flex gap-2">
+                    @if (_currentStep > 0)
+                    {
+                        <button @onclick="PreviousStep"
+                                class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            @L["Previous"]
+                        </button>
+                    }
+                    
+                    @if (_currentStep < _steps.Count - 1)
+                    {
+                        <button @onclick="NextStep"
+                                class="px-4 py-1.5 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium">
+                            @L["Next"]
+                        </button>
+                    }
+                    else
+                    {
+                        <button @onclick="CompleteTour"
+                                class="px-4 py-1.5 text-sm bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-lg hover:opacity-90 transition-opacity font-medium">
+                            @L["StartUsing"]
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Arrow pointer -->
+        <div class="absolute w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 transform rotate-45"
+             style="@_arrowStyle"></div>
+    </div>
+}
+
+@code {
+    [Parameter] public List<TourStep> Steps { get; set; } = new();
+    [Parameter] public EventCallback OnComplete { get; set; }
+    [Parameter] public EventCallback OnSkip { get; set; }
+    [Parameter] public string TourId { get; set; } = "default";
+
+    private List<TourStep> _steps = new();
+    private int _currentStep = 0;
+    private bool _isActive = false;
+    private string _spotlightStyle = "";
+    private string _tooltipStyle = "";
+    private string _arrowStyle = "";
+
+    private TourStep CurrentStep => _steps.Count > _currentStep ? _steps[_currentStep] : new TourStep();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _steps = Steps;
+        if (_steps.Any() && !_isActive)
+        {
+            // Check if tour was already completed
+            var completed = await JS.InvokeAsync<string>("localStorage.getItem", $"tour_completed_{TourId}");
+            if (string.IsNullOrEmpty(completed))
+            {
+                await StartTour();
+            }
+        }
+    }
+
+    public async Task StartTour()
+    {
+        if (!_steps.Any()) return;
+        
+        _currentStep = 0;
+        _isActive = true;
+        await UpdatePosition();
+        StateHasChanged();
+    }
+
+    private async Task NextStep()
+    {
+        if (_currentStep < _steps.Count - 1)
+        {
+            _currentStep++;
+            await UpdatePosition();
+        }
+    }
+
+    private async Task PreviousStep()
+    {
+        if (_currentStep > 0)
+        {
+            _currentStep--;
+            await UpdatePosition();
+        }
+    }
+
+    private async Task GoToStep(int step)
+    {
+        if (step >= 0 && step < _steps.Count)
+        {
+            _currentStep = step;
+            await UpdatePosition();
+        }
+    }
+
+    private async Task UpdatePosition()
+    {
+        var step = CurrentStep;
+        if (string.IsNullOrEmpty(step.TargetSelector)) return;
+
+        try
+        {
+            // Get element position from JS
+            var rect = await JS.InvokeAsync<ElementRect>("getTourElementRect", step.TargetSelector);
+            
+            if (rect != null && rect.Width > 0)
+            {
+                // Spotlight position
+                var padding = 8;
+                _spotlightStyle = $"top: {rect.Top - padding}px; left: {rect.Left - padding}px; width: {rect.Width + padding * 2}px; height: {rect.Height + padding * 2}px;";
+
+                // Tooltip position based on placement
+                var tooltipOffset = 16;
+                switch (step.Placement)
+                {
+                    case TooltipPlacement.Bottom:
+                        _tooltipStyle = $"top: {rect.Bottom + tooltipOffset}px; left: {rect.Left + rect.Width / 2 - 160}px;";
+                        _arrowStyle = "top: -8px; left: 50%; margin-left: -8px;";
+                        break;
+                    case TooltipPlacement.Top:
+                        _tooltipStyle = $"bottom: {rect.Top + tooltipOffset}px; left: {rect.Left + rect.Width / 2 - 160}px;";
+                        _arrowStyle = "bottom: -8px; left: 50%; margin-left: -8px; transform: rotate(225deg);";
+                        break;
+                    case TooltipPlacement.Left:
+                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 80}px; right: {rect.Left + tooltipOffset}px;";
+                        _arrowStyle = "right: -8px; top: 50%; margin-top: -8px; transform: rotate(135deg);";
+                        break;
+                    case TooltipPlacement.Right:
+                    default:
+                        _tooltipStyle = $"top: {rect.Top + rect.Height / 2 - 80}px; left: {rect.Right + tooltipOffset}px;";
+                        _arrowStyle = "left: -8px; top: 50%; margin-top: -8px; transform: rotate(-45deg);";
+                        break;
+                }
+
+                // Scroll element into view if needed
+                await JS.InvokeVoidAsync("scrollTourElementIntoView", step.TargetSelector);
+            }
+        }
+        catch
+        {
+            // Element not found, skip to next step or end tour
+            if (_currentStep < _steps.Count - 1)
+                await NextStep();
+            else
+                await CompleteTour();
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task CompleteTour()
+    {
+        _isActive = false;
+        await JS.InvokeVoidAsync("localStorage.setItem", $"tour_completed_{TourId}", DateTime.UtcNow.ToString("o"));
+        await OnComplete.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private async Task SkipTour()
+    {
+        _isActive = false;
+        await JS.InvokeVoidAsync("localStorage.setItem", $"tour_completed_{TourId}", DateTime.UtcNow.ToString("o"));
+        await OnSkip.InvokeAsync();
+        StateHasChanged();
+    }
+
+    public class TourStep
+    {
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string TargetSelector { get; set; } = "";
+        public TooltipPlacement Placement { get; set; } = TooltipPlacement.Bottom;
+    }
+
+    public enum TooltipPlacement
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
+
+    private class ElementRect
+    {
+        public double Top { get; set; }
+        public double Left { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+}
+

@@ -85,6 +85,14 @@ A comprehensive **family wealth management application** built with Blazor Serve
 - **IP Tracking**: See where users connect from
 - **90-Day Retention**: Automatic cleanup of old logs
 
+### 🎓 Onboarding & Help (v3.5)
+- **Interactive Tour**: Guided walkthrough on first login with spotlight effects
+- **Landing Page**: Professional public page at `/welcome` with features showcase
+- **Help Tooltips**: Contextual (?) icons on every main page explaining features
+- **"How It Works"**: 3-step guide on landing page
+- **Restart Tour**: Option in profile menu to replay the guided tour
+- **Localized**: Full IT/EN support for all onboarding content
+
 ### 👨‍👩‍👧‍👦 Multi-Family Support
 - **Isolated Data**: Each family's data is completely separate
 - **User Roles**: Admin and Member permissions
