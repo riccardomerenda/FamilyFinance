@@ -7,6 +7,14 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.1] - 2025-12-23 🔥 DEPLOYMENT HOTFIX
+
+### 🐛 Critical Bug Fix
+- **Build Error**: Risolto errore compilazione su GitHub Actions (`FinanceService not found`).
+- **Refactoring Fix**: Aggiornate chiamate residue in `Dashboard.razor` e `DataManagement.razor`.
+
+---
+
 ## [3.10.0] - 2025-12-23 🏗️ ARCHITECTURE UPGRADE
 
 ### 🏗️ Refactoring Major
