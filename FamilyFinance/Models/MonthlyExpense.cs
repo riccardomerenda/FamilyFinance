@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace FamilyFinance.Models;
 
 /// <summary>
@@ -9,10 +11,12 @@ public class MonthlyExpense
     
     // Relazione con Snapshot
     public int SnapshotId { get; set; }
+    [JsonIgnore]
     public Snapshot? Snapshot { get; set; }
     
     // Relazione con Categoria
     public int CategoryId { get; set; }
+    [JsonIgnore]
     public BudgetCategory? Category { get; set; }
     
     // Dati

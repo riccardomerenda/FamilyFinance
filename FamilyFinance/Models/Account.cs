@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace FamilyFinance.Models;
 
 public class Account : IFamilyOwned
@@ -11,6 +13,7 @@ public class Account : IFamilyOwned
     
     // Family ownership (IFamilyOwned)
     public int FamilyId { get; set; }
+    [JsonIgnore]
     public Family? Family { get; set; }
     
     // === Audit Trail ===
