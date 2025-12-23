@@ -1,11 +1,11 @@
 @page "/interests"
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services.Interfaces
-@inject ISnapshotService Snapshots
+@using FamilyFinance.Services
+@inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
-@inject IAuthService Auth
+@inject FamilyFinance.Services.AuthService Auth
 
 <PageTitle>@L["Interests"] - FamilyFinance</PageTitle>
 
@@ -163,10 +163,10 @@ else
             }
         }
 
-        _latest = await Snapshots.GetLatestAsync(_familyId);
+        _latest = await Finance.GetLatestSnapshotAsync(_familyId);
         if (_latest != null)
         {
-            _t = await Snapshots.CalculateTotalsAsync(_latest);
+            _t = await Finance.CalculateTotalsAsync(_latest);
             _interestLines = _latest.Lines.Where(l => l.Account.IsInterest).ToList();
             BuildCharts();
         }

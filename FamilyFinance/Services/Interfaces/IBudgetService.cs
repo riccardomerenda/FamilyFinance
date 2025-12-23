@@ -7,8 +7,8 @@ public interface IBudgetService
     // Categories
     Task<List<BudgetCategory>> GetCategoriesAsync(int familyId);
     Task<BudgetCategory?> GetCategoryByIdAsync(int id);
-    Task<ServiceResult> SaveCategoryAsync(BudgetCategory category, string? userId = null);
-    Task<ServiceResult> DeleteCategoryAsync(int id, string? userId = null);
+    Task SaveCategoryAsync(BudgetCategory category);
+    Task DeleteCategoryAsync(int id);
     List<BudgetCategory> GetDefaultCategories();
     Task InitializeCategoriesAsync(int familyId);
     

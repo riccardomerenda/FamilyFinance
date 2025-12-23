@@ -122,7 +122,8 @@ builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IImportExportService, ImportExportService>();
-    builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthService>(); // Temporary Keep self-registration for backward compatibility if needed, or remove if confident
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
 builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
@@ -130,7 +131,8 @@ builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();
 
-
+// Legacy facade (will be removed after full migration)
+builder.Services.AddScoped<FinanceService>();
 
 // Demo data seeder
 builder.Services.AddScoped<DemoDataSeeder>();

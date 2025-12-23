@@ -1,15 +1,11 @@
 @page "/snapshots/new"
 @page "/snapshots/{Id:int}"
 @using System.Security.Claims
-@inject ISnapshotService Snapshots
-@inject IAccountService Accounts
-@inject IPortfolioService Portfolios
-@inject IBudgetService Budget
+@inject FinanceService Finance
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
-@inject IAuthService Auth
-@using FamilyFinance.Services.Interfaces
+@inject FamilyFinance.Services.AuthService Auth
 
 <div class="max-w-5xl mx-auto">
     <div class="flex items-center justify-between mb-6">
@@ -392,11 +388,11 @@
             if (user != null) _familyId = user.FamilyId;
         }
         
-        var accounts = await Accounts.GetActiveAsync(_familyId);
-        _portfolios = await Portfolios.GetAllAsync(_familyId);
+        var accounts = await Finance.GetActiveAccountsAsync(_familyId);
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
         
         // Load budget categories
-        var budgetCategories = await Budget.GetCategoriesAsync(_familyId);
+        var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
         _expenseRows = budgetCategories.Select(c => new ExpenseRow
         {
             CategoryId = c.Id,
@@ -409,7 +405,7 @@
 
         if (Id != null)
         {
-            var s = await Snapshots.GetByIdAsync(Id.Value);
+            var s = await Finance.GetSnapshotAsync(Id.Value);
             _date = s!.SnapshotDate.ToDateTime(TimeOnly.MinValue);
             _accRows = accounts.Select(a => {
                 var line = s.Lines.FirstOrDefault(l => l.AccountId == a.Id);
@@ -423,7 +419,7 @@
             _recRows = s.Receivables.Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
             
             // Load existing expenses for this snapshot
-            var expenses = await Budget.GetExpensesAsync(Id.Value);
+            var expenses = await Finance.GetMonthlyExpensesAsync(Id.Value);
             foreach (var exp in expenses)
             {
                 var row = _expenseRows.FirstOrDefault(e => e.CategoryId == exp.CategoryId);
@@ -436,7 +432,7 @@
         }
         else
         {
-            var last = await Snapshots.GetLatestAsync(_familyId);
+            var last = await Finance.GetLatestSnapshotAsync(_familyId);
             if (last != null)
             {
                 _accRows = accounts.Select(a => {
@@ -471,13 +467,13 @@
         var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value, r.PortfolioId)).ToList();
         var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
 
-        var snapshotId = await Snapshots.SaveAsync(_familyId, Id, dateOnly, accs, invs, recs);
+        var snapshotId = await Finance.SaveSnapshotAsync(_familyId, Id, dateOnly, accs, invs, recs);
         
         // Save expenses
         if (_expenseRows.Any())
         {
             var expenses = _expenseRows.Select(e => (e.CategoryId, e.Amount, e.Notes)).ToList();
-            await Budget.SaveExpensesAsync(snapshotId, expenses);
+            await Finance.SaveMonthlyExpensesAsync(snapshotId, expenses);
         }
         
         Nav.NavigateTo("/");

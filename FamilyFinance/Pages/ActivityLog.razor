@@ -3,7 +3,7 @@
 @using FamilyFinance.Services
 @using System.Security.Claims
 @inject ActivityLogService ActivityLogSvc
-@inject IAuthService Auth
+@inject AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject IStringLocalizer<SharedResource> L
 @attribute [Authorize(Roles = "Admin")]

@@ -1,9 +1,7 @@
 @page "/portfolios"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@using FamilyFinance.Services.Interfaces
-@inject IPortfolioService PortfolioSvc
-@inject IAuthService Auth
+@inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
 @attribute [Authorize]
@@ -190,10 +188,10 @@ else
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            var user = await Auth.GetUserWithFamilyAsync(userId);
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
-        _portfolios = await PortfolioSvc.GetAllAsync(_familyId);
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
     }
     
     RenderFragment GetIcon(string icon) => _icons.GetValueOrDefault(icon, _icons["chart"]);
@@ -204,15 +202,15 @@ else
     async Task Save()
     {
         if (string.IsNullOrWhiteSpace(_editing?.Name)) return;
-        if (string.IsNullOrWhiteSpace(_editing?.Name)) return;
-        await PortfolioSvc.SaveAsync(_editing!);
+        await Finance.SavePortfolioAsync(_editing!);
         _editing = null;
-        _portfolios = await PortfolioSvc.GetAllAsync(_familyId);
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
     }
     
     async Task Delete(int id)
     {
-        await PortfolioSvc.DeleteAsync(id);
-        _portfolios = await PortfolioSvc.GetAllAsync(_familyId);
+        await Finance.DeletePortfolioAsync(id);
+        _portfolios = await Finance.GetPortfoliosAsync(_familyId);
     }
 }
+

@@ -99,69 +99,6 @@
     {
         new ReleaseInfo
         {
-            Version = "3.9.2",
-            Date = new DateTime(2025, 12, 23),
-            Emoji = "🚑",
-            IsMajor = false,
-            Title = "Hotfix: Crash Dashboard & Auth",
-            Sections = new List<ReleaseSection>
-            {
-                new("🛠️", "Bug Fixes", new List<string>
-                {
-                    "Risolto crash runtime nella Dashboard causato da cicli di serializzazione JSON (PersistentComponentState)",
-                    "Fix errore 'InvalidOperationException' sull'iniezione di AuthService (ora usa IAuthService)",
-                    "Aggiunto [JsonIgnore] alle proprietà di navigazione circolari"
-                })
-            }
-        },
-        new ReleaseInfo
-        {
-            Version = "3.9.1",
-            Date = new DateTime(2025, 12, 23),
-            Emoji = "🧹",
-            IsMajor = false,
-            Title = "Code Cleanup & Audit",
-            Sections = new List<ReleaseSection>
-            {
-                new("🧼", "Code Cleaning", new List<string>
-                {
-                    "Rimozione codice legacy e overload deprecati (GoalService)",
-                    "Audit e fix validazione form (Goals, Budget)",
-                    "Pulizia configurazione Program.cs"
-                })
-            }
-        },
-        new ReleaseInfo
-        {
-            Version = "3.9.0",
-            Date = new DateTime(2025, 12, 22),
-            Emoji = "🚄",
-            IsMajor = true,
-            Title = "Refactoring & Performance",
-            Sections = new List<ReleaseSection>
-            {
-                new("🛠️", "Refactoring Core", new List<string>
-                {
-                    "Rimossa dipendenza monolitica FinanceService",
-                    "Adozione interfacce granulari (ISnapshotService, IBudgetService, etc.)",
-                    "Codice più modulare e testabile"
-                }),
-                new("⚡", "Performance", new List<string>
-                {
-                    "Risolto 'doppio caricamento' (flickering) nella Dashboard",
-                    "Implementato Persistent Component State per caricamento istantaneo",
-                    "Ottimizzazione query database"
-                }),
-                new("🛡️", "Resilienza", new List<string>
-                {
-                    "Global Error Boundary per prevenire crash dell'applicazione",
-                    "Gestione errori unificata nel MainLayout",
-                    "Messaggi di errore user-friendly"
-                })
-            }
-        },
-        new ReleaseInfo
-        {
             Version = "2.5.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "🚀",
@@ -402,69 +339,6 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
-        new ReleaseInfo
-        {
-            Version = "3.9.2",
-            Date = new DateTime(2025, 12, 23),
-            Emoji = "🚑",
-            IsMajor = false,
-            Title = "Hotfix: Dashboard Crash & Auth",
-            Sections = new List<ReleaseSection>
-            {
-                new("🛠️", "Bug Fixes", new List<string>
-                {
-                    "Fixed runtime crash in Dashboard caused by JSON serialization cycles (PersistentComponentState)",
-                    "Fixed 'InvalidOperationException' on AuthService injection (now uses IAuthService)",
-                    "Added [JsonIgnore] to circular navigation properties"
-                })
-            }
-        },
-        new ReleaseInfo
-        {
-            Version = "3.9.1",
-            Date = new DateTime(2025, 12, 23),
-            Emoji = "🧹",
-            IsMajor = false,
-            Title = "Code Cleanup & Audit",
-            Sections = new List<ReleaseSection>
-            {
-                new("🧼", "Code Cleaning", new List<string>
-                {
-                    "Removed legacy code and deprecated overloads (GoalService)",
-                    "Audit and fix form validation (Goals, Budget)",
-                    "Program.cs configuration cleanup"
-                })
-            }
-        },
-        new ReleaseInfo
-        {
-            Version = "3.9.0",
-            Date = new DateTime(2025, 12, 22),
-            Emoji = "🚄",
-            IsMajor = true,
-            Title = "Refactoring & Performance",
-            Sections = new List<ReleaseSection>
-            {
-                new("🛠️", "Core Refactoring", new List<string>
-                {
-                    "Removed monolithic FinanceService dependency",
-                    "Adopted granular interfaces (ISnapshotService, IBudgetService, etc.)",
-                    "More modular and testable code"
-                }),
-                new("⚡", "Performance", new List<string>
-                {
-                    "Fixed Dashboard 'double loading' (flickering)",
-                    "Implemented Persistent Component State for instant loading",
-                    "Database query optimizations"
-                }),
-                new("🛡️", "Resilience", new List<string>
-                {
-                    "Global Error Boundary to prevent application crashes",
-                    "Unified error handling in MainLayout",
-                    "User-friendly error messages"
-                })
-            }
-        },
         new ReleaseInfo
         {
             Version = "2.5.0",
