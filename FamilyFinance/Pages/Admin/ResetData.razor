@@ -1,0 +1,116 @@
+@page "/admin/reset"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using FamilyFinance.Services
+@inject AuthenticationStateProvider AuthState
+@inject DemoDataSeeder Seeder
+@inject NavigationManager Nav
+@inject AuthService Auth
+@attribute [Authorize]
+
+<div class="max-w-2xl mx-auto p-8">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-red-200 dark:border-red-900">
+        <div class="p-6 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-900/50">
+            <h1 class="text-2xl font-bold text-red-700 dark:text-red-400">⚠️ Danger Zone: Reset Demo Data</h1>
+        </div>
+        
+        <div class="p-8">
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                This action will <strong>permanently delete all your financial data</strong> (Snapshots, Accounts, Transactions) and recreate the 6-month demo history with realistic data.
+            </p>
+
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mb-8">
+                <p class="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                    This cannot be undone. Your user account and login will be preserved.
+                </p>
+            </div>
+
+            @if (_isResetting)
+            {
+                <div class="flex items-center justify-center gap-3 text-primary-600">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-current"></div>
+                    <span class="font-medium">Resetting database... Please wait...</span>
+                </div>
+            }
+            else if (_success)
+            {
+                <div class="text-center space-y-4">
+                    <div class="text-green-600 dark:text-green-400 font-bold text-lg">
+                        ✅ Data Reset Successfully!
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">Redirecting to Dashboard...</p>
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(_error))
+                {
+                    <div class="mb-4 p-4 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 flex items-center gap-3">
+                        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div>
+                            <p class="font-bold">Error: @_error</p>
+                            <a href="/Account/Logout" class="underline hover:text-red-900 dark:hover:text-red-100">Click here to Logout and refresh your session.</a>
+                        </div>
+                    </div>
+                }
+
+                <div class="flex flex-col gap-4">
+                    <button @onclick="Reset" class="w-full py-4 px-6 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        RESET EVERYTHING NOW
+                    </button>
+                    <a href="/" class="text-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm">Cancel and go back</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    bool _isResetting;
+    bool _success;
+    string? _error;
+
+    async Task Reset()
+    {
+        _isResetting = true;
+        _error = null;
+        await Task.Delay(100); // UI update
+
+        try
+        {
+            var state = await AuthState.GetAuthenticationStateAsync();
+            var userId = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (userId != null)
+            {
+                var user = await Auth.GetUserWithFamilyAsync(userId);
+                if (user != null)
+                {
+                    await Seeder.ForceResetAsync(user.FamilyId, userId);
+                    _success = true;
+                    StateHasChanged();
+                    await Task.Delay(2000);
+                    Nav.NavigateTo("/", forceLoad: true);
+                }
+                else
+                {
+                    _error = "Session expired or user mismatch. Since the database was reset, your old login is invalid.";
+                }
+            }
+            else
+            {
+                 _error = "User not logged in.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _isResetting = false;
+        }
+    }
+}

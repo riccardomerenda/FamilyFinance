@@ -630,5 +630,72 @@
   <data name="InsightGoalAchievedMsg" xml:space="preserve"><value>Complimenti! Hai raggiunto l'obiettivo "{0}"!</value></data>
   <data name="InsightZeroInterest" xml:space="preserve"><value>Rendimento zero</value></data>
   <data name="InsightZeroInterestMsg" xml:space="preserve"><value>Hai {0} conti deposito con rendimento 0%. Valuta alternative.</value></data>
+
+  <!-- Import Wizard -->
+  <data name="ImportTransactions" xml:space="preserve"><value>Importa Transazioni</value></data>
+  <data name="ImportWizardTitle" xml:space="preserve"><value>Importazione Bancaria Smart</value></data>
+  <data name="ImportWizardSubtitle" xml:space="preserve"><value>Carica il CSV della tua banca e categorizza automaticamente le spese.</value></data>
+  <data name="ImportStepUpload" xml:space="preserve"><value>Carica File</value></data>
+  <data name="ImportStepMap" xml:space="preserve"><value>Mappa Colonne</value></data>
+  <data name="ImportStepReview" xml:space="preserve"><value>Revisione</value></data>
+  <data name="UploadCsvTitle" xml:space="preserve"><value>Trascina qui il tuo CSV</value></data>
+  <data name="UploadCsvDesc" xml:space="preserve"><value>Supportiamo i formati standard di Intesa, Unicredit, Revolut, Fineco e molti altri.</value></data>
+  <data name="SelectFile" xml:space="preserve"><value>Seleziona File...</value></data>
+  <data name="MapColumnsTitle" xml:space="preserve"><value>Aiutaci a capire il tuo file</value></data>
+  <data name="ColumnAssignment" xml:space="preserve"><value>Assegnazione Colonne</value></data>
+  <data name="NextCategorize" xml:space="preserve"><value>Avanti: Categorizza Smart ✨</value></data>
+  <data name="ImportSelected" xml:space="preserve"><value>Importa Selezionati</value></data>
+  <data name="ImportCsvBtn" xml:space="preserve"><value>Importa CSV</value></data>
+  <data name="CalculatedFromWealthDelta" xml:space="preserve">
+    <value>Calcolato da: Crescita Patrimonio + Spese</value>
+  </data>
+  <data name="EstimatedIncome" xml:space="preserve">
+    <value>Entrate Stimate</value>
+  </data>
+  <data name="ExpensesBreakdown" xml:space="preserve">
+    <value>Dettaglio Spese</value>
+  </data>
+  <data name="IncludesImportedTransactions" xml:space="preserve">
+    <value>Include transazioni importate</value>
+  </data>
+  <data name="NetSavings" xml:space="preserve">
+    <value>Risparmio Netto</value>
+  </data>
+  <data name="NoExpensesRecorded" xml:space="preserve">
+    <value>Nessuna spesa registrata per questo mese</value>
+  </data>
+  <data name="SavingsRate" xml:space="preserve">
+    <value>Tasso Risparmio</value>
+  </data>
+  <data name="SnapshotNotFound" xml:space="preserve">
+    <value>Mese non trovato</value>
+  </data>
+  <data name="TotalExpenses" xml:space="preserve">
+    <value>Spese Totali</value>
+  </data>
+  <data name="MonthlyFinancialReport" xml:space="preserve">
+    <value>Report Finanziario Mensile</value>
+  </data>
+  <data name="BackToDashboard" xml:space="preserve">
+    <value>Torna alla Dashboard</value>
+  </data>
+  <data name="EditData" xml:space="preserve">
+    <value>Modifica Dati</value>
+  </data>
+  <data name="BudgetStatus" xml:space="preserve">
+    <value>Stato Budget</value>
+  </data>
+  <data name="NoBudget" xml:space="preserve">
+    <value>No Budget</value>
+  </data>
+  <data name="ImportHistory" xml:space="preserve"><value>Storico Importazioni</value></data>
+  <data name="ImportHistoryDesc" xml:space="preserve"><value>Visualizza e gestisci le importazioni passate. Puoi annullare interi batch se necessario.</value></data>
+  <data name="NoImportsFound" xml:space="preserve"><value>Nessuna importazione trovata</value></data>
+  <data name="NoImportsDesc" xml:space="preserve"><value>Non hai ancora importato alcun dato.</value></data>
+  <data name="UndoImport" xml:space="preserve"><value>Annulla Import</value></data>
+  <data name="History" xml:space="preserve"><value>Storico</value></data>
+  <data name="ImportRevertedSuccess" xml:space="preserve"><value>Importazione annullata con successo</value></data>
+  <data name="ImportRevertError" xml:space="preserve"><value>Errore durante l'annullamento dell'importazione</value></data>
+  <data name="Items" xml:space="preserve"><value>elementi</value></data>
 </root>
 
