@@ -7,20 +7,17 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
-## [3.9.2] - 2025-12-23 🧙‍♂️ MONTHLY CLOSING WIZARD
+## [3.10.0] - 2025-12-23 🏗️ ARCHITECTURE UPGRADE
 
-### 🧙‍♂️ Monthly Closing Wizard
-Nuovo strumento guidato per semplificare la chiusura mensile del budget e del patrimonio.
-- **Wizard a step**: Processo guidato in 4 passaggi (Liquidità, Investimenti, Budget, Riepilogo).
-- **Auto-fill intelligente**: Pre-popola i dati in base allo snapshot precedente per velocizzare l'inserimento.
-- **Editing flessibile**: Permette di creare nuovi snapshot o aggiornare quelli esistenti ("Modifica Mese").
-- **Dashboard Integration**: Accesso diretto dalla Dashboard con pulsante contestuale.
+### 🏗️ Refactoring Major
+- **Rimozione FinanceService**: Eliminato il gigantesco servizio "God Object" `FinanceService`.
+- **Servizi Granulari**: Migrazione completa verso servizi specifici (`ISnapshotService`, `IGoalService`, ecc.).
+- **Dependency Injection**: Migliorata la gestione delle dipendenze e ridotto accoppiamento.
+- **Performance**: Ottimizzazione delle query grazie all'uso mirato dei servizi.
 
-### ✨ UX Improvements
-- **Dashboard Refresh**: Aggiornamento automatico dei dati alla chiusura del wizard.
-- **Toast Notifications**: Feedback immediato al salvataggio dei dati.
-- **Localization**: Traduzione completa IT/EN del wizard.
-- **Date Formatting**: Migliorata la visualizzazione delle date nel riepilogo.
+### 🧹 Cleanup
+- Risolti conflitti di naming nei componenti Razor (`Snapshots`, `Goals`, `Portfolios`).
+- Pulizia `Program.cs` e configurazione servizi.
 
 ---
 
