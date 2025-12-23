@@ -1,6 +1,10 @@
 @page "/accounts"
+@using System.Security.Claims
 @using AccountModel = FamilyFinance.Models.Account
-@inject AppDbContext Db
+@using FamilyFinance.Services.Interfaces
+@inject IAccountService AccountService
+@inject FamilyFinance.Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
 @inject IStringLocalizer<SharedResource> L
 @attribute [Authorize]
 
@@ -100,8 +104,19 @@
 @code {
     List<AccountModel> _accounts = new();
     AccountModel? _editing;
+    int _familyId;
 
-    protected override void OnInitialized() => _accounts = Db.Accounts.OrderBy(a => a.Category).ThenBy(a => a.Name).ToList();
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+        _accounts = await AccountService.GetAllAsync(_familyId);
+    }
     
     string GetCategoryColor(AccountCategory cat) => cat switch
     {
@@ -111,22 +126,21 @@
         _ => "bg-gradient-to-br from-gray-500 to-gray-600"
     };
 
-    void NewAccount() => _editing = new AccountModel();
+    void NewAccount() => _editing = new AccountModel { FamilyId = _familyId };
     void Edit(AccountModel a) => _editing = a;
     
-    void Delete(AccountModel a)
+    async Task Delete(AccountModel a)
     {
-        Db.Accounts.Remove(a);
-        Db.SaveChanges();
-        OnInitialized();
+        await AccountService.DeleteAsync(a.Id);
+        await OnInitializedAsync();
     }
     
-    void Save()
+    async Task Save()
     {
-        if (_editing!.Id == 0) Db.Accounts.Add(_editing);
-        else Db.Accounts.Update(_editing);
-        Db.SaveChanges();
+        if (string.IsNullOrWhiteSpace(_editing?.Name)) return;
+        _editing.FamilyId = _familyId; // Ensure FamilyId is set
+        await AccountService.SaveAsync(_editing);
         _editing = null;
-        OnInitialized();
+        await OnInitializedAsync();
     }
 }
