@@ -610,5 +610,25 @@
   <data name="WizardFinish" xml:space="preserve"><value>Salva</value></data>
   <data name="MonthClosedSuccess" xml:space="preserve"><value>Mese chiuso con successo!</value></data>
   <data name="MonthUpdatedSuccess" xml:space="preserve"><value>Mese aggiornato con successo!</value></data>
+
+  <!-- Dashboard Insights -->
+  <data name="InsightWealthUp" xml:space="preserve"><value>Patrimonio in crescita!</value></data>
+  <data name="InsightWealthUpMsg" xml:space="preserve"><value>Il tuo patrimonio è aumentato del {0}% rispetto al mese scorso. Ottimo lavoro!</value></data>
+  <data name="InsightWealthDown" xml:space="preserve"><value>Attenzione al patrimonio</value></data>
+  <data name="InsightWealthDownMsg" xml:space="preserve"><value>Il patrimonio è diminuito del {0}% rispetto al mese scorso.</value></data>
+  <data name="InsightBudgetExceeded" xml:space="preserve"><value>Budget superato</value></data>
+  <data name="InsightBudgetExceededMsg" xml:space="preserve"><value>Hai superato il budget "{0}" del {1}%.</value></data>
+  <data name="InsightBudgetWarning" xml:space="preserve"><value>Budget a rischio</value></data>
+  <data name="InsightBudgetWarningMsg" xml:space="preserve"><value>Sei al {1}% del budget "{0}" e siamo solo al giorno {2}.</value></data>
+  <data name="InsightBudgetHealthy" xml:space="preserve"><value>Spese sotto controllo</value></data>
+  <data name="InsightBudgetHealthyMsg" xml:space="preserve"><value>Hai ancora il {0}% del budget disponibile questo mese!</value></data>
+  <data name="InsightGoalAlmostDone" xml:space="preserve"><value>Obiettivo quasi raggiunto!</value></data>
+  <data name="InsightGoalAlmostDoneMsg" xml:space="preserve"><value>Mancano solo €{1} per completare "{0}".</value></data>
+  <data name="InsightGoalDeadline" xml:space="preserve"><value>Scadenza vicina</value></data>
+  <data name="InsightGoalDeadlineMsg" xml:space="preserve"><value>L'obiettivo "{0}" scade tra meno di un mese. Mancano €{1}.</value></data>
+  <data name="InsightGoalAchieved" xml:space="preserve"><value>Obiettivo raggiunto!</value></data>
+  <data name="InsightGoalAchievedMsg" xml:space="preserve"><value>Complimenti! Hai raggiunto l'obiettivo "{0}"!</value></data>
+  <data name="InsightZeroInterest" xml:space="preserve"><value>Rendimento zero</value></data>
+  <data name="InsightZeroInterestMsg" xml:space="preserve"><value>Hai {0} conti deposito con rendimento 0%. Valuta alternative.</value></data>
 </root>
 

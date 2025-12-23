@@ -14,6 +14,7 @@
 @inject FamilyFinance.Services.AuthService Auth
 @inject NavigationManager Nav
 @inject WizardStateService WizardState
+@inject IInsightService InsightService
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
 
@@ -60,6 +61,9 @@ else if (_latest is null)
 }
 else
 {
+    <!-- Insights -->
+    <FamilyFinance.Components.Dashboard.InsightCard Insights="_insights" />
+    
     <!-- Action Badges -->
     <div class="flex flex-wrap items-center gap-3 mb-6 animate-in">
         @{
@@ -354,6 +358,7 @@ else
     private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     private object _trendConfig = new { }, _compConfig = new { };
     private List<Goal>? _goals;
+    private List<FamilyFinance.Services.Interfaces.Insight>? _insights;
     private int _familyId;
     
     // Tour steps - defined after L is available
@@ -382,6 +387,7 @@ else
         {
             _t = await SnapshotService.CalculateTotalsAsync(_latest);
             _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
+            _insights = await InsightService.GetInsightsAsync(_familyId);
             await BuildCharts();
         }
         
