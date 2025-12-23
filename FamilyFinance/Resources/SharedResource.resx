@@ -593,6 +593,10 @@
   <data name="HelpPortfolios" xml:space="preserve"><value>I Portafogli raggruppano i tuoi investimenti. Puoi tracciare azioni, ETF, fondi e calcolare i rendimenti.</value></data>
   <data name="HelpProjections" xml:space="preserve"><value>Le Proiezioni mostrano dove sarà il tuo patrimonio in futuro, basandosi sui trend storici.</value></data>
   <data name="HelpCompare" xml:space="preserve"><value>Confronta due snapshot per vedere cosa è cambiato tra un periodo e l'altro.</value></data>
+  <data name="HelpInvestments" xml:space="preserve"><value>Gli Investimenti mostrano tutti i tuoi asset finanziari: azioni, ETF, fondi. Traccia costo carico, valore attuale e performance.</value></data>
+  <data name="HelpInterests" xml:space="preserve"><value>Gli Interessi mostrano i rendimenti accumulati sui tuoi conti deposito e strumenti a tasso fisso.</value></data>
+  <data name="HelpPension" xml:space="preserve"><value>Previdenza e Assicurazioni: fondi pensione, polizze vita, TFR. Traccia contributi versati e valore maturato.</value></data>
+  <data name="HelpDataManagement" xml:space="preserve"><value>Gestione Dati: importa ed esporta i tuoi dati in formato JSON o CSV per backup o migrazione.</value></data>
   <data name="GotIt" xml:space="preserve"><value>Ho capito</value></data>
   <data name="CloseMonth" xml:space="preserve"><value>Chiudi Mese</value></data>
   <data name="EditMonth" xml:space="preserve"><value>Modifica Mese</value></data>

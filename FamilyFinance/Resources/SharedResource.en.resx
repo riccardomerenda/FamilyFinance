@@ -593,6 +593,10 @@
   <data name="HelpPortfolios" xml:space="preserve"><value>Portfolios group your investments. You can track stocks, ETFs, funds and calculate returns.</value></data>
   <data name="HelpProjections" xml:space="preserve"><value>Projections show where your wealth will be in the future, based on historical trends.</value></data>
   <data name="HelpCompare" xml:space="preserve"><value>Compare two snapshots to see what changed between one period and another.</value></data>
+  <data name="HelpInvestments" xml:space="preserve"><value>Investments show all your financial assets: stocks, ETFs, funds. Track cost basis, current value and performance.</value></data>
+  <data name="HelpInterests" xml:space="preserve"><value>Interests show accumulated returns on your savings accounts and fixed-rate instruments.</value></data>
+  <data name="HelpPension" xml:space="preserve"><value>Pension &amp; Insurance: pension funds, life insurance, retirement accounts. Track contributions and accrued value.</value></data>
+  <data name="HelpDataManagement" xml:space="preserve"><value>Data Management: import and export your data in JSON or CSV format for backup or migration.</value></data>
   <data name="GotIt" xml:space="preserve"><value>Got it</value></data>
   <data name="CloseMonth" xml:space="preserve"><value>Close Month</value></data>
   <data name="EditMonth" xml:space="preserve"><value>Edit Month</value></data>

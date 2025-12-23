@@ -7,6 +7,18 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.6] - 2025-12-23 🎯 TOOLTIPS & UX FIXES
+
+### 🔧 Bug Fixes
+- **Dashboard Double Load**: Aggiunto flag `_initialized` per prevenire doppio caricamento durante prerendering Blazor
+- **HelpTooltip**: Ridisegnato come modal centrato per massima visibilità e leggibilità
+
+### ✨ New Features
+- **Tooltips su tutte le pagine**: Aggiunti HelpTooltip a Conti, Investimenti, Interessi, Previdenza e Gestione Dati
+- **8 nuove traduzioni Help***: Descrizioni complete per ogni sezione (IT/EN)
+
+---
+
 ## [3.10.5] - 2025-12-23 🌍 LOCALIZATION & UX POLISH
 
 ### 🌍 Localization

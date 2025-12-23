@@ -41,7 +41,10 @@ else
         <!-- Page Header -->
         <div class="flex items-center justify-between animate-in">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["AccumulatedInterests"]</h1>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">@L["AccumulatedInterests"]</h1>
+                    <HelpTooltip Title="@L["Interests"]" Content="@L["HelpInterests"]" />
+                </div>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">@L["InterestsPageDesc"]</p>
             </div>
             <a href="/accounts" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
