@@ -7,6 +7,17 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.7] - 2025-12-23 🎯 TOOLTIP PORTAL FIX
+
+### 🔧 Bug Fixes
+- **HelpTooltip Portal**: Risolto problema z-index tooltip nascosto da altri elementi
+  - Tooltip ora renderizzato via JavaScript direttamente nel `<body>` 
+  - Posizione calcolata dinamicamente dalla posizione del pulsante `?`
+  - Colori adattati automaticamente a tema dark/light
+  - z-index 99999 garantisce visibilità sopra tutti gli elementi
+
+---
+
 ## [3.10.6] - 2025-12-23 🎯 TOOLTIPS & UX FIXES
 
 ### 🔧 Bug Fixes
