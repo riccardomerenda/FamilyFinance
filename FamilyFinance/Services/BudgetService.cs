@@ -84,7 +84,8 @@ public class BudgetService : IBudgetService
         return ServiceResult.Ok();
     }
 
-
+    // Legacy method for backward compatibility
+    public async Task SaveCategoryAsync(BudgetCategory category) => await SaveCategoryAsync(category, null);
 
     public async Task<ServiceResult> DeleteCategoryAsync(int id, string? userId = null)
     {
@@ -107,7 +108,8 @@ public class BudgetService : IBudgetService
         return ServiceResult.Ok();
     }
 
-
+    // Legacy method for backward compatibility
+    public async Task DeleteCategoryAsync(int id) => await DeleteCategoryAsync(id, null);
 
     public List<BudgetCategory> GetDefaultCategories() => new()
     {

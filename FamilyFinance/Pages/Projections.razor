@@ -1,10 +1,7 @@
 @page "/projections"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@using FamilyFinance.Services.Interfaces
-@inject ISnapshotService Snapshots
-@inject IGoalService Goals
-@inject IAuthService Auth
+@inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthState
@@ -320,7 +317,7 @@ else
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            var user = await Auth.GetUserWithFamilyAsync(userId);
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
 
@@ -331,7 +328,7 @@ else
     async Task LoadData()
     {
         // OPTIMIZED: Single query instead of N+1
-        var summaries = await Snapshots.GetAllWithTotalsAsync(_familyId);
+        var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
         _snapshots = summaries.Select(s => new SnapshotData(s.Date, s.GrandTotal)).ToList();
 
         if (_snapshots.Count >= 2)
@@ -500,7 +497,7 @@ else
 
     async Task LoadGoalsProjection()
     {
-        var goals = await Goals.GetAllAsync(_familyId);
+        var goals = await Finance.GetGoalsAsync(_familyId);
         _goals = new List<GoalProjection>();
         
         foreach (var g in goals.Where(g => !g.IsCompleted))

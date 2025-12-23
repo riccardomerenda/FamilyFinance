@@ -1,12 +1,8 @@
 @page "/goals"
 @using System.Security.Claims
 @using FamilyFinance.Services
-@using FamilyFinance.Models
 @using FamilyFinance.Components
-@using FamilyFinance.Services.Interfaces
-@inject IGoalService GoalSvc
-@inject ISnapshotService Snapshots
-@inject IAuthService Auth
+@inject FinanceService Finance
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
 @inject NotificationService Toast
@@ -20,7 +16,7 @@
         </div>
         <p class="text-gray-500 dark:text-gray-400 mt-1">@L["GoalsDescription"]</p>
     </div>
-    <button @onclick="AddGoal" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
+    <button @onclick="NewGoal" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -299,9 +295,7 @@ else
     Goal? _editing;
     Totals? _t;
     int _familyId;
-    string? _error;
-    bool _showModal;
-    string _deadlineInput = "";
+    string _deadlineInput = "";  // For HTML month input binding
 
     protected override async Task OnInitializedAsync()
     {
@@ -309,105 +303,75 @@ else
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            var user = await Auth.GetUserWithFamilyAsync(userId);
+            var user = await Finance.Auth.GetUserWithFamilyAsync(userId);
             if (user != null) _familyId = user.FamilyId;
         }
-        await LoadData();
+        _goals = await Finance.GetGoalsAsync(_familyId);
+        var l = await Finance.GetLatestSnapshotAsync(_familyId);
+        if (l != null) _t = await Finance.CalculateTotalsAsync(l);
     }
     
-    async Task LoadData()
+    void NewGoal()
     {
-        _goals = await GoalSvc.GetAllAsync(_familyId);
-        var l = await Snapshots.GetLatestAsync(_familyId);
-        if (l != null) _t = await Snapshots.CalculateTotalsAsync(l);
-    }
-    
-    void AddGoal() 
-    {
-        _editing = new Goal 
-        { 
-            FamilyId = _familyId, 
-            Deadline = DateOnly.FromDateTime(DateTime.Today.AddYears(1)),
-            Priority = GoalPriority.Medium,
-            Category = GoalCategory.Liquidity
-        };
+        _editing = new Goal { FamilyId = _familyId };
         _deadlineInput = "";
-        _error = null;
-        _showModal = true; 
     }
-
-    void Edit(Goal goal) 
-    { 
+    
+    void Edit(Goal g)
+    {
         _editing = new Goal 
         { 
-            Id = goal.Id, 
-            FamilyId = goal.FamilyId,
-            Name = goal.Name, 
-            Target = goal.Target, 
-            AllocatedAmount = goal.AllocatedAmount, 
-            Deadline = goal.Deadline,
-            Priority = goal.Priority,
-            Category = goal.Category,
-            ShowMonthlyTarget = goal.ShowMonthlyTarget
-        }; 
-        _deadlineInput = goal.Deadline?.ToString("yyyy-MM") ?? "";
-        _error = null;
-        _showModal = true; 
+            Id = g.Id, 
+            Name = g.Name, 
+            Target = g.Target, 
+            AllocatedAmount = g.AllocatedAmount, 
+            Deadline = g.Deadline, 
+            Priority = g.Priority, 
+            Category = g.Category, 
+            ShowMonthlyTarget = g.ShowMonthlyTarget, 
+            FamilyId = g.FamilyId 
+        };
+        _deadlineInput = g.Deadline?.ToString("yyyy-MM") ?? "";
     }
-
-    async Task Save()
-    {
+    
+    async Task Save() 
+    { 
         try
         {
-            var isNew = _editing.Id == 0;
-            // Parse deadline
+            // Parse deadline from input
             if (!string.IsNullOrEmpty(_deadlineInput) && _deadlineInput.Length >= 7)
             {
-                 if (int.TryParse(_deadlineInput[..4], out var year) &&
-                     int.TryParse(_deadlineInput.Substring(5, 2), out var month))
-                 {
-                     _editing!.Deadline = new DateOnly(year, month, 1);
-                 }
+                if (int.TryParse(_deadlineInput[..4], out var year) && 
+                    int.TryParse(_deadlineInput.Substring(5, 2), out var month))
+                {
+                    _editing!.Deadline = new DateOnly(year, month, 1);
+                }
             }
             else
             {
-                 _editing!.Deadline = null;
+                _editing!.Deadline = null;
             }
-
-            var result = await GoalSvc.SaveAsync(_editing); 
-            if (result.Success)
-            {
-                await LoadData();
-                _showModal = false;
-                _error = null;
-                Toast.ShowSuccess(isNew ? L["GoalCreated"].Value : L["GoalUpdated"].Value);
-            }
-            else
-            {
-                _error = string.Join(", ", result.Errors);
-                Toast.ShowError(_error);
-            }
+            
+            var isNew = _editing!.Id == 0;
+            await Finance.SaveGoalAsync(_editing!); 
+            _editing = null; 
+            await OnInitializedAsync();
+            
+            Toast.ShowSuccess(isNew ? L["GoalCreated"].Value : L["GoalUpdated"].Value);
         }
         catch (Exception ex)
         {
             Toast.ShowError(L["ErrorSavingGoal"].Value + ": " + ex.Message);
         }
     }
-
-    async Task Del(long id)
-    {
+    
+    async Task Del(long id) 
+    { 
         try
         {
-            var result = await GoalSvc.DeleteAsync(id);
-            if (result.Success)
-            {
-                await LoadData();
-                Toast.ShowSuccess(L["GoalDeleted"].Value);
-            }
-            else
-            {
-                Toast.ShowError(string.Join(", ", result.Errors));
-            }
+            await Finance.DeleteGoalAsync(id); 
+            await OnInitializedAsync();
+            Toast.ShowSuccess(L["GoalDeleted"].Value);
         }
         catch (Exception ex)
         {

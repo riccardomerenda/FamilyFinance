@@ -1,0 +1,19 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\obj\Debug\net9.0\Microsoft.CodeAnalysis.Razor.Compiler\Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator\Pages_Index_cshtml.g.cs(69,13): warning CS0162: Unreachable code detected [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Dashboard.razor(514,13): error CS0103: The name '_user' does not exist in the current context [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Dashboard.razor(516,81): error CS0103: The name '_user' does not exist in the current context [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(362,25): warning CS8602: Dereference of a possibly null reference. [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(303,10): warning CS0414: The field 'Goals._showModal' is assigned but its value is never used [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+
+Build FAILED.
+
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\obj\Debug\net9.0\Microsoft.CodeAnalysis.Razor.Compiler\Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator\Pages_Index_cshtml.g.cs(69,13): warning CS0162: Unreachable code detected [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(362,25): warning CS8602: Dereference of a possibly null reference. [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(303,10): warning CS0414: The field 'Goals._showModal' is assigned but its value is never used [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Dashboard.razor(514,13): error CS0103: The name '_user' does not exist in the current context [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Dashboard.razor(516,81): error CS0103: The name '_user' does not exist in the current context [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+    3 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:15.84

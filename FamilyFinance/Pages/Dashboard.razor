@@ -3,15 +3,14 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services.Interfaces
+@using FamilyFinance.Services
 @using FamilyFinance.Components
 @using static FamilyFinance.Components.GuidedTour
-@inject ISnapshotService Snapshots
-@inject IGoalService Goals
+@inject FinanceService Finance
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
-@inject IAuthService Auth
+@inject FamilyFinance.Services.AuthService Auth
 @inject NavigationManager Nav
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
@@ -301,9 +300,6 @@ else
     </div>
 }
 
-@implements IDisposable
-@inject PersistentComponentState ApplicationState
-
 @code {
     private bool _loading = true;
     private Snapshot? _latest;
@@ -312,51 +308,32 @@ else
     private List<Goal>? _goals;
     private int _familyId;
     
-    // State persistence
-    private PersistingComponentStateSubscription _subscription;
-    
     // Tour steps - defined after L is available
     private List<TourStep> _tourSteps = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _subscription = ApplicationState.RegisterOnPersisting(PersistData);
-
-        // Try to restore state
-        if (ApplicationState.TryTakeFromJson<Totals>("dashboard_totals", out var totals) &&
-            ApplicationState.TryTakeFromJson<List<Goal>>("dashboard_goals", out var goals) &&
-            ApplicationState.TryTakeFromJson<Snapshot>("dashboard_latest", out var latest))
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
         {
-            _t = totals!;
-            _goals = goals!;
-            _latest = latest;
-            await BuildCharts(); // Rebuild charts from restored data
-            _loading = false;
+            var appUser = await Auth.GetUserWithFamilyAsync(userId);
+            if (appUser != null)
+            {
+                _familyId = appUser.FamilyId;
+            }
         }
-        else
+        
+        _latest = await Finance.GetLatestSnapshotAsync(_familyId);
+        if (_latest != null)
         {
-            // Fresh load
-            var authState = await AuthState.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!string.IsNullOrEmpty(userId))
-            {
-                var appUser = await Auth.GetUserWithFamilyAsync(userId);
-                if (appUser != null)
-                {
-                    _familyId = appUser.FamilyId;
-                }
-            }
-            
-            _latest = await Snapshots.GetLatestAsync(_familyId);
-            if (_latest != null)
-            {
-                _t = await Snapshots.CalculateTotalsAsync(_latest);
-                _goals = (await Goals.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
-                await BuildCharts();
-            }
-            _loading = false;
+            _t = await Finance.CalculateTotalsAsync(_latest);
+            _goals = (await Finance.GetGoalsAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
+            await BuildCharts();
         }
+        
+        _loading = false;
         
         // Initialize tour steps AFTER loading is complete so DOM elements exist
         if (_latest != null)
@@ -364,22 +341,6 @@ else
             InitializeTourSteps();
             StateHasChanged(); // Trigger re-render so GuidedTour sees the steps
         }
-    }
-
-    private Task PersistData()
-    {
-        if (_latest != null)
-        {
-            ApplicationState.PersistAsJson("dashboard_totals", _t);
-            ApplicationState.PersistAsJson("dashboard_goals", _goals);
-            ApplicationState.PersistAsJson("dashboard_latest", _latest);
-        }
-        return Task.CompletedTask;
-    }
-
-    void IDisposable.Dispose()
-    {
-        _subscription.Dispose();
     }
     
     private void InitializeTourSteps()
@@ -438,28 +399,7 @@ else
 
     async Task BuildCharts()
     {
-        // If restoring state, we might not have _familyId explicitly set if we skipped the auth check
-        // But we have _t which contains the data we need for the charts except the trend line which needs history.
-        // For the trend line, we still need to fetch history or persist it. 
-        // Fetching history is fast, but let's be safe and fetch if needed, 
-        // OR we could persist the chart config itself if it was serializable (but it's an anon object).
-        
-        // Let's refetch history for the trend chart to keep payload small, it's usually fast.
-        // Warning: If we are in restored state, _familyId might be 0.
-        // We should probably ensure _familyId is set even in restore path or persist the chart data.
-        
-        if (_familyId == 0)
-        {
-             var authState = await AuthState.GetAuthenticationStateAsync();
-             var userId = authState.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-             if (!string.IsNullOrEmpty(userId))
-             {
-                 var appUser = await Auth.GetUserWithFamilyAsync(userId);
-                 if (appUser != null) _familyId = appUser.FamilyId;
-             }
-        }
-
-        var summaries = await Snapshots.GetAllWithTotalsAsync(_familyId);
+        var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
         var full = summaries.Select(s => (d: s.Date.ToString("MM/yy"), v: s.GrandTotal)).ToList();
 
         _trendConfig = new

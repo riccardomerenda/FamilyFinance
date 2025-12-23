@@ -1,11 +1,9 @@
 @page "/budget"
 @using System.Security.Claims
 @using FamilyFinance.Components
-@using FamilyFinance.Services.Interfaces
-@inject IBudgetService BudgetSvc
-@inject IAuthService Auth
+@inject FinanceService Finance
+@inject FamilyFinance.Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
-@inject NotificationService Toast
 @inject IStringLocalizer<SharedResource> L
 @attribute [Authorize]
 
@@ -215,7 +213,7 @@ else
 
     async Task LoadCategories()
     {
-        _categories = await BudgetSvc.GetCategoriesAsync(_familyId);
+        _categories = await Finance.GetBudgetCategoriesAsync(_familyId);
         _totalBudget = _categories.Sum(c => c.MonthlyBudget);
     }
 
@@ -236,38 +234,21 @@ else
     async Task Save()
     {
         if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
-        
-        try 
-        {
-            var result = await BudgetSvc.SaveCategoryAsync(_editing);
-            if (result.Success)
-            {
-               var isNew = _editing.Id == 0;
-               _editing = null;
-               await LoadCategories();
-               Toast.ShowSuccess(isNew ? L["CategoryCreated"] : L["CategoryUpdated"]);
-            }
-            else
-            {
-               Toast.ShowError(string.Join(", ", result.Errors));
-            }
-        }
-        catch(Exception ex)
-        {
-            Toast.ShowError(L["ErrorSavingCategory"] + ": " + ex.Message);
-        }
+        await Finance.SaveBudgetCategoryAsync(_editing);
+        _editing = null;
+        await LoadCategories();
     }
 
     async Task Delete(int id)
     {
-        await BudgetSvc.DeleteCategoryAsync(id);
+        await Finance.DeleteBudgetCategoryAsync(id);
         await LoadCategories();
     }
 
     async Task InitializeDefaults()
     {
-        await BudgetSvc.InitializeCategoriesAsync(_familyId);
+        await Finance.InitializeBudgetCategoriesAsync(_familyId);
         await LoadCategories();
     }
 }
-```
+

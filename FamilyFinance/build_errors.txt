@@ -1,0 +1,23 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\obj\Debug\net9.0\Microsoft.CodeAnalysis.Razor.Compiler\Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator\Pages_Index_cshtml.g.cs(69,13): warning CS0162: Unreachable code detected [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Services\WizardState.cs(47,38): error CS1061: 'IAccountService' does not contain a definition for 'GetAccountsAsync' and no accessible extension method 'GetAccountsAsync' accepting a first argument of type 'IAccountService' could be found (are you missing a using directive or an assembly reference?) [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(21,53): error CS0117: 'AccountCategory' does not contain a definition for 'Bank' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(22,53): error CS0117: 'AccountCategory' does not contain a definition for 'Cash' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(23,53): error CS0117: 'AccountCategory' does not contain a definition for 'MobilePayment' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(362,25): warning CS8602: Dereference of a possibly null reference. [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(303,10): warning CS0414: The field 'Goals._showModal' is assigned but its value is never used [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+
+Build FAILED.
+
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\obj\Debug\net9.0\Microsoft.CodeAnalysis.Razor.Compiler\Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator\Pages_Index_cshtml.g.cs(69,13): warning CS0162: Unreachable code detected [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(362,25): warning CS8602: Dereference of a possibly null reference. [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Pages\Goals.razor(303,10): warning CS0414: The field 'Goals._showModal' is assigned but its value is never used [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Services\WizardState.cs(47,38): error CS1061: 'IAccountService' does not contain a definition for 'GetAccountsAsync' and no accessible extension method 'GetAccountsAsync' accepting a first argument of type 'IAccountService' could be found (are you missing a using directive or an assembly reference?) [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(21,53): error CS0117: 'AccountCategory' does not contain a definition for 'Bank' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(22,53): error CS0117: 'AccountCategory' does not contain a definition for 'Cash' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\Components\Wizard\Steps\LiquidityStep.razor(23,53): error CS0117: 'AccountCategory' does not contain a definition for 'MobilePayment' [C:\Users\riccardo-dev\Development\FamilyFinance\FamilyFinance\FamilyFinance.csproj]
+    3 Warning(s)
+    4 Error(s)
+
+Time Elapsed 00:00:07.30

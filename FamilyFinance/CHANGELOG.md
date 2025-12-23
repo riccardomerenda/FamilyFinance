@@ -7,6 +7,23 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.9.2] - 2025-12-23 🧙‍♂️ MONTHLY CLOSING WIZARD
+
+### 🧙‍♂️ Monthly Closing Wizard
+Nuovo strumento guidato per semplificare la chiusura mensile del budget e del patrimonio.
+- **Wizard a step**: Processo guidato in 4 passaggi (Liquidità, Investimenti, Budget, Riepilogo).
+- **Auto-fill intelligente**: Pre-popola i dati in base allo snapshot precedente per velocizzare l'inserimento.
+- **Editing flessibile**: Permette di creare nuovi snapshot o aggiornare quelli esistenti ("Modifica Mese").
+- **Dashboard Integration**: Accesso diretto dalla Dashboard con pulsante contestuale.
+
+### ✨ UX Improvements
+- **Dashboard Refresh**: Aggiornamento automatico dei dati alla chiusura del wizard.
+- **Toast Notifications**: Feedback immediato al salvataggio dei dati.
+- **Localization**: Traduzione completa IT/EN del wizard.
+- **Date Formatting**: Migliorata la visualizzazione delle date nel riepilogo.
+
+---
+
 ## [3.8.0] - 2025-12-22 🛡️ SECURITY & TESTING
 
 ### 🛡️ Security Hardening
