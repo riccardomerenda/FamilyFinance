@@ -32,6 +32,7 @@
 | 📊 **Interactive Dashboard** | Trend charts, composition breakdowns, net worth cards |
 | 💼 **Investment Portfolio** | Track assets with cost basis and gain/loss |
 | 📅 **Monthly Wizard** | Guided 4-step closing workflow |
+| 🔄 **Import History (BETA)** | View import logs and smart revert changes |
 | 💸 **Budget Tracking** | Expense categories with monthly limits |
 | 🌍 **Multi-language** | Italian & English |
 | 👨‍👩‍👧 **Multi-user** | Family accounts with role-based access |
