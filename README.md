@@ -1,11 +1,25 @@
-# FamilyFinance 💰
+<p align="center">
+  <img src="https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet" alt=".NET 9.0">
+  <img src="https://img.shields.io/badge/Blazor-Server-512BD4?style=for-the-badge&logo=blazor" alt="Blazor Server">
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite" alt="SQLite">
+  <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Deploy-Fly.io-8B5CF6?style=for-the-badge&logo=fly.io" alt="Fly.io">
+</p>
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![Blazor](https://img.shields.io/badge/Blazor-Server-512BD4?logo=blazor)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Deploy](https://img.shields.io/badge/Deploy-Fly.io-8B5CF6?logo=fly.io)](https://fly.io)
+<h1 align="center">💰 FamilyFinance</h1>
 
-> **Gestione patrimonio familiare** — Monitora liquidità, investimenti e obiettivi in un'unica dashboard.
+<p align="center">
+  <strong>Personal & Family Wealth Management Dashboard</strong><br>
+  Track liquidity, investments, goals, and expenses — all in one place.
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-screenshots">Screenshots</a> •
+  <a href="#-deployment">Deployment</a>
+</p>
 
 ---
 
@@ -13,39 +27,44 @@
 
 | Feature | Description |
 |---------|-------------|
-| 📸 **Snapshot Mensili** | Cattura lo stato delle finanze e confronta nel tempo |
-| 🎯 **Obiettivi** | Imposta target di risparmio con progress tracking |
-| 📊 **Dashboard Interattiva** | Grafici trend e composizione patrimonio |
-| 💼 **Portfolio Investimenti** | Traccia asset con costo carico e gain/loss |
-| 📅 **Wizard Chiusura Mese** | Procedura guidata in 4 step |
-| 🌍 **Multi-lingua** | Italiano / English |
-| 👨‍👩‍👧 **Multi-utente** | Famiglia con account separati |
-| 🔒 **Demo Mode** | Prova l'app con dati di esempio |
+| 📸 **Monthly Snapshots** | Capture financial state and compare over time |
+| 🎯 **Goal Tracking** | Set savings targets with progress visualization |
+| 📊 **Interactive Dashboard** | Trend charts, composition breakdowns, net worth cards |
+| 💼 **Investment Portfolio** | Track assets with cost basis and gain/loss |
+| 📅 **Monthly Wizard** | Guided 4-step closing workflow |
+| 💸 **Budget Tracking** | Expense categories with monthly limits |
+| 🌍 **Multi-language** | Italian & English |
+| 👨‍👩‍👧 **Multi-user** | Family accounts with role-based access |
+| 🎭 **Demo Mode** | Try with sample data, no signup required |
+| 🌙 **Dark Mode** | Beautiful UI in light and dark themes |
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone
+# Clone the repository
 git clone https://github.com/riccardomerenda/FamilyFinance.git
 cd FamilyFinance/FamilyFinance
 
-# Run
+# Run the application
 dotnet run
 ```
 
-Apri [http://localhost:5044](http://localhost:5044)
+Open your browser at **http://localhost:5044**
+
+> 💡 **Demo Mode**: Use email `demo@example.com` with any password to explore with sample data!
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠 Tech Stack
 
-- **Backend**: ASP.NET Core 9, Blazor Server
-- **Database**: SQLite + Entity Framework Core
-- **Auth**: ASP.NET Identity
-- **UI**: Tailwind CSS (custom), Chart.js
-- **Deploy**: Docker, Fly.io
+- **Framework**: ASP.NET Core 9 + Blazor Server
+- **Database**: SQLite with Entity Framework Core
+- **Authentication**: ASP.NET Identity with role-based authorization
+- **UI/UX**: Custom Tailwind CSS + Glassmorphism design
+- **Charts**: Chart.js integration
+- **Deployment**: Docker + Fly.io
 
 ---
 
@@ -53,25 +72,44 @@ Apri [http://localhost:5044](http://localhost:5044)
 
 ```
 FamilyFinance/
-├── Components/       # Blazor components (Wizard, Tour, Charts)
-├── Pages/           # Razor pages (Dashboard, Snapshots, Goals...)
-├── Services/        # Business logic (granular services)
-├── Models/          # Entity models
-├── Data/            # EF Core DbContext
-└── Resources/       # Localization (it-IT, en-US)
+├── Components/       # Reusable Blazor components
+│   ├── Dashboard/    # Dashboard widgets
+│   └── Wizard/       # Monthly closing wizard
+├── Pages/            # Application pages
+├── Services/         # Business logic layer
+│   └── Interfaces/   # Service contracts
+├── Models/           # Entity models
+├── Data/             # EF Core DbContext
+└── Resources/        # Localization files
 ```
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker Deployment
 
 ```bash
+# Build the image
 docker build -t familyfinance .
-docker run -p 8080:8080 familyfinance
+
+# Run locally
+docker run -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Production familyfinance
+```
+
+### Fly.io
+
+```bash
+fly launch
+fly deploy
 ```
 
 ---
 
 ## 📄 License
 
-MIT — [Riccardo Merenda](https://github.com/riccardomerenda)
+MIT License © [Riccardo Merenda](https://github.com/riccardomerenda)
+
+---
+
+<p align="center">
+  Made with ❤️ for families who care about their financial future
+</p>

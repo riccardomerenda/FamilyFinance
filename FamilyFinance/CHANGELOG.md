@@ -7,6 +7,21 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.5] - 2025-12-23 🌍 LOCALIZATION & UX POLISH
+
+### 🌍 Localization
+- **Wizard Strings**: Aggiunte 16 stringhe mancanti per wizard chiusura mese (IT/EN)
+- **Keys Fixed**: CloseMonth, EditMonth, OperativeMonth, WizardStep*, WizardNext/Previous/Finish, MonthClosedSuccess, etc.
+
+### 🎨 UX Improvements  
+- **HelpTooltip Redesigned**: Ora appare come modal centrato per massima visibilità
+- **README.md**: Nuovo README moderno in inglese con badge, sezioni chiare e quick start
+
+### 🧹 Cleanup
+- **Duplicate Keys Removed**: Rimossi duplicati nei file .resx che causavano warnings
+
+---
+
 ## [3.10.4] - 2025-12-23 🔧 STABILIZATION
 
 ### 🔧 Bug Fixes
