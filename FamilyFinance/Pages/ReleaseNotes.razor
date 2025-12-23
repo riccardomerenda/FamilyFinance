@@ -99,6 +99,23 @@
     {
         new ReleaseInfo
         {
+            Version = "3.9.2",
+            Date = new DateTime(2025, 12, 23),
+            Emoji = "🚑",
+            IsMajor = false,
+            Title = "Hotfix: Crash Dashboard & Auth",
+            Sections = new List<ReleaseSection>
+            {
+                new("🛠️", "Bug Fixes", new List<string>
+                {
+                    "Risolto crash runtime nella Dashboard causato da cicli di serializzazione JSON (PersistentComponentState)",
+                    "Fix errore 'InvalidOperationException' sull'iniezione di AuthService (ora usa IAuthService)",
+                    "Aggiunto [JsonIgnore] alle proprietà di navigazione circolari"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "3.9.1",
             Date = new DateTime(2025, 12, 23),
             Emoji = "🧹",
@@ -385,6 +402,23 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "3.9.2",
+            Date = new DateTime(2025, 12, 23),
+            Emoji = "🚑",
+            IsMajor = false,
+            Title = "Hotfix: Dashboard Crash & Auth",
+            Sections = new List<ReleaseSection>
+            {
+                new("🛠️", "Bug Fixes", new List<string>
+                {
+                    "Fixed runtime crash in Dashboard caused by JSON serialization cycles (PersistentComponentState)",
+                    "Fixed 'InvalidOperationException' on AuthService injection (now uses IAuthService)",
+                    "Added [JsonIgnore] to circular navigation properties"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "3.9.1",

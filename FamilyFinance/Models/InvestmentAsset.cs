@@ -1,12 +1,16 @@
+using System.Text.Json.Serialization;
+
 namespace FamilyFinance.Models;
 
 public class InvestmentAsset
 {
     public int Id { get; set; }
     public int SnapshotId { get; set; }
+    [JsonIgnore]
     public Snapshot Snapshot { get; set; } = default!;
     
     public int? PortfolioId { get; set; }
+    [JsonIgnore]
     public Portfolio? Portfolio { get; set; }
     
     public string Broker { get; set; } = "Directa";
