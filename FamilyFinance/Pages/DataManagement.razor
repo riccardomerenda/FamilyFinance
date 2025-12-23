@@ -5,8 +5,13 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Authorization
-@using FamilyFinance.Services
-@inject FinanceService Finance
+@using FamilyFinance.Services.Interfaces
+@inject IImportExportService ImportExportService
+@inject ISnapshotService SnapshotService
+@inject IGoalService GoalService
+@inject IPortfolioService PortfolioService
+@inject IBudgetService BudgetService
+@inject IAccountService AccountService
 @inject IJSRuntime JS
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
@@ -361,7 +366,7 @@
                 return;
             }
 
-            _importPreview = await Finance.PreviewImportAsync(backup, _familyId);
+            _importPreview = await ImportExportService.PreviewImportAsync(backup, _familyId);
         }
         catch (JsonException ex)
         {
@@ -384,7 +389,7 @@
         
         try
         {
-            _importResult = await Finance.ImportDataAsync(_importPreview.Data!, _replaceExisting, _familyId);
+            _importResult = await ImportExportService.ImportDataAsync(_importPreview.Data!, _replaceExisting, _familyId);
             _importPreview = null;
         }
         catch (Exception ex)
@@ -413,11 +418,11 @@
     {
         try
         {
-            var snapshots = await Finance.GetSnapshotsAsync(_familyId);
+            var snapshots = await SnapshotService.GetAllAsync(_familyId);
             var fullSnapshots = new List<object>();
             foreach (var s in snapshots) 
             { 
-                var snap = await Finance.GetSnapshotAsync(s.Id); 
+                var snap = await SnapshotService.GetByIdAsync(s.Id); 
                 if (snap != null)
                 {
                     fullSnapshots.Add(new
@@ -432,10 +437,10 @@
                 }
             }
             
-            var accounts = await Finance.GetAccountsAsync(_familyId);
-            var goals = await Finance.GetGoalsAsync(_familyId);
-            var portfolios = await Finance.GetPortfoliosAsync(_familyId);
-            var budgetCategories = await Finance.GetBudgetCategoriesAsync(_familyId);
+            var accounts = await AccountService.GetAllAsync(_familyId);
+            var goals = await GoalService.GetAllAsync(_familyId);
+            var portfolios = await PortfolioService.GetAllAsync(_familyId);
+            var budgetCategories = await BudgetService.GetCategoriesAsync(_familyId);
             
             var backup = new 
             { 
@@ -465,7 +470,7 @@
     {
         try
         {
-            var summaries = await Finance.GetSnapshotsWithTotalsAsync(_familyId);
+            var summaries = await SnapshotService.GetAllWithTotalsAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Liquidità,Interessi,Investimenti Costo,Investimenti Valore,Investimenti G/L,Crediti,Previdenza Contributi,Previdenza Valore,Previdenza G/L,Totale Corrente,Totale Proiettato,Patrimonio Netto");
             
@@ -489,13 +494,13 @@
     {
         try
         {
-            var all = await Finance.GetSnapshotsAsync(_familyId);
+            var all = await SnapshotService.GetAllAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Data,Portafoglio,Asset,Costo Carico,Valore,Guadagno/Perdita,Performance %");
             
             foreach (var s in all.OrderBy(x => x.SnapshotDate))
             {
-                var sn = await Finance.GetSnapshotAsync(s.Id);
+                var sn = await SnapshotService.GetByIdAsync(s.Id);
                 if (sn == null) continue;
                 
                 foreach (var inv in sn.Investments)
@@ -522,7 +527,7 @@
     {
         try
         {
-            var goals = await Finance.GetGoalsAsync(_familyId);
+            var goals = await GoalService.GetAllAsync(_familyId);
             var sb = new StringBuilder();
             sb.AppendLine("Nome,Target,Allocato,Mancante,Progresso %,Scadenza,Priorità,Completato");
             

@@ -132,7 +132,7 @@ builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();
 
 // Legacy facade (will be removed after full migration)
-builder.Services.AddScoped<FinanceService>();
+// builder.Services.AddScoped<FinanceService>();
 
 // Demo data seeder
 builder.Services.AddScoped<DemoDataSeeder>();
