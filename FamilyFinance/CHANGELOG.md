@@ -7,6 +7,25 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.3] - 2025-12-23 ✨ MONTHLY CLOSING WIZARD
+
+### ✨ New Features
+- **Monthly Closing Wizard**: Nuovo wizard guidato a 4 step per la chiusura mensile:
+  - Step 1: Liquidità (saldi conti correnti, depositi, previdenza)
+  - Step 2: Investimenti (asset con costo carico e valore corrente)
+  - Step 3: Spese (spese mensili per categoria budget)
+  - Step 4: Riepilogo (summary con totali e conferma)
+- **Contextual Action Badge**: Pulsante principale contestuale ("Chiudi Mese" se non chiuso, "Modifica Mese" se già chiuso)
+- **Operative Month Badge**: Badge informativo con mese operativo corrente e indicatore di stato
+
+### 🎨 UI Improvements
+- Wizard modal centrato con glassmorphism design
+- Progress indicator cliccabile per navigazione tra step
+- Progress bar per spese vs budget con indicatori di colore
+- Toast notification al completamento
+
+---
+
 ## [3.10.2] - 2025-12-23 🚑 CRITICAL RESTORE
 
 ### 🚑 Critical Fix

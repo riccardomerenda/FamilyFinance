@@ -127,6 +127,7 @@ builder.Services.AddScoped<AuthService>(); // Temporary Keep self-registration f
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
 builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
+builder.Services.AddScoped<WizardStateService>();   // Monthly closing wizard state
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();
