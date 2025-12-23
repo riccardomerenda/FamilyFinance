@@ -7,6 +7,22 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.8] - 2025-12-23 🎯 DASHBOARD INSIGHTS & AUTO-TOUR
+
+### ✨ New Features
+- **Dashboard Proactive Insights**: Nuovo sistema di feedback intelligente basato sui dati finanziari.
+  - 🎉 Celebrazioni per crescita patrimonio e obiettivi raggiunti.
+  - ⚠️ Avvisi critici per superamento budget o scadenze imminenti.
+  - 🎯 Suggerimenti su progressi goal e gestione conti.
+- **Auto-start GuidedTour**: Il tour guidato parte ora automaticamente per i nuovi utenti (tracciato via localStorage).
+
+### 🔧 Improvements
+- Creato `InsightService` per logica analisi dati.
+- Nuovo componente `InsightCard` con design moderno e icone dinamiche.
+- Supporto completo multilingua (IT/EN) per tutti i messaggi di insight.
+
+---
+
 ## [3.10.7] - 2025-12-23 🎯 TOOLTIP PORTAL FIX
 
 ### 🔧 Bug Fixes

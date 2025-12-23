@@ -4,10 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.10.7</Version>
-    <AssemblyVersion>3.10.7.0</AssemblyVersion>
-    <FileVersion>3.10.7.0</FileVersion>
-    <InformationalVersion>3.10.7</InformationalVersion>
+    <Version>3.10.8</Version>
+    <AssemblyVersion>3.10.8.0</AssemblyVersion>
+    <FileVersion>3.10.8.0</FileVersion>
+    <InformationalVersion>3.10.8</InformationalVersion>
     <Product>FamilyFinance</Product>
     <Description>Family wealth management application</Description>
   </PropertyGroup>
