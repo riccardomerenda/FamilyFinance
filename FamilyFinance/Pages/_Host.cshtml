@@ -311,6 +311,85 @@
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
         }
+        
+        // Help Tooltip functions - renders tooltip to body for proper z-index
+        let helpTooltipElement = null;
+        let helpTooltipBackdrop = null;
+        
+        function showHelpTooltip(buttonElement, title, content, buttonText) {
+            hideHelpTooltip(); // Clean up any existing
+            
+            const rect = buttonElement.getBoundingClientRect();
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            // Create backdrop
+            helpTooltipBackdrop = document.createElement('div');
+            helpTooltipBackdrop.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99998;';
+            helpTooltipBackdrop.onclick = hideHelpTooltip;
+            document.body.appendChild(helpTooltipBackdrop);
+            
+            // Create tooltip
+            helpTooltipElement = document.createElement('div');
+            
+            // Calculate position
+            let top = rect.bottom + 8;
+            let left = rect.left;
+            const tooltipWidth = 288;
+            
+            // Keep within viewport
+            if (left + tooltipWidth > window.innerWidth - 16) {
+                left = window.innerWidth - tooltipWidth - 16;
+            }
+            if (left < 16) left = 16;
+            if (top + 200 > window.innerHeight) {
+                top = rect.top - 200 - 8; // Show above if not enough space below
+            }
+            
+            const bgColor = isDark ? '#1f2937' : '#ffffff';
+            const borderColor = isDark ? '#374151' : '#e5e7eb';
+            const textColor = isDark ? '#d1d5db' : '#4b5563';
+            const btnBgColor = isDark ? '#374151' : '#f3f4f6';
+            const btnTextColor = isDark ? '#d1d5db' : '#374151';
+            
+            helpTooltipElement.style.cssText = `position:fixed;top:${top}px;left:${left}px;width:${tooltipWidth}px;z-index:99999;font-family:Outfit,system-ui,sans-serif;`;
+            helpTooltipElement.innerHTML = `
+                <div style="background:${bgColor};border-radius:12px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.4);border:1px solid ${borderColor};overflow:hidden;">
+                    <div style="background:linear-gradient(to right,#6366f1,#8b5cf6);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <svg style="width:16px;height:16px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span style="color:white;font-weight:500;font-size:14px;">${title}</span>
+                        </div>
+                        <button onclick="hideHelpTooltip()" style="color:rgba(255,255,255,0.7);background:none;border:none;cursor:pointer;padding:4px;">
+                            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div style="padding:16px;">
+                        <p style="color:${textColor};font-size:14px;line-height:1.6;margin:0;">${content}</p>
+                    </div>
+                    <div style="padding:0 16px 12px;">
+                        <button onclick="hideHelpTooltip()" style="width:100%;padding:8px;background:${btnBgColor};color:${btnTextColor};border:none;border-radius:8px;font-weight:500;font-size:14px;cursor:pointer;">
+                            ${buttonText}
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(helpTooltipElement);
+        }
+        
+        function hideHelpTooltip() {
+            if (helpTooltipBackdrop) {
+                helpTooltipBackdrop.remove();
+                helpTooltipBackdrop = null;
+            }
+            if (helpTooltipElement) {
+                helpTooltipElement.remove();
+                helpTooltipElement = null;
+            }
+        }
     </script>
 </body>
 </html>
