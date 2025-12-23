@@ -11,10 +11,10 @@
     @if (_isOpen)
     {
         <!-- Backdrop -->
-        <div class="fixed inset-0 z-40" @onclick="Close"></div>
+        <div class="fixed inset-0 z-[9990]" @onclick="Close"></div>
         
         <!-- Tooltip -->
-        <div class="absolute z-50 @GetPositionClass() w-72 animate-in slide-in-from-bottom-4">
+        <div class="absolute z-[9991] @GetPositionClass() w-72 animate-in slide-in-from-bottom-4">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <!-- Header -->
                 <div class="bg-gradient-to-r from-primary-500 to-accent-500 px-4 py-2 flex items-center justify-between">
