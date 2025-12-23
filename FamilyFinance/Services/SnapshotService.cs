@@ -277,25 +277,40 @@ public class SnapshotService : ISnapshotService
             ))
             .ToListAsync();
     }
+    
     public async Task SaveExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses)
     {
-        var snapshot = await _db.Snapshots
-            .Include(s => s.Expenses)
-            .FirstOrDefaultAsync(s => s.Id == snapshotId);
-            
+        var snapshot = await _db.Snapshots.Include(s => s.Expenses).FirstOrDefaultAsync(s => s.Id == snapshotId);
         if (snapshot == null) return;
-
+        
+        // Remove existing expenses
         _db.MonthlyExpenses.RemoveRange(snapshot.Expenses);
-        snapshot.Expenses = expenses.Select(e => new MonthlyExpense
+        
+        // Add new expenses
+        foreach (var (categoryId, amount, notes) in expenses)
         {
-            SnapshotId = snapshotId,
-            CategoryId = e.CategoryId,
-            Amount = e.Amount,
-            Notes = e.Notes
-        }).ToList();
-
+            if (amount > 0)
+            {
+                snapshot.Expenses.Add(new MonthlyExpense
+                {
+                    SnapshotId = snapshotId,
+                    CategoryId = categoryId,
+                    Amount = amount,
+                    Notes = notes
+                });
+            }
+        }
+        
         await _db.SaveChangesAsync();
-        _logger.LogInformation("Saved {Count} expenses for snapshot {SnapshotId}", expenses.Count, snapshotId);
+        _logger.LogInformation("Saved {Count} expenses for snapshot {SnapshotId}", expenses.Count(e => e.Amount > 0), snapshotId);
+    }
+    
+    public async Task<List<MonthlyExpense>> GetExpensesAsync(int snapshotId)
+    {
+        return await _db.MonthlyExpenses
+            .Include(e => e.Category)
+            .Where(e => e.SnapshotId == snapshotId)
+            .ToListAsync();
     }
 }
 

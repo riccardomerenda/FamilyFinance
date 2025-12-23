@@ -594,20 +594,5 @@
   <data name="HelpProjections" xml:space="preserve"><value>Le Proiezioni mostrano dove sarà il tuo patrimonio in futuro, basandosi sui trend storici.</value></data>
   <data name="HelpCompare" xml:space="preserve"><value>Confronta due snapshot per vedere cosa è cambiato tra un periodo e l'altro.</value></data>
   <data name="GotIt" xml:space="preserve"><value>Ho capito</value></data>
-
-  <!-- Monthly Wizard -->
-  <data name="CloseMonth" xml:space="preserve"><value>Chiudi Mese</value></data>
-  <data name="EditMonth" xml:space="preserve"><value>Modifica Mese</value></data>
-  <data name="LastMonth" xml:space="preserve"><value>Ultimo Mese</value></data>
-  <data name="OperativeMonth" xml:space="preserve"><value>Mese Operativo</value></data>
-  <data name="WizardStepLiquidity" xml:space="preserve"><value>Liquidità</value></data>
-  <data name="WizardStepInvestments" xml:space="preserve"><value>Investimenti</value></data>
-  <data name="WizardStepExpenses" xml:space="preserve"><value>Spese</value></data>
-  <data name="WizardStepRecap" xml:space="preserve"><value>Riepilogo</value></data>
-  <data name="WizardNext" xml:space="preserve"><value>Avanti</value></data>
-  <data name="WizardPrevious" xml:space="preserve"><value>Indietro</value></data>
-  <data name="WizardFinish" xml:space="preserve"><value>Completa</value></data>
-  <data name="MonthClosedSuccess" xml:space="preserve"><value>Mese chiuso con successo!</value></data>
-  <data name="MonthUpdatedSuccess" xml:space="preserve"><value>Mese aggiornato con successo!</value></data>
 </root>
 

@@ -7,6 +7,22 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.4] - 2025-12-23 🔧 STABILIZATION
+
+### 🔧 Bug Fixes
+- **Build Warning Removed**: Risolto CS0162 unreachable code in `Index.cshtml`
+- **Guided Tour**: Rimosso backdrop-blur per mantenere visibile l'elemento evidenziato
+- **Help Tooltips**: Corretto z-index per visualizzazione corretta sopra altri elementi
+
+### 📝 Documentation
+- **README.md**: Nuovo README moderno con badge e sezioni concise
+
+### 🧹 Cleanup
+- **Legacy Files Removed**: Eliminati file di build temporanei (`build_errors.txt`, `build_log.txt`)
+- **FinanceService Facade**: Creato facade layer per backward compatibility durante migrazione
+
+---
+
 ## [3.10.3] - 2025-12-23 ✨ MONTHLY CLOSING WIZARD
 
 ### ✨ New Features
