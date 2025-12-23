@@ -7,6 +7,14 @@ e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/)
 
 ---
 
+## [3.10.2] - 2025-12-23 🚑 CRITICAL RESTORE
+
+### 🚑 Critical Fix
+- **File Restore**: Ripristinati file Razor (`Snapshots.razor`, `Investments.razor`, ecc.) accidentalmente rimossi durante il cleanup.
+- **Verification**: Verificato funzionamento pagine precedentemente "rotte" (404/Empty).
+
+---
+
 ## [3.10.1] - 2025-12-23 🔥 DEPLOYMENT HOTFIX
 
 ### 🐛 Critical Bug Fix

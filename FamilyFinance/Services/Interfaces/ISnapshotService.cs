@@ -18,6 +18,8 @@ public interface ISnapshotService
     /// Get all snapshots with their totals in a single optimized query (avoids N+1)
     /// </summary>
     Task<List<SnapshotSummary>> GetAllWithTotalsAsync(int familyId);
+
+    Task SaveExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses);
 }
 
 /// <summary>

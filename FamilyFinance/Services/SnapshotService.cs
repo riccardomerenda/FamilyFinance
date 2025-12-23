@@ -277,5 +277,25 @@ public class SnapshotService : ISnapshotService
             ))
             .ToListAsync();
     }
+    public async Task SaveExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses)
+    {
+        var snapshot = await _db.Snapshots
+            .Include(s => s.Expenses)
+            .FirstOrDefaultAsync(s => s.Id == snapshotId);
+            
+        if (snapshot == null) return;
+
+        _db.MonthlyExpenses.RemoveRange(snapshot.Expenses);
+        snapshot.Expenses = expenses.Select(e => new MonthlyExpense
+        {
+            SnapshotId = snapshotId,
+            CategoryId = e.CategoryId,
+            Amount = e.Amount,
+            Notes = e.Notes
+        }).ToList();
+
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Saved {Count} expenses for snapshot {SnapshotId}", expenses.Count, snapshotId);
+    }
 }
 

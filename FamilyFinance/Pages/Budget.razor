@@ -1,0 +1,255 @@
+@page "/budget"
+@using System.Security.Claims
+@using FamilyFinance.Components
+@using FamilyFinance.Services.Interfaces
+@inject IBudgetService BudgetService
+@inject FamilyFinance.Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@attribute [Authorize]
+
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <div class="flex items-center gap-2">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["BudgetManagement"]</h1>
+            <HelpTooltip Title="@L["Budget"]" Content="@L["HelpBudget"]" />
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["BudgetManagementDesc"]</p>
+    </div>
+    <button @onclick="NewCategory" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        @L["NewCategory"]
+    </button>
+</div>
+
+@if (!_categories.Any())
+{
+    <div class="bento-card text-center py-16 animate-in">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoBudgetCategories"]</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">@L["NoBudgetCategoriesDesc"]</p>
+        <button @onclick="InitializeDefaults" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            @L["InitializeDefaultCategories"]
+        </button>
+    </div>
+}
+else
+{
+    <!-- Budget Summary with Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bento-card p-5 animate-in delay-1">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["TotalMonthlyBudget"]</p>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white money">@_totalBudget.ToString("N0") €</p>
+        </div>
+        <div class="bento-card p-5 animate-in delay-2">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["CategoriesCount"]</p>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@_categories.Count</p>
+        </div>
+        <div class="bento-card p-5 hero-gradient text-white animate-in delay-3">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                    </svg>
+                </div>
+                <p class="text-sm font-medium text-white/80">@L["AveragePerCategory"]</p>
+            </div>
+            <p class="text-2xl font-bold money">@(_categories.Count > 0 ? (_totalBudget / _categories.Count).ToString("N0") : "0") €</p>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in delay-4">
+        @{ var catIdx = 0; }
+        @foreach (var cat in _categories)
+        {
+            var delayClass = $"delay-{Math.Min(catIdx++ % 5 + 1, 5)}";
+            <div class="bento-card p-5 animate-in @delayClass group">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110" style="background-color: @(cat.Color)20">
+                            @cat.Icon
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200">@cat.Name</h3>
+                            @if (cat.MonthlyBudget > 0)
+                            {
+                                <p class="text-lg font-bold money" style="color: @cat.Color">@cat.MonthlyBudget.ToString("N0") €<span class="text-xs font-normal text-gray-400">/@L["Month"]</span></p>
+                            }
+                            else
+                            {
+                                <p class="text-sm text-gray-400 dark:text-gray-500">@L["NoBudgetSet"]</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button @onclick="() => Edit(cat)" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                        </button>
+                        <button @onclick="() => Delete(cat.Id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Edit Modal with Glassmorphism -->
+@if (_editing != null)
+{
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+                @(_editing.Id == 0 ? L["NewCategory"] : L["EditCategory"])
+            </h2>
+            
+            <div class="space-y-4">
+                <!-- Icon Picker -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@L["Icon"]</label>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (var icon in _availableIcons)
+                        {
+                            <button type="button" @onclick="() => _editing.Icon = icon"
+                                class="w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all @(_editing.Icon == icon ? "ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/30" : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700")">
+                                @icon
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Name"]</label>
+                    <input @bind="_editing.Name" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                </div>
+
+                <!-- Color Picker -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@L["Color"]</label>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (var color in _availableColors)
+                        {
+                            <button type="button" @onclick="() => _editing.Color = color"
+                                class="w-8 h-8 rounded-full transition-all @(_editing.Color == color ? "ring-2 ring-offset-2 ring-gray-400 dark:ring-offset-gray-900" : "")"
+                                style="background-color: @color">
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Monthly Budget -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["MonthlyBudget"] (€)</label>
+                    <input type="number" @bind="_editing.MonthlyBudget" step="10" min="0"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">@L["MonthlyBudgetHint"]</p>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button @onclick="Save" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                    @L["Save"]
+                </button>
+                <button @onclick="() => _editing = null" class="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<BudgetCategory> _categories = new();
+    BudgetCategory? _editing;
+    decimal _totalBudget;
+    int _familyId;
+
+    readonly string[] _availableIcons = { "🏠", "🛒", "🚗", "⚡", "🎭", "🏥", "👕", "🍕", "📱", "💰", "✈️", "🎓", "🐕", "🎁", "💊", "🏋️", "📚", "🎮", "☕", "🍺" };
+    readonly string[] _availableColors = { "#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6b7280", "#84cc16", "#3b82f6" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+                await LoadCategories();
+            }
+        }
+    }
+
+    async Task LoadCategories()
+    {
+        _categories = await BudgetService.GetCategoriesAsync(_familyId);
+        _totalBudget = _categories.Sum(c => c.MonthlyBudget);
+    }
+
+    void NewCategory() => _editing = new BudgetCategory { FamilyId = _familyId, Icon = "💰", Color = "#6366f1" };
+    
+    void Edit(BudgetCategory cat) => _editing = new BudgetCategory
+    {
+        Id = cat.Id,
+        Name = cat.Name,
+        Icon = cat.Icon,
+        Color = cat.Color,
+        MonthlyBudget = cat.MonthlyBudget,
+        SortOrder = cat.SortOrder,
+        FamilyId = cat.FamilyId,
+        IsActive = cat.IsActive
+    };
+
+    async Task Save()
+    {
+        if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
+        await BudgetService.SaveCategoryAsync(_editing);
+        _editing = null;
+        await LoadCategories();
+    }
+
+    async Task Delete(int id)
+    {
+        await BudgetService.DeleteCategoryAsync(id);
+        await LoadCategories();
+    }
+
+    async Task InitializeDefaults()
+    {
+        await BudgetService.InitializeCategoriesAsync(_familyId);
+        await LoadCategories();
+    }
+}
+
