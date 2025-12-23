@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Portfolio> Portfolios => Set<Portfolio>();
     public DbSet<BudgetCategory> BudgetCategories => Set<BudgetCategory>();
     public DbSet<MonthlyExpense> MonthlyExpenses => Set<MonthlyExpense>();
+    public DbSet<ImportBatch> ImportBatches => Set<ImportBatch>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }

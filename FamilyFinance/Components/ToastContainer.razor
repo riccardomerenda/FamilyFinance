@@ -63,12 +63,19 @@
         StateHasChanged();
         
         // Auto-remove after duration
-        _ = Task.Delay(toast.DurationMs).ContinueWith(_ =>
+        _ = Task.Delay(toast.DurationMs).ContinueWith(async _ =>
         {
-            InvokeAsync(() =>
+            try 
             {
-                RemoveToast(toast.Id);
-            });
+                await InvokeAsync(() =>
+                {
+                    RemoveToast(toast.Id);
+                });
+            }
+            catch (ObjectDisposedException) 
+            {
+                // Component disposed, ignore
+            }
         });
     }
 

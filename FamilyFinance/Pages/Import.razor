@@ -1,0 +1,511 @@
+@page "/import-wizard"
+@using FamilyFinance.Models
+@using FamilyFinance.Models.Import
+@using FamilyFinance.Services.Interfaces
+@using System.Security.Claims
+@inject ICsvImportService ImportService
+@inject IBudgetService BudgetService
+@inject ISnapshotService SnapshotService
+@inject Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+@attribute [Authorize]
+
+<PageTitle>@L["ImportTransactions"] - FamilyFinance</PageTitle>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                @L["ImportWizardTitle"]
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">@L["ImportWizardSubtitle"]</p>
+        </div>
+        <button @onclick="GoBack" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+            @L["Cancel"]
+        </button>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between relative">
+            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 dark:bg-gray-700 z-0"></div>
+            
+            <!-- Step Holes -->
+            <div class="relative z-10 w-full flex justify-between">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="@StepClass(1) w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 border-gray-50 dark:border-gray-900 transition-all">1</div>
+                    <span class="text-sm font-medium @StepTextClass(1)">@L["ImportStepUpload"]</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="@StepClass(2) w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 border-gray-50 dark:border-gray-900 transition-all">2</div>
+                    <span class="text-sm font-medium @StepTextClass(2)">@L["ImportStepMap"]</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="@StepClass(3) w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 border-gray-50 dark:border-gray-900 transition-all">3</div>
+                    <span class="text-sm font-medium @StepTextClass(3)">@L["ImportStepReview"]</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        
+        @if (_currentStep == 1)
+        {
+            <!-- STEP 1: UPLOAD -->
+            <div class="p-12 text-center">
+                <div class="max-w-xl mx-auto">
+                    <div class="w-24 h-24 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                    </div>
+                    
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">@L["UploadCsvTitle"]</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8">@L["UploadCsvDesc"]</p>
+                    
+                    <InputFile OnChange="LoadFiles" class="hidden" id="fileInput" accept=".csv,.txt" />
+                    
+                    <label for="fileInput" class="cursor-pointer inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/30 hover:scale-105">
+                        @if (_loading)
+                        {
+                            <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Processing...</span>
+                        }
+                        else 
+                        {
+                            <span>@L["SelectFile"]</span>
+                        }
+                    </label>
+                    <p class="mt-4 text-xs text-gray-400">Supported formats: .CSV (Revolut, Intesa, Fineco, etc)</p>
+                </div>
+            </div>
+        }
+        else if (_currentStep == 2)
+        {
+            <!-- STEP 2: MAPPING -->
+            <div class="p-8">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 flex items-center justify-center text-sm font-bold">2</span>
+                    @L["MapColumnsTitle"]
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Config Panel -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <h3 class="font-semibold mb-4 text-sm uppercase tracking-wide text-gray-500">@L["ColumnAssignment"]</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Date Column <span class="text-red-500">*</span></label>
+                                    <select @bind="_mapping.DateIndex" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm p-2.5">
+                                        <option value="-1">-- Select Column --</option>
+                                        @for(int i=0; i<_previewHeaders.Length; i++) {
+                                            <option value="@i">Column @(i+1): @_previewHeaders[i] @GetPreviewValue(i)</option>
+                                        }
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Description Column <span class="text-red-500">*</span></label>
+                                    <select @bind="_mapping.DescriptionIndex" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm p-2.5">
+                                        <option value="-1">-- Select Column --</option>
+                                        @for(int i=0; i<_previewHeaders.Length; i++) {
+                                            <option value="@i">Column @(i+1): @_previewHeaders[i] @GetPreviewValue(i)</option>
+                                        }
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Amount Column <span class="text-red-500">*</span></label>
+                                    <select @bind="_mapping.AmountIndex" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm p-2.5">
+                                        <option value="-1">-- Select Column --</option>
+                                        @for(int i=0; i<_previewHeaders.Length; i++) {
+                                            <option value="@i">Column @(i+1): @_previewHeaders[i] @GetPreviewValue(i)</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <h3 class="font-semibold mb-4 text-sm uppercase tracking-wide text-gray-500">Options</h3>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium mb-1 text-gray-500">Skip Header Row</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" @bind="_mapping.HasHeaderRow" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1 text-gray-500">Date Format</label>
+                                    <input type="text" @bind="_mapping.DateFormat" class="w-full rounded text-sm p-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600" placeholder="dd/MM/yyyy" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview Table -->
+                    <div class="lg:col-span-2">
+                        <h3 class="font-semibold mb-4 text-sm text-gray-500">File Preview (First 5 lines)</h3>
+                        <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        @for(int i=0; i<_previewHeaders.Length; i++) {
+                                            <th class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Col @(i+1)</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                                    @foreach(var row in _previewRows) {
+                                        <tr>
+                                            @foreach(var cell in row) {
+                                                <td class="px-3 py-2 text-gray-600 dark:text-gray-300 whitespace-nowrap overflow-hidden max-w-[150px] text-ellipsis">@cell</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-8 flex justify-end">
+                            <button @onclick="ProcessFile" disabled="@(!IsValidMapping())" 
+                                    class="px-6 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/30">
+                                @L["NextCategorize"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (_currentStep == 3)
+        {
+            <!-- STEP 3: REVIEW & CATEGORIZE -->
+            <div class="flex flex-col h-[calc(100vh-280px)] min-h-[500px]">
+                
+                @if (_importMessages.Any())
+                {
+                    <div class="mx-6 mt-6 p-4 rounded-xl border-l-4 @(_importMessages.Any(m => m.Contains("❌")) ? "border-red-500 bg-red-50 dark:bg-red-900/20" : "border-green-500 bg-green-50 dark:bg-green-900/20") shadow-sm animate-in fade-in slide-in-from-top-2">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 mt-0.5">
+                                @if (_importMessages.Any(m => m.Contains("❌"))) {
+                                    <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                } else {
+                                    <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                }
+                            </div>
+                            <div class="space-y-1">
+                                @foreach(var msg in _importMessages)
+                                {
+                                    <p class="text-sm font-medium @(_importMessages.Any(m => m.Contains("❌")) ? "text-red-800 dark:text-red-200" : "text-green-800 dark:text-green-200")">
+                                        @msg.Replace("❌", "").Replace("✅", "").Trim()
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Toolbar -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-900 dark:text-white">@_transactions.Count(t => t.IsSelected)</span> 
+                            <span class="text-gray-500">selected of @_transactions.Count</span>
+                        </div>
+                        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                        
+                        <!-- Target Month Selector -->
+                        <div class="flex items-center gap-2">
+                             <label class="text-xs font-medium text-gray-500 uppercase">Target:</label>
+                             <select @bind="_targetSnapshotId" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm py-1.5 px-3 max-w-[180px]">
+                                <option value="0">📅 Auto-detect (by Date)</option>
+                                @foreach(var s in _snapshots.OrderByDescending(x => x.SnapshotDate)) {
+                                    <option value="@s.Id">@s.SnapshotDate.ToString("MMMM yyyy")</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                        
+                        <!-- Bulk Actions -->
+                        <div class="flex items-center gap-2">
+                            <select @onchange="BulkAssignCategory" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm py-1.5 px-3">
+                                <option value="">Assign Category...</option>
+                                @foreach(var cat in _categories) {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            </select>
+                            <button @onclick="SelectAll" class="text-xs text-violet-600 hover:underline">Select All</button>
+                            <button @onclick="DeselectAll" class="text-xs text-gray-500 hover:underline">None</button>
+                        </div>
+                    </div>
+                    
+                    <button @onclick="SaveTransactions" class="px-6 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+                        @if (_saving) {
+                            <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        }
+                        @L["ImportSelected"] (@_transactions.Where(t => t.IsSelected).Sum(t => Math.Abs(t.Amount)).ToString("N2"))
+                    </button>
+                </div>
+                
+                <!-- Grid -->
+                <div class="flex-1 overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="w-12 px-4 py-3 text-center"><input type="checkbox" @onchange="@(e => ToggleSelectAll(e.Value is bool b && b))" checked="@IsAllSelected()" class="rounded text-violet-600 focus:ring-violet-500" /></th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                            @foreach(var tx in _transactions) {
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors @(tx.IsSelected ? "bg-violet-50/30 dark:bg-violet-900/10" : "")">
+                                    <td class="px-4 py-3 text-center">
+                                        <input type="checkbox" @bind="tx.IsSelected" class="rounded text-violet-600 focus:ring-violet-500" />
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">@tx.Date.ToString("dd/MM")</td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        @tx.Description
+                                        @if(tx.ConfidenceScore > 80) {
+                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" title="Auto-detected">✨ Smart</span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right font-mono @(tx.Amount < 0 ? "text-red-500" : "text-emerald-500")">
+                                        @tx.Amount.ToString("N2")
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <select @bind="tx.SuggestedCategoryId" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 py-1.5 focus:ring-violet-500 focus:border-violet-500">
+                                            <option value="">Uncategorized</option>
+                                            @foreach(var cat in _categories) {
+                                                <option value="@cat.Id">@cat.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        
+    </div>
+</div>
+
+@code {
+    private int _currentStep = 1;
+    private bool _loading = false;
+    private bool _saving = false;
+    private CsvColumnMapping _mapping = new();
+    private List<string[]> _previewRows = new();
+    private string[] _previewHeaders = Array.Empty<string>();
+    private List<ImportedTransaction> _transactions = new();
+    private List<BudgetCategory> _categories = new();
+    private List<Snapshot> _snapshots = new();
+    private int _targetSnapshotId = 0;
+    private List<string> _importMessages = new();
+    private MemoryStream? _fileStream;
+    private int _familyId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+                _categories = await BudgetService.GetCategoriesAsync(_familyId);
+                _snapshots = await SnapshotService.GetAllAsync(_familyId);
+            }
+        }
+    }
+
+    private string StepClass(int step) => _currentStep == step 
+        ? "bg-violet-600 text-white border-violet-600" 
+        : (_currentStep > step ? "bg-green-500 text-white border-green-500" : "bg-white dark:bg-gray-800 text-gray-400 border-gray-300 dark:border-gray-600");
+        
+    private string StepTextClass(int step) => _currentStep == step 
+        ? "text-violet-600 dark:text-violet-400" 
+        : (_currentStep > step ? "text-green-500" : "text-gray-400");
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        _loading = true;
+        try 
+        {
+            var file = e.File;
+            // Limit size to 5MB
+            if (file.Size > 5120000) return;
+
+            // Copy to memory stream to read multiple times
+            _fileStream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5120000).CopyToAsync(_fileStream);
+            
+            // Preview
+            var preview = await ImportService.PreviewCsvAsync(_fileStream);
+            if (preview.Any())
+            {
+                var maxCols = preview.Max(r => r.Length);
+                _previewHeaders = new string[maxCols]; // Just placeholders
+                _previewRows = preview;
+                
+                // Try auto-detect mapping
+                var header = preview.First();
+                for(int i=0; i<header.Length; i++)
+                {
+                    var h = header[i].ToLower();
+                    if (h.Contains("date") || h.Contains("data")) _mapping.DateIndex = i;
+                    if (h.Contains("desc") || h.Contains("causale") || h.Contains("merchant")) _mapping.DescriptionIndex = i;
+                    if (h.Contains("amount") || h.Contains("importo")) _mapping.AmountIndex = i;
+                }
+                
+                _currentStep = 2;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        _loading = false;
+    }
+
+    private string GetPreviewValue(int colIndex)
+    {
+        if (_previewRows.Count > 1 && colIndex < _previewRows[1].Length)
+            return $" (ex: {_previewRows[1][colIndex]})";
+        return "";
+    }
+
+    private bool IsValidMapping()
+    {
+        return _mapping.DateIndex >= 0 && _mapping.DescriptionIndex >= 0 && _mapping.AmountIndex >= 0;
+    }
+
+    private async Task ProcessFile()
+    {
+        if (_fileStream == null) return;
+        _loading = true;
+        _transactions = await ImportService.ParseCsvAsync(_fileStream, _mapping);
+        
+        // Auto categorize
+        await ImportService.AutoCategorizeAsync(_transactions, _familyId);
+        
+        // Filter out obviously wrong rows (e.g. empty amount or date)
+        _transactions = _transactions.Where(t => t.Amount != 0).ToList();
+        
+        // Pre-select only Expenses (negative amounts usually, OR positive if user mapped that way)
+        // Let's assume user wants to import everything by default
+        
+        _currentStep = 3;
+        _loading = false;
+    }
+    
+    private void BulkAssignCategory(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int catId))
+        {
+            foreach(var t in _transactions.Where(x => x.IsSelected))
+            {
+                t.SuggestedCategoryId = catId;
+            }
+        }
+    }
+    
+    private void SelectAll() => _transactions.ForEach(t => t.IsSelected = true);
+    private void DeselectAll() => _transactions.ForEach(t => t.IsSelected = false);
+    private bool IsAllSelected() => _transactions.All(t => t.IsSelected);
+    
+    private void ToggleSelectAll(bool val)
+    {
+        _transactions.ForEach(t => t.IsSelected = val);
+    }
+
+    private async Task SaveTransactions()
+    {
+        _saving = true;
+        _importMessages.Clear();
+        var toImport = _transactions.Where(t => t.IsSelected).ToList();
+        if (!toImport.Any()) 
+        {
+            _saving = false;
+            return;
+        }
+
+        // Group by Month to handle imports spanning multiple months
+        var byMonth = toImport.GroupBy(t => new { t.Date.Year, t.Date.Month });
+        
+        bool anyError = false;
+
+        // NEW LOGIC: If Target Snapshot is selected, force all there
+        if (_targetSnapshotId > 0)
+        {
+             var expenses = toImport.Select(t => (
+                CategoryId: t.SuggestedCategoryId ?? _categories.FirstOrDefault(c => c.Name == "Vari")?.Id ?? _categories.First().Id,
+                Amount: Math.Abs(t.Amount),
+                Notes: (string?)t.Description
+            )).ToList();
+            
+            await BudgetService.AddImportedExpensesAsync(_targetSnapshotId, expenses);
+            _importMessages.Add($"✅ Imported {expenses.Count} transactions into selected month.");
+        }
+        else 
+        {
+            // AUTO DETECT Logic
+            foreach(var monthGroup in byMonth)
+            {
+                // Find or Create Snapshot for that month
+                var snapshot = _snapshots.FirstOrDefault(s => s.SnapshotDate.Year == monthGroup.Key.Year && s.SnapshotDate.Month == monthGroup.Key.Month);
+                
+                if (snapshot != null)
+                {
+                    var expenses = monthGroup.Select(t => (
+                        CategoryId: t.SuggestedCategoryId ?? _categories.FirstOrDefault(c => c.Name == "Vari")?.Id ?? _categories.First().Id,
+                        Amount: Math.Abs(t.Amount),
+                        Notes: (string?)t.Description
+                    )).ToList();
+                    
+                    await BudgetService.AddImportedExpensesAsync(snapshot.Id, expenses);
+                    _importMessages.Add($"✅ Imported {expenses.Count} transactions for {monthGroup.Key.Month}/{monthGroup.Key.Year}");
+                }
+                else
+                {
+                    _importMessages.Add($"❌ {monthGroup.Key.Month}/{monthGroup.Key.Year} not found. Please create this month in the Dashboard or select a different Target.");
+                    anyError = true;
+                }
+            }
+        }
+        
+        _saving = false;
+        
+        if (!anyError)
+        {
+            await Task.Delay(1000); // Show success briefly
+            Nav.NavigateTo("/dashboard", forceLoad: true);
+        }
+    }
+    
+    private void GoBack()
+    {
+        if (_currentStep > 1) _currentStep--;
+        else Nav.NavigateTo("/dashboard");
+    }
+}

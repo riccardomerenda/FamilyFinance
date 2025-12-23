@@ -1,0 +1,284 @@
+@page "/snapshots/{Id:int}/report"
+@using System.Globalization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using FamilyFinance.Services
+@inject ISnapshotService SnapshotService
+@inject IBudgetService BudgetService
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@inject AuthService Auth
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <button @onclick='() => Nav.NavigateTo("/dashboard")' class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-2 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                @L["BackToDashboard"]
+            </button>
+            @if (_snapshot != null)
+            {
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">@_snapshot.SnapshotDate.ToString("MMMM yyyy")</h1>
+                <p class="text-gray-500">@L["MonthlyFinancialReport"]</p>
+            }
+            else if (_loading)
+            {
+                <div class="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+            }
+        </div>
+        
+        @if (_snapshot != null)
+        {
+            <div class="flex gap-3">
+                <a href="/snapshots/@_snapshot.Id" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    @L["EditData"]
+                </a>
+            </div>
+        }
+    </div>
+
+    @if (_loading)
+    {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="h-32 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-32 bg-gray-100 rounded-xl animate-pulse"></div>
+            <div class="h-32 bg-gray-100 rounded-xl animate-pulse"></div>
+        </div>
+    }
+    else if (_snapshot != null)
+    {
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Est. Income -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg class="w-16 h-16 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">@L["EstimatedIncome"]</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">@_estimatedIncome.ToString("N0") €</h2>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">@L["CalculatedFromWealthDelta"]</p>
+            </div>
+
+            <!-- Total Expenses -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">@L["TotalExpenses"]</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">@_totalExpenses.ToString("N0") €</h2>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">@(_expenses.Count) @L["Categories"]</p>
+            </div>
+
+            <!-- Net Savings -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg class="w-16 h-16 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">@L["NetSavings"]</p>
+                <div class="flex items-baseline gap-2">
+                    <h2 class="text-3xl font-bold @(_wealthDelta >= 0 ? "text-emerald-500" : "text-red-500")">
+                        @(_wealthDelta >= 0 ? "+" : "")@_wealthDelta.ToString("N0") €
+                    </h2>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">
+                    @if (_estimatedIncome > 0) {
+                        <span>@((_wealthDelta / _estimatedIncome * 100).ToString("N0"))% @L["SavingsRate"]</span>
+                    } else {
+                        <span>-</span>
+                    }
+                </p>
+            </div>
+            
+        </div>
+
+        <!-- Expenses Detail Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 dark:text-white">@L["ExpensesBreakdown"]</h3>
+                <span class="text-xs font-medium px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300">
+                    @L["IncludesImportedTransactions"]
+                </span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs text-gray-500 uppercase border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800">
+                            <th class="px-6 py-3 font-medium">@L["Category"]</th>
+                            <th class="px-6 py-3 font-medium text-center">@L["BudgetStatus"]</th>
+                            <th class="px-6 py-3 font-medium text-right">@L["Amount"]</th>
+                            <th class="px-6 py-3 font-medium w-1/3">@L["Notes"] / @L["Transactions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach (var expense in _expenses.OrderByDescending(e => e.Amount))
+                        {
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background-color: @(expense.Category?.Color ?? "#ccc")20; color: @(expense.Category?.Color ?? "#ccc")">
+                                            @expense.Category?.Icon
+                                        </div>
+                                        <span class="font-medium text-gray-900 dark:text-white">@expense.Category?.Name</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (expense.Category?.MonthlyBudget > 0)
+                                    {
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex justify-between text-xs text-gray-500">
+                                                <span>@expense.PercentUsed.ToString("N0")%</span>
+                                                <span>@expense.Category.MonthlyBudget.ToString("N0") €</span>
+                                            </div>
+                                            <div class="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                <div class="h-full rounded-full @(expense.IsOverBudget ? "bg-red-500" : "bg-emerald-500")" style="width: @Math.Min(100, expense.PercentUsed)%"></div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs text-gray-400 italic text-center block">@L["NoBudget"]</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="font-bold text-gray-900 dark:text-white">@expense.Amount.ToString("N2") €</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (!string.IsNullOrEmpty(expense.Notes))
+                                    {
+                                        <div class="text-xs text-gray-600 dark:text-gray-400 max-h-20 overflow-y-auto custom-scrollbar">
+                                            @foreach(var notePart in expense.Notes.Split(',', ';'))
+                                            {
+                                                @if(!string.IsNullOrWhiteSpace(notePart))
+                                                {
+                                                    <div class="truncate hover:text-clip" title="@notePart.Trim()">• @notePart.Trim()</div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs text-gray-300">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        
+                        @if (!_expenses.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                    @L["NoExpensesRecorded"]
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-12">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">@L["SnapshotNotFound"]</h2>
+            <button class="mt-4 text-primary-500 hover:underline" @onclick='() => Nav.NavigateTo("/dashboard")'>@L["BackToDashboard"]</button>
+        </div>
+    }
+    
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Snapshot? _snapshot;
+    private Totals _currentTotals = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    private List<MonthlyExpense> _expenses = new();
+    
+    private decimal _estimatedIncome = 0;
+    private decimal _totalExpenses = 0;
+    private decimal _wealthDelta = 0;
+    
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            var authState = await AuthState.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int familyId = 0;
+            
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var appUser = await Auth.GetUserWithFamilyAsync(userId);
+                if (appUser != null) familyId = appUser.FamilyId;
+            }
+
+            if (familyId == 0) 
+            {
+                Nav.NavigateTo("/");
+                return;
+            }
+
+            // Get Current Snapshot
+            _snapshot = await SnapshotService.GetByIdAsync(Id);
+            if (_snapshot == null || _snapshot.FamilyId != familyId) 
+            {
+                _snapshot = null;
+                return;
+            }
+
+            // Get Calculations
+            _currentTotals = await SnapshotService.CalculateTotalsAsync(_snapshot);
+            
+            // Get Expenses (Detailed)
+            _expenses = await BudgetService.GetExpensesAsync(Id);
+            _totalExpenses = _expenses.Sum(e => e.Amount);
+
+            // Get Previous Snapshot for Delta
+            var allSnapshots = await SnapshotService.GetAllWithTotalsAsync(familyId);
+            var previous = allSnapshots
+                .Where(s => s.Date < _snapshot.SnapshotDate)
+                .OrderByDescending(s => s.Date)
+                .FirstOrDefault();
+
+            if (previous != null)
+            {
+                _wealthDelta = _currentTotals.CurrentTotal - previous.CurrentTotal;
+            }
+            else
+            {
+                // First snapshot ever, assume delta = wealth (or 0?)
+                // Let's assume 0 delta implies income = total expenses (maintenance) to avoid confusing "Huge Income"
+                // Actually, if Wealth is 10k, and expenses 1k, Income would be 11k. Correct.
+                 _wealthDelta = _currentTotals.CurrentTotal; // Or 0?
+                 // Usually for first month, Delta is tricky. Let's set Delta to 0 if no previous.
+                 _wealthDelta = 0;
+            }
+
+            // Logic: Income = Expenses + Delta Wealth
+            // E.g. Spent 1000, Wealth increased by 500 -> Implied Income 1500
+            // E.g. Spent 1000, Wealth decreased by 200 (Delta -200) -> Implied Income 800
+            _estimatedIncome = _totalExpenses + _wealthDelta;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

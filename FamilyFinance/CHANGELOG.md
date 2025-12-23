@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.0] - 2025-12-23
+### Added
+- **Import History (BETA)**: New page to view history of imported files.
+- **Smart Revert**: Added ability to "Undo" an import, which reverts the transaction amounts and removes the import notes while keeping manual edits where possible.
+- **Localization**: Full Italian/English localization for Import History.
+
+
 Tutte le modifiche significative a FamilyFinance sono documentate in questo file.
 
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/),

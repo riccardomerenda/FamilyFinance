@@ -15,6 +15,11 @@ public interface IBudgetService
     // Expenses
     Task<List<MonthlyExpense>> GetExpensesAsync(int snapshotId);
     Task SaveExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses);
+    Task AddImportedExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses, string fileName = "Import", string? userId = null);
+    
+    // Import History
+    Task<List<ImportBatch>> GetImportBatchesAsync();
+    Task<ServiceResult> RevertImportBatchAsync(int batchId);
     Task<decimal> GetTotalExpensesAsync(int snapshotId);
     Task<decimal> GetTotalBudgetAsync(int familyId);
     Task<BudgetSummary> GetSummaryAsync(int snapshotId, int familyId);
