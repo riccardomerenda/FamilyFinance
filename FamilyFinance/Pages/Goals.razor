@@ -357,34 +357,36 @@ else
 
     async Task Save()
     {
-        if (string.IsNullOrWhiteSpace(_editing?.Name) || _editing.Target <= 0)
-        {
-            _error = L["GoalValidationOnlyPositive"];
-            return;
-        }
-
-        // Parse deadline
-        if (!string.IsNullOrEmpty(_deadlineInput) && _deadlineInput.Length >= 7)
-        {
-             if (int.TryParse(_deadlineInput[..4], out var year) &&
-                 int.TryParse(_deadlineInput.Substring(5, 2), out var month))
-             {
-                 _editing!.Deadline = new DateOnly(year, month, 1);
-             }
-        }
-        else
-        {
-             _editing!.Deadline = null;
-        }
-
         try
         {
             var isNew = _editing.Id == 0;
-            await GoalSvc.SaveAsync(_editing); 
-            await LoadData();
-            _showModal = false;
-            _error = null;
-            Toast.ShowSuccess(isNew ? L["GoalCreated"].Value : L["GoalUpdated"].Value);
+            // Parse deadline
+            if (!string.IsNullOrEmpty(_deadlineInput) && _deadlineInput.Length >= 7)
+            {
+                 if (int.TryParse(_deadlineInput[..4], out var year) &&
+                     int.TryParse(_deadlineInput.Substring(5, 2), out var month))
+                 {
+                     _editing!.Deadline = new DateOnly(year, month, 1);
+                 }
+            }
+            else
+            {
+                 _editing!.Deadline = null;
+            }
+
+            var result = await GoalSvc.SaveAsync(_editing); 
+            if (result.Success)
+            {
+                await LoadData();
+                _showModal = false;
+                _error = null;
+                Toast.ShowSuccess(isNew ? L["GoalCreated"].Value : L["GoalUpdated"].Value);
+            }
+            else
+            {
+                _error = string.Join(", ", result.Errors);
+                Toast.ShowError(_error);
+            }
         }
         catch (Exception ex)
         {
@@ -396,9 +398,16 @@ else
     {
         try
         {
-            await GoalSvc.DeleteAsync(id);
-            await LoadData();
-            Toast.ShowSuccess(L["GoalDeleted"].Value);
+            var result = await GoalSvc.DeleteAsync(id);
+            if (result.Success)
+            {
+                await LoadData();
+                Toast.ShowSuccess(L["GoalDeleted"].Value);
+            }
+            else
+            {
+                Toast.ShowError(string.Join(", ", result.Errors));
+            }
         }
         catch (Exception ex)
         {

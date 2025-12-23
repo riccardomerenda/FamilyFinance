@@ -81,8 +81,7 @@ public class GoalService : IGoalService
         return ServiceResult.Ok();
     }
 
-    // Legacy method for backward compatibility
-    public async Task SaveAsync(Goal goal) => await SaveAsync(goal, null);
+
 
     public async Task<ServiceResult> DeleteAsync(long id, string? userId = null)
     {
@@ -104,7 +103,6 @@ public class GoalService : IGoalService
         return ServiceResult.Ok();
     }
 
-    // Legacy method for backward compatibility
-    public async Task DeleteAsync(long id) => await DeleteAsync(id, null);
+
 }
 

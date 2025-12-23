@@ -5,6 +5,7 @@
 @inject IBudgetService BudgetSvc
 @inject FamilyFinance.Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
+@inject NotificationService Toast
 @inject IStringLocalizer<SharedResource> L
 @attribute [Authorize]
 
@@ -235,9 +236,26 @@ else
     async Task Save()
     {
         if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
-        await BudgetSvc.SaveCategoryAsync(_editing);
-        _editing = null;
-        await LoadCategories();
+        
+        try 
+        {
+            var result = await BudgetSvc.SaveCategoryAsync(_editing);
+            if (result.Success)
+            {
+               var isNew = _editing.Id == 0;
+               _editing = null;
+               await LoadCategories();
+               Toast.ShowSuccess(isNew ? L["CategoryCreated"] : L["CategoryUpdated"]);
+            }
+            else
+            {
+               Toast.ShowError(string.Join(", ", result.Errors));
+            }
+        }
+        catch(Exception ex)
+        {
+            Toast.ShowError(L["ErrorSavingCategory"] + ": " + ex.Message);
+        }
     }
 
     async Task Delete(int id)
