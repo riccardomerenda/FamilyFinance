@@ -13,8 +13,12 @@
 @inject AuthenticationStateProvider AuthState
 @inject FamilyFinance.Services.AuthService Auth
 @inject NavigationManager Nav
+@inject WizardStateService WizardState
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
+
+<!-- Monthly Wizard -->
+<FamilyFinance.Components.Wizard.MonthlyWizard OnSaved="OnWizardSaved" />
 
 <!-- Guided Tour -->
 <GuidedTour TourId="dashboard-tour" Steps="_tourSteps" OnComplete="OnTourComplete" />
@@ -56,6 +60,48 @@ else if (_latest is null)
 }
 else
 {
+    <!-- Action Badges -->
+    <div class="flex flex-wrap items-center gap-3 mb-6 animate-in">
+        @{
+            var currentMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var isCurrentMonthClosed = _latest != null && _latest.SnapshotDate.Year == currentMonth.Year && _latest.SnapshotDate.Month == currentMonth.Month;
+        }
+        
+        <!-- Primary Action Button (contextual) -->
+        @if (isCurrentMonthClosed)
+        {
+            <!-- Current month already closed - show Edit button -->
+            <button @onclick="OpenWizardEdit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                @L["EditMonth"]
+            </button>
+        }
+        else
+        {
+            <!-- Current month not closed - show Close button -->
+            <button @onclick="OpenWizardNew" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                @L["CloseMonth"]
+            </button>
+        }
+        
+        <!-- Operative Month Badge (informational) -->
+        <div class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl">
+            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            <span>@L["OperativeMonth"]: <strong>@DateTime.Today.ToString("MMMM yyyy")</strong></span>
+            @if (isCurrentMonthClosed)
+            {
+                <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">✓</span>
+            }
+        </div>
+    </div>
+    
     <!-- Bento Grid Dashboard -->
     <div class="grid grid-cols-12 gap-4 lg:gap-6">
         
@@ -424,5 +470,36 @@ else
             },
             options = new { responsive = true, maintainAspectRatio = false, plugins = new { legend = new { position = "bottom" } } }
         };
+    }
+    
+    private void OpenWizardNew()
+    {
+        WizardState.OpenNew();
+    }
+    
+    private void OpenWizardEdit()
+    {
+        if (_latest != null)
+        {
+            WizardState.OpenEdit(_latest.Id);
+        }
+    }
+    
+    private async Task OnWizardSaved()
+    {
+        // Reload data after wizard completes
+        _loading = true;
+        StateHasChanged();
+        
+        _latest = await SnapshotService.GetLatestAsync(_familyId);
+        if (_latest != null)
+        {
+            _t = await SnapshotService.CalculateTotalsAsync(_latest);
+            _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
+            await BuildCharts();
+        }
+        
+        _loading = false;
+        StateHasChanged();
     }
 }
