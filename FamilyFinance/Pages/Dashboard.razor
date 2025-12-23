@@ -349,6 +349,7 @@ else
 
 @code {
     private bool _loading = true;
+    private bool _initialized = false; // Prevents double loading during prerendering
     private Snapshot? _latest;
     private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     private object _trendConfig = new { }, _compConfig = new { };
@@ -360,6 +361,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Skip if already initialized (prevents double loading during prerendering)
+        if (_initialized) return;
+        _initialized = true;
+        
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
