@@ -6,6 +6,7 @@
 @inject ICsvImportService ImportService
 @inject IBudgetService BudgetService
 @inject ISnapshotService SnapshotService
+@inject ICategoryRuleService CategoryRuleService
 @inject Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject NavigationManager Nav
@@ -18,8 +19,11 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent flex items-center gap-3">
                 @L["ImportWizardTitle"]
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+                    🧪 BETA
+                </span>
             </h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">@L["ImportWizardSubtitle"]</p>
         </div>
@@ -281,20 +285,32 @@
                                     <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">@tx.Date.ToString("dd/MM")</td>
                                     <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                         @tx.Description
-                                        @if(tx.ConfidenceScore > 80) {
-                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" title="Auto-detected">✨ Smart</span>
+                                        @if(tx.IsLearnedRule) {
+                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200" title="@L["SmartCatLearnedTooltip"]">🧠 @L["Learned"]</span>
+                                        } else if(tx.ConfidenceScore > 80) {
+                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" title="@L["SmartCatAutoTooltip"]">✨ Smart</span>
                                         }
                                     </td>
                                     <td class="px-4 py-3 text-sm text-right font-mono @(tx.Amount < 0 ? "text-red-500" : "text-emerald-500")">
                                         @tx.Amount.ToString("N2")
                                     </td>
                                     <td class="px-4 py-3">
-                                        <select @bind="tx.SuggestedCategoryId" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 py-1.5 focus:ring-violet-500 focus:border-violet-500">
-                                            <option value="">Uncategorized</option>
-                                            @foreach(var cat in _categories) {
-                                                <option value="@cat.Id">@cat.Name</option>
-                                            }
-                                        </select>
+                                        <div class="flex items-center gap-1">
+                                            <select @bind="tx.SuggestedCategoryId" class="flex-1 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 py-1.5 focus:ring-violet-500 focus:border-violet-500">
+                                                <option value="">@L["Uncategorized"]</option>
+                                                @foreach(var cat in _categories) {
+                                                    <option value="@cat.Id">@(cat.Icon ?? "📁") @cat.Name</option>
+                                                }
+                                            </select>
+                                            <button type="button" 
+                                                    @onclick="() => OpenQuickCategoryForm(tx)" 
+                                                    class="p-1.5 text-violet-600 hover:bg-violet-100 dark:hover:bg-violet-900/50 rounded-lg transition-colors" 
+                                                    title="@L["AddNewCategory"]">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -306,6 +322,49 @@
         
     </div>
 </div>
+
+@* Quick Category Creation Modal *@
+@if (_showQuickCategoryForm) {
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in" @onclick="CloseQuickCategoryForm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 animate-in slide-in-from-bottom-4" @onclick:stopPropagation>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">@L["AddNewCategory"]</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Name"]</label>
+                    <input type="text" @bind="_newCategoryName" @bind:event="oninput"
+                           class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-violet-500 focus:border-violet-500"
+                           placeholder="es. Abbigliamento" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Icon"]</label>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach(var emoji in _categoryEmojis) {
+                            <button type="button" 
+                                    @onclick="() => _newCategoryIcon = emoji"
+                                    class="w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all @(_newCategoryIcon == emoji ? "bg-violet-100 dark:bg-violet-900 ring-2 ring-violet-500" : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                                @emoji
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button type="button" @onclick="CloseQuickCategoryForm" 
+                        class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    @L["Cancel"]
+                </button>
+                <button type="button" @onclick="CreateQuickCategory" 
+                        disabled="@string.IsNullOrWhiteSpace(_newCategoryName)"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    @L["Save"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private int _currentStep = 1;
@@ -321,6 +380,13 @@
     private List<string> _importMessages = new();
     private MemoryStream? _fileStream;
     private int _familyId;
+    
+    // Quick Category Creation
+    private bool _showQuickCategoryForm = false;
+    private string _newCategoryName = "";
+    private string _newCategoryIcon = "📁";
+    private ImportedTransaction? _targetTransaction = null;
+    private readonly string[] _categoryEmojis = { "🛒", "🍔", "🚗", "🛍️", "💡", "🏠", "📺", "💊", "🎁", "📚", "✈️", "💳", "📁" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -455,6 +521,13 @@
         
         bool anyError = false;
 
+        // LEARN from user's categorization choices
+        // Only learn from transactions that have a category assigned
+        foreach (var tx in toImport.Where(t => t.SuggestedCategoryId.HasValue))
+        {
+            await CategoryRuleService.LearnFromCategorizationAsync(_familyId, tx.Description, tx.SuggestedCategoryId!.Value);
+        }
+
         // NEW LOGIC: If Target Snapshot is selected, force all there
         if (_targetSnapshotId > 0)
         {
@@ -507,5 +580,51 @@
     {
         if (_currentStep > 1) _currentStep--;
         else Nav.NavigateTo("/dashboard");
+    }
+    
+    // Quick Category Creation
+    private void OpenQuickCategoryForm(ImportedTransaction tx)
+    {
+        _targetTransaction = tx;
+        _newCategoryName = "";
+        _newCategoryIcon = "📁";
+        _showQuickCategoryForm = true;
+    }
+    
+    private void CloseQuickCategoryForm()
+    {
+        _showQuickCategoryForm = false;
+        _targetTransaction = null;
+    }
+    
+    private async Task CreateQuickCategory()
+    {
+        if (string.IsNullOrWhiteSpace(_newCategoryName)) return;
+        
+        var newCategory = new BudgetCategory
+        {
+            FamilyId = _familyId,
+            Name = _newCategoryName.Trim(),
+            Icon = _newCategoryIcon,
+            Color = "#8b5cf6" // violet-500
+        };
+        
+        await BudgetService.SaveCategoryAsync(newCategory);
+        
+        // Refresh categories list
+        _categories = await BudgetService.GetCategoriesAsync(_familyId);
+        
+        // Auto-select for the target transaction
+        if (_targetTransaction != null)
+        {
+            var createdCategory = _categories.FirstOrDefault(c => c.Name == newCategory.Name);
+            if (createdCategory != null)
+            {
+                _targetTransaction.SuggestedCategoryId = createdCategory.Id;
+                _targetTransaction.SuggestedCategoryName = createdCategory.Name;
+            }
+        }
+        
+        CloseQuickCategoryForm();
     }
 }

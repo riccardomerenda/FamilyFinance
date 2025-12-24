@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.12.0] - 2025-12-24 🧠 SMART CATEGORIZATION (BETA)
+
+### ✨ New Features
+- **Smart Categorization (BETA)**: Auto-learning system that improves categorization over time.
+  - 🧠 **Learned Rules**: System learns from your manual categorizations and suggests them for future imports.
+  - ✨ **Keyword Matching**: Fallback to hardcoded keyword rules for common merchants.
+  - 🧪 **BETA Badge**: Clear indication that the feature is in beta.
+  - Badges show "🧠 Appreso" (learned) or "✨ Smart" (keyword match) for each transaction.
+
+- **Quick Category Creation**: Create new categories on-the-fly during import.
+  - ➕ "+" button next to each category dropdown.
+  - 🎨 Emoji picker with common category icons (🛒🍔🚗🛍️💡🏠📺💊🎁📚✈️💳📁).
+  - Auto-selection of newly created category.
+
+### 🗄️ Database
+- New `CategoryRule` entity for storing learned keyword→category mappings.
+- Added index for efficient family+keyword lookups.
+
+### 🌍 Localization
+- Full IT/EN support for Smart Categorization and Quick Category features.
+
+---
+
 ## [3.11.0] - 2025-12-23
 ### Added
 - **Import History (BETA)**: New page to view history of imported files.
