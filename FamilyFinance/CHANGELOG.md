@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.1] - 2025-12-24 🧹 CLEANUP
+
+### 🔧 Bug Fixes
+- **Duplicate Resource Keys**: Removed duplicate `TotalExpenses` entries in .resx files that caused build warnings.
+
+---
+
 ## [3.12.0] - 2025-12-24 🧠 SMART CATEGORIZATION (BETA)
 
 ### ✨ New Features

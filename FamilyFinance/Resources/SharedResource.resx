@@ -670,9 +670,6 @@
   <data name="SnapshotNotFound" xml:space="preserve">
     <value>Mese non trovato</value>
   </data>
-  <data name="TotalExpenses" xml:space="preserve">
-    <value>Spese Totali</value>
-  </data>
   <data name="MonthlyFinancialReport" xml:space="preserve">
     <value>Report Finanziario Mensile</value>
   </data>
