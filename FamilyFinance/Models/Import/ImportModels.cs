@@ -16,6 +16,7 @@ public class ImportedTransaction
     // UI State
     public bool IsSelected { get; set; } = true;
     public bool IsDuplicate { get; set; } = false;
+    public bool IsLearnedRule { get; set; } = false; // True if categorized by learned rule
 }
 
 public class CsvColumnMapping

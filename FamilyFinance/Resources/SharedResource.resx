@@ -697,5 +697,14 @@
   <data name="ImportRevertedSuccess" xml:space="preserve"><value>Importazione annullata con successo</value></data>
   <data name="ImportRevertError" xml:space="preserve"><value>Errore durante l'annullamento dell'importazione</value></data>
   <data name="Items" xml:space="preserve"><value>elementi</value></data>
+
+  <!-- Smart Categorization -->
+  <data name="Learned" xml:space="preserve"><value>Appreso</value></data>
+  <data name="SmartCatLearnedTooltip" xml:space="preserve"><value>Categorizzato automaticamente basandosi sulle tue scelte precedenti</value></data>
+  <data name="SmartCatAutoTooltip" xml:space="preserve"><value>Categorizzato automaticamente in base a parole chiave</value></data>
+  <data name="SmartCatBetaTitle" xml:space="preserve"><value>Categorizzazione Smart (BETA)</value></data>
+  <data name="SmartCatBetaDesc" xml:space="preserve"><value>Il sistema impara dalle tue scelte: più lo usi, più diventa preciso!</value></data>
+  <data name="AddNewCategory" xml:space="preserve"><value>Aggiungi Categoria</value></data>
+  <data name="Uncategorized" xml:space="preserve"><value>Non categorizzato</value></data>
 </root>
 

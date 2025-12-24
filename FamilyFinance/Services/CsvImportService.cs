@@ -8,6 +8,7 @@ namespace FamilyFinance.Services;
 public class CsvImportService : ICsvImportService
 {
     private readonly IBudgetService _budgetService;
+    private readonly ICategoryRuleService _categoryRuleService;
     
     private readonly Dictionary<string, string[]> _keywordRules = new()
     {
@@ -21,9 +22,10 @@ public class CsvImportService : ICsvImportService
         { "Salute", new[] { "farmacia", "medico", "ospedale", "cup ", "dentista" } }
     };
 
-    public CsvImportService(IBudgetService budgetService)
+    public CsvImportService(IBudgetService budgetService, ICategoryRuleService categoryRuleService)
     {
         _budgetService = budgetService;
+        _categoryRuleService = categoryRuleService;
     }
 
     public Task<List<string[]>> PreviewCsvAsync(Stream content, int linesToRead = 5)
@@ -153,7 +155,7 @@ public class CsvImportService : ICsvImportService
 
             string descLower = tx.Description.ToLowerInvariant();
             
-            // 1. Try match by RawCategory
+            // 1. Try match by RawCategory from bank CSV
             if (!string.IsNullOrEmpty(tx.RawCategory))
             {
                 var cat = categories.FirstOrDefault(c => c.Name.Equals(tx.RawCategory, StringComparison.OrdinalIgnoreCase));
@@ -166,7 +168,22 @@ public class CsvImportService : ICsvImportService
                 }
             }
 
-            // 2. Keyword heuristic
+            // 2. Try LEARNED RULES (user's previous categorizations) - NEW!
+            var learnedMatch = await _categoryRuleService.FindMatchingCategoryAsync(familyId, tx.Description);
+            if (learnedMatch.HasValue && learnedMatch.Value.CategoryId.HasValue)
+            {
+                var cat = categories.FirstOrDefault(c => c.Id == learnedMatch.Value.CategoryId.Value);
+                if (cat != null)
+                {
+                    tx.SuggestedCategoryId = cat.Id;
+                    tx.SuggestedCategoryName = cat.Name;
+                    tx.ConfidenceScore = learnedMatch.Value.Confidence;
+                    tx.IsLearnedRule = true; // Mark as learned
+                    continue;
+                }
+            }
+
+            // 3. Fallback: Hardcoded keyword heuristic
             foreach (var rule in _keywordRules)
             {
                 if (rule.Value.Any(k => descLower.Contains(k)))
