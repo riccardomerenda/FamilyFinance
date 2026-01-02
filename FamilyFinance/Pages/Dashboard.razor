@@ -208,6 +208,14 @@ else
             </div>
         </div>
 
+        <!-- Cash Flow Chart -->
+        <div class="col-span-12 bento-card p-5 lg:p-6 animate-in delay-4">
+            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["CashFlow"] <span class="text-sm font-normal text-gray-500">(@L["IncomeVsExpenses"])</span></h3>
+            <div class="h-64">
+                <Chart CanvasId="cashflow" Config="@_cashFlowConfig" />
+            </div>
+        </div>
+
         <!-- Goals Widget -->
         @if (_goals != null && _goals.Any())
         {
@@ -373,7 +381,7 @@ else
     private bool _initialized = false; // Prevents double loading during prerendering
     private Snapshot? _latest;
     private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    private object _trendConfig = new { }, _compConfig = new { };
+    private object _trendConfig = new { }, _compConfig = new { }, _cashFlowConfig = new { };
     private List<Goal>? _goals;
     private List<FamilyFinance.Services.Interfaces.Insight>? _insights;
     private int _familyId;
@@ -497,6 +505,28 @@ else
                 datasets = new[] { new { data = new[] { _t.Liquidity, _t.InvestmentsValue, _t.CreditsOpen, _t.PensionInsuranceValue }, backgroundColor = new[] { "#6366f1", "#06b6d4", "#f59e0b", "#10b981" } } }
             },
             options = new { responsive = true, maintainAspectRatio = false, plugins = new { legend = new { position = "bottom" } } }
+        };
+
+        _cashFlowConfig = new
+        {
+            type = "bar",
+            data = new
+            {
+                labels = full.Select(x => x.d),
+                datasets = new[] 
+                { 
+                    new { label = L["Incomes"].Value, data = summaries.Select(s => s.IncomeTotal), backgroundColor = "#10b981", borderRadius = 4, barPercentage = 0.6 },
+                    new { label = L["MonthlyExpenses"].Value, data = summaries.Select(s => s.ExpenseTotal), backgroundColor = "#ef4444", borderRadius = 4, barPercentage = 0.6 }
+                }
+            },
+            options = new { 
+                responsive = true, 
+                maintainAspectRatio = false, 
+                scales = new { 
+                    y = new { beginAtZero = true, grid = new { color = "rgba(107, 114, 128, 0.1)" } },
+                    x = new { grid = new { display = false } }
+                }
+            }
         };
     }
     

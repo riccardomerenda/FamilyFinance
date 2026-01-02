@@ -606,7 +606,8 @@
             FamilyId = _familyId,
             Name = _newCategoryName.Trim(),
             Icon = _newCategoryIcon,
-            Color = "#8b5cf6" // violet-500
+            Color = "#8b5cf6", // violet-500
+            Type = (_targetTransaction?.Amount ?? 0) > 0 ? CategoryType.Income : CategoryType.Expense
         };
         
         await BudgetService.SaveCategoryAsync(newCategory);

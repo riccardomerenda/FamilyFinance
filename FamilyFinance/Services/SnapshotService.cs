@@ -273,7 +273,11 @@ public class SnapshotService : ISnapshotService
                 // Pension/Insurance Contributions
                 s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.ContributionBasis),
                 // Interest Liquidity
-                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount)
+                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount),
+                // Income Total
+                s.Incomes.Sum(i => i.Amount),
+                // Expense Total
+                s.Expenses.Sum(e => e.Amount)
             ))
             .ToListAsync();
     }
@@ -310,6 +314,40 @@ public class SnapshotService : ISnapshotService
         return await _db.MonthlyExpenses
             .Include(e => e.Category)
             .Where(e => e.SnapshotId == snapshotId)
+            .ToListAsync();
+    }
+    public async Task SaveIncomesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> incomes)
+    {
+        var snapshot = await _db.Snapshots.Include(s => s.Incomes).FirstOrDefaultAsync(s => s.Id == snapshotId);
+        if (snapshot == null) return;
+        
+        // Remove existing incomes
+        _db.MonthlyIncomes.RemoveRange(snapshot.Incomes);
+        
+        // Add new incomes
+        foreach (var (categoryId, amount, notes) in incomes)
+        {
+            if (amount > 0)
+            {
+                snapshot.Incomes.Add(new MonthlyIncome
+                {
+                    SnapshotId = snapshotId,
+                    CategoryId = categoryId,
+                    Amount = amount,
+                    Notes = notes
+                });
+            }
+        }
+        
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Saved {Count} incomes for snapshot {SnapshotId}", incomes.Count(i => i.Amount > 0), snapshotId);
+    }
+    
+    public async Task<List<MonthlyIncome>> GetIncomesAsync(int snapshotId)
+    {
+        return await _db.MonthlyIncomes
+            .Include(i => i.Category)
+            .Where(i => i.SnapshotId == snapshotId)
             .ToListAsync();
     }
 }

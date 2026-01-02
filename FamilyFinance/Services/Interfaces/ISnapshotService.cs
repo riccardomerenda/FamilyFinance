@@ -28,6 +28,16 @@ public interface ISnapshotService
     /// Get monthly expenses for a snapshot
     /// </summary>
     Task<List<MonthlyExpense>> GetExpensesAsync(int snapshotId);
+
+    /// <summary>
+    /// Get monthly incomes for a snapshot
+    /// </summary>
+    Task<List<MonthlyIncome>> GetIncomesAsync(int snapshotId);
+
+    /// <summary>
+    /// Save monthly incomes for a snapshot
+    /// </summary>
+    Task SaveIncomesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> incomes);
 }
 
 /// <summary>
@@ -42,7 +52,9 @@ public record SnapshotSummary(
     decimal CreditsOpen,
     decimal PensionInsuranceValue,
     decimal PensionInsuranceContrib,
-    decimal InterestLiquidity
+    decimal InterestLiquidity,
+    decimal IncomeTotal,
+    decimal ExpenseTotal
 )
 {
     public decimal InvestmentsGainLoss => InvestmentsValue - InvestmentsCost;
