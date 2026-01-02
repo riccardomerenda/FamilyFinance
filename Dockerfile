@@ -36,7 +36,7 @@ COPY --from=build /app/publish .
 RUN chown -R appuser:appuser /app
 
 # Switch to non-root user
-USER appuser
+# USER appuser
 
 # Expose port
 EXPOSE 8080
