@@ -60,7 +60,7 @@ Open your browser at **http://localhost:5044**
 
 ## 🛠 Tech Stack
 
-- **Framework**: ASP.NET Core 10 (Preview) + Blazor Server
+- **Framework**: ASP.NET Core 10 + Blazor Server
 - **Database**: SQLite with Entity Framework Core
 - **Authentication**: ASP.NET Identity with role-based authorization
 - **UI/UX**: Custom Tailwind CSS + Glassmorphism design

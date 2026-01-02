@@ -3,8 +3,8 @@
 ## [4.0.0] - 2026-01-03 🚀 NET 10 & UNIFIED CATEGORIES
 
 ### 🚀 Major Upgrade
-- **.NET 10 (Preview)**: Framework aggiornato a .NET 10 Preview per performance e funzionalità all'avanguardia.
-- **EF Core 10**: Aggiornamento dell'ORM all'ultima versione preview.
+- **.NET 10**: Framework aggiornato a .NET 10 Stable per performance e funzionalità all'avanguardia.
+- **EF Core 10**: Aggiornamento dell'ORM all'ultima versione.
 
 ### ✨ Unified Income Tracker
 - **Categorie Unificate**: Le entrate ora utilizzano lo stesso sistema dinamico delle spese (`BudgetCategory`), con un nuovo flag `Type` (Entrata/Uscita).
