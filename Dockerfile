@@ -2,7 +2,7 @@
 # Multi-stage build for optimized image size
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy project file
@@ -19,11 +19,12 @@ WORKDIR /src/FamilyFinance
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Create non-root user for security
-RUN adduser --disabled-password --gecos '' appuser
+# Create non-root user for security (using useradd for better compatibility)
+RUN useradd -m -s /bin/bash appuser || echo "User already exists"
 
 # Create data directory for SQLite database
 RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
