@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.0.0] - 2026-01-03 🚀 NET 10 & UNIFIED CATEGORIES
+
+### 🚀 Major Upgrade
+- **.NET 10 (Preview)**: Framework aggiornato a .NET 10 Preview per performance e funzionalità all'avanguardia.
+- **EF Core 10**: Aggiornamento dell'ORM all'ultima versione preview.
+
+### ✨ Unified Income Tracker
+- **Categorie Unificate**: Le entrate ora utilizzano lo stesso sistema dinamico delle spese (`BudgetCategory`), con un nuovo flag `Type` (Entrata/Uscita).
+- **Import CSV Potenziato**:
+  - **Auto-Detect**: Il wizard riconosce automaticamente entrate (importi positivi) e spese (importi negativi).
+  - **Categorizzazione Intelligente**: Suggerisce categorie `Income` per le entrate e `Expense` per le uscite.
+  - **Quick Create**: Creazione rapida categorie con assegnazione automatica del tipo corretto in base all'importo della transazione.
+
+### 🧹 Refactoring
+- Completamente rimosso l'enum `IncomeCategory` in favore di categorie database-driven.
+- Migrazione automatica dei dati esistenti.
+
+---
+
 ## [3.12.1] - 2025-12-24 🧹 CLEANUP
 
 ### 🔧 Bug Fixes

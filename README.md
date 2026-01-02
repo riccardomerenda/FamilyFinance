@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet" alt=".NET 9.0">
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet" alt=".NET 10.0">
   <img src="https://img.shields.io/badge/Blazor-Server-512BD4?style=for-the-badge&logo=blazor" alt="Blazor Server">
   <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite" alt="SQLite">
   <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS">
@@ -60,7 +60,7 @@ Open your browser at **http://localhost:5044**
 
 ## 🛠 Tech Stack
 
-- **Framework**: ASP.NET Core 9 + Blazor Server
+- **Framework**: ASP.NET Core 10 (Preview) + Blazor Server
 - **Database**: SQLite with Entity Framework Core
 - **Authentication**: ASP.NET Identity with role-based authorization
 - **UI/UX**: Custom Tailwind CSS + Glassmorphism design

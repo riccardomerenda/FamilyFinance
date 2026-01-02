@@ -21,11 +21,18 @@ public class BudgetService : IBudgetService
     }
 
     // Categories
-    public async Task<List<BudgetCategory>> GetCategoriesAsync(int familyId)
+    public async Task<List<BudgetCategory>> GetCategoriesAsync(int familyId, CategoryType? type = null)
     {
-        _logger.LogDebug("Fetching budget categories for family {FamilyId}", familyId);
-        return await _db.BudgetCategories
-            .Where(c => c.FamilyId == familyId && c.IsActive && !c.IsDeleted)
+        _logger.LogDebug("Fetching budget categories for family {FamilyId} (Type: {Type})", familyId, type);
+        var query = _db.BudgetCategories
+            .Where(c => c.FamilyId == familyId && c.IsActive && !c.IsDeleted);
+            
+        if (type.HasValue)
+        {
+            query = query.Where(c => c.Type == type.Value);
+        }
+
+        return await query
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
             .ToListAsync();

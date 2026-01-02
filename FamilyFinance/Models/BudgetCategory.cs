@@ -3,9 +3,19 @@ namespace FamilyFinance.Models;
 /// <summary>
 /// Categoria di spesa con budget mensile
 /// </summary>
+public enum CategoryType
+{
+    Expense,
+    Income
+}
+
+/// <summary>
+/// Categoria di transazione (Spesa o Entrata)
+/// </summary>
 public class BudgetCategory : IFamilyOwned
 {
     public int Id { get; set; }
+    public CategoryType Type { get; set; } = CategoryType.Expense;
     public string Name { get; set; } = "";
     public string Icon { get; set; } = "💰";
     public string Color { get; set; } = "#6366f1";

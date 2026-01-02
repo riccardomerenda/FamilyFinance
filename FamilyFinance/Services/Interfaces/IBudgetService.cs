@@ -5,7 +5,7 @@ namespace FamilyFinance.Services.Interfaces;
 public interface IBudgetService
 {
     // Categories
-    Task<List<BudgetCategory>> GetCategoriesAsync(int familyId);
+    Task<List<BudgetCategory>> GetCategoriesAsync(int familyId, CategoryType? type = null);
     Task<BudgetCategory?> GetCategoryByIdAsync(int id);
     Task SaveCategoryAsync(BudgetCategory category);
     Task DeleteCategoryAsync(int id);

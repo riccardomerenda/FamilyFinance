@@ -20,6 +20,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<ImportBatch> ImportBatches => Set<ImportBatch>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
+    public DbSet<MonthlyIncome> MonthlyIncomes => Set<MonthlyIncome>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -115,6 +116,18 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .HasOne(r => r.Category)
             .WithMany()
             .HasForeignKey(r => r.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MonthlyIncome>()
+            .HasOne(i => i.Category)
+            .WithMany()
+            .HasForeignKey(i => i.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<MonthlyIncome>()
+            .HasOne(i => i.Snapshot)
+            .WithMany(s => s.Incomes)
+            .HasForeignKey(i => i.SnapshotId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

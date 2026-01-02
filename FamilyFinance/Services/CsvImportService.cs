@@ -1,5 +1,6 @@
 using System.Globalization;
 using FamilyFinance.Models.Import;
+using FamilyFinance.Models;
 using FamilyFinance.Services.Interfaces;
 using System.Text.RegularExpressions;
 
@@ -158,7 +159,12 @@ public class CsvImportService : ICsvImportService
             // 1. Try match by RawCategory from bank CSV
             if (!string.IsNullOrEmpty(tx.RawCategory))
             {
-                var cat = categories.FirstOrDefault(c => c.Name.Equals(tx.RawCategory, StringComparison.OrdinalIgnoreCase));
+                // Filter categories by direction (Income vs Expense)
+                var candidates = tx.Amount > 0 
+                    ? categories.Where(c => c.Type == CategoryType.Income) 
+                    : categories.Where(c => c.Type == CategoryType.Expense);
+
+                var cat = candidates.FirstOrDefault(c => c.Name.Equals(tx.RawCategory, StringComparison.OrdinalIgnoreCase));
                 if (cat != null)
                 {
                     tx.SuggestedCategoryId = cat.Id;
@@ -184,18 +190,41 @@ public class CsvImportService : ICsvImportService
             }
 
             // 3. Fallback: Hardcoded keyword heuristic
-            foreach (var rule in _keywordRules)
+            // Note: _keywordRules are mostly for Expenses. Should we enable Income keywords?
+            // For now, only run keywords if explicit match found, but check category type.
+            
+            // Only try keyword matching for Expenses (negative amounts) for now, unless we add Income keywords
+            if (tx.Amount < 0)
             {
-                if (rule.Value.Any(k => descLower.Contains(k)))
+                foreach (var rule in _keywordRules)
                 {
-                    var cat = categories.FirstOrDefault(c => c.Name.Equals(rule.Key, StringComparison.OrdinalIgnoreCase));
-                    if (cat != null)
+                    if (rule.Value.Any(k => descLower.Contains(k)))
                     {
-                        tx.SuggestedCategoryId = cat.Id;
-                        tx.SuggestedCategoryName = cat.Name;
-                        tx.ConfidenceScore = 80;
-                        break;
+                        var cat = categories.FirstOrDefault(c => c.Name.Equals(rule.Key, StringComparison.OrdinalIgnoreCase) && c.Type == CategoryType.Expense);
+                        if (cat != null)
+                        {
+                            tx.SuggestedCategoryId = cat.Id;
+                            tx.SuggestedCategoryName = cat.Name;
+                            tx.ConfidenceScore = 80;
+                            break;
+                        }
                     }
+                }
+            }
+            else if (tx.Amount > 0)
+            {
+                // Simple Income heuristics
+                if (descLower.Contains("stipendio") || descLower.Contains("salary") || descLower.Contains("emorumenti"))
+                {
+                    var cat = categories.FirstOrDefault(c => c.Type == CategoryType.Income && (c.Name.Contains("Stipendio") || c.Name.Contains("Salary")));
+                    if (cat != null) { tx.SuggestedCategoryId = cat.Id; tx.SuggestedCategoryName = cat.Name; tx.ConfidenceScore = 90; }
+                }
+                else if (descLower.Contains("bonifico") || descLower.Contains("transfer"))
+                {
+                    // Generic transfer? hard to say without specific category
+                    // Try to find "Altro" income
+                     var cat = categories.FirstOrDefault(c => c.Type == CategoryType.Income && c.Name == "Altro");
+                     if (cat != null) { tx.SuggestedCategoryId = cat.Id; tx.SuggestedCategoryName = cat.Name; tx.ConfidenceScore = 50; }
                 }
             }
         }

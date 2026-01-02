@@ -183,6 +183,24 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     
+    // Check for manual migration script (e.g. generated via dotnet ef migrations script)
+    var migrationFile = "migration.sql";
+    if (File.Exists(migrationFile))
+    {
+        Log.Information("Applying manual migration script: {File}", migrationFile);
+        try 
+        {
+            var sql = File.ReadAllText(migrationFile);
+            await db.Database.ExecuteSqlRawAsync(sql);
+            File.Delete(migrationFile);
+            Log.Information("Migration applied successfully and script deleted.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to apply migration script");
+        }
+    }
+
     if (app.Environment.IsDevelopment())
     {
         // In development, use EnsureCreated for clean schema (no migrations needed)

@@ -11,6 +11,7 @@ public class Snapshot : IFamilyOwned
     public List<InvestmentAsset> Investments { get; set; } = new();
     public List<Receivable> Receivables { get; set; } = new();
     public List<MonthlyExpense> Expenses { get; set; } = new();
+    public List<MonthlyIncome> Incomes { get; set; } = new();
     
     // Family ownership (IFamilyOwned)
     public int FamilyId { get; set; }
