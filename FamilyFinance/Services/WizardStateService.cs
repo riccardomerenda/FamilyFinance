@@ -27,13 +27,14 @@ public class WizardStateService
     
     public event Action? OnChange;
     
-    public void OpenNew()
+    public void OpenNew(DateTime? suggestedDate = null)
     {
         Reset();
         IsOpen = true;
         IsEditing = false;
         EditingSnapshotId = null;
         CurrentStep = 0;
+        SnapshotDate = suggestedDate ?? DateTime.Today;
         NotifyStateChanged();
     }
     

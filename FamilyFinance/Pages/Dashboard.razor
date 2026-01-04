@@ -86,6 +86,9 @@ else
         @{
             var currentMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
             var isCurrentMonthClosed = _latest != null && _latest.SnapshotDate.Year == currentMonth.Year && _latest.SnapshotDate.Month == currentMonth.Month;
+            var nextMonthDate = _latest != null 
+                ? _latest.SnapshotDate.AddMonths(1) 
+                : new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
         }
         
         <!-- Primary Action Button (contextual) -->
@@ -101,12 +104,12 @@ else
         }
         else
         {
-            <!-- Current month not closed - show Close button -->
+            <!-- Current month not closed - show Close button with month name -->
             <button @onclick="OpenWizardNew" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                @L["CloseMonth"]
+                @L["CloseMonth"] @nextMonthDate.ToString("MMM yyyy")
             </button>
         }
         
@@ -549,7 +552,21 @@ else
     
     private void OpenWizardNew()
     {
-        WizardState.OpenNew();
+        // Suggest the next month after the last snapshot, not today
+        DateTime suggestedDate;
+        if (_latest != null)
+        {
+            // Last day of the month after the last snapshot
+            var nextMonth = _latest.SnapshotDate.AddMonths(1);
+            suggestedDate = new DateTime(nextMonth.Year, nextMonth.Month, DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month));
+        }
+        else
+        {
+            // No snapshots yet - use end of current month
+            suggestedDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+        }
+        
+        WizardState.OpenNew(suggestedDate);
     }
     
     private void OpenWizardEdit()

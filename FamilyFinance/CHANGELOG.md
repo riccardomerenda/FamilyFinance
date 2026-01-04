@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.2.0] - 2026-01-04 🧠 SMART SNAPSHOT DATE
+
+### ✨ New Feature: Smart Date Suggestion
+- **Data Intelligente**: Il wizard "Nuovo Snapshot" ora suggerisce automaticamente il **mese successivo** all'ultimo snapshot registrato, non la data odierna.
+- **Niente più mesi saltati**: Se l'ultimo snapshot è Novembre 2025 e sei a Gennaio 2026, il wizard propone **Dicembre 2025**.
+- **Bottone contestuale**: Il pulsante "Nuovo Snapshot" ora mostra il mese che verrà registrato (es. "Nuovo Snapshot Gen 2026").
+
+### 🔧 Technical
+- `WizardStateService.OpenNew()` ora accetta un parametro opzionale `suggestedDate`.
+- La data suggerita è l'ultimo giorno del mese successivo all'ultimo snapshot.
+
+---
+
 ## [4.1.0] - 2026-01-04 🛠️ UX IMPROVEMENTS & BUG FIXES
 
 ### 🐛 Bug Fixes
