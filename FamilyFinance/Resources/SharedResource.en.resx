@@ -609,7 +609,7 @@
   <data name="HelpPension" xml:space="preserve"><value>Pension &amp; Insurance: pension funds, life insurance, retirement accounts. Track contributions and accrued value.</value></data>
   <data name="HelpDataManagement" xml:space="preserve"><value>Data Management: import and export your data in JSON or CSV format for backup or migration.</value></data>
   <data name="GotIt" xml:space="preserve"><value>Got it</value></data>
-  <data name="CloseMonth" xml:space="preserve"><value>Close Month</value></data>
+  <data name="CloseMonth" xml:space="preserve"><value>New Snapshot</value></data>
   <data name="EditMonth" xml:space="preserve"><value>Edit Month</value></data>
   <data name="OperativeMonth" xml:space="preserve"><value>Current Month</value></data>
   <data name="WizardStepLiquidity" xml:space="preserve"><value>Liquidity</value></data>
@@ -619,7 +619,7 @@
   <data name="WizardNext" xml:space="preserve"><value>Next</value></data>
   <data name="WizardPrevious" xml:space="preserve"><value>Previous</value></data>
   <data name="WizardFinish" xml:space="preserve"><value>Save</value></data>
-  <data name="MonthClosedSuccess" xml:space="preserve"><value>Month closed successfully!</value></data>
+  <data name="MonthClosedSuccess" xml:space="preserve"><value>Snapshot created successfully!</value></data>
   <data name="MonthUpdatedSuccess" xml:space="preserve"><value>Month updated successfully!</value></data>
 
   <!-- Dashboard Insights -->

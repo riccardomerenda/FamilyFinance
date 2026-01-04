@@ -364,11 +364,12 @@
         WizardState.OnChange -= StateHasChanged;
     }
     
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (WizardState.IsOpen && WizardState.AccountRows.Count == 0)
+        if (WizardState.IsOpen && WizardState.AccountRows.Count == 0 && _loading)
         {
             await LoadData();
+            StateHasChanged();
         }
     }
     
@@ -376,86 +377,99 @@
     {
         _loading = true;
         
-        // Get family ID
-        var authState = await AuthState.GetAuthenticationStateAsync();
-        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!string.IsNullOrEmpty(userId))
+        try 
         {
-            var user = await Auth.GetUserWithFamilyAsync(userId);
-            if (user != null) _familyId = user.FamilyId;
-        }
-        
-        // Load accounts
-        var accounts = await AccountService.GetAllAsync(_familyId);
-        _portfolios = await PortfolioService.GetAllAsync(_familyId);
-        var budgetCategories = await BudgetService.GetCategoriesAsync(_familyId);
-        
-        if (WizardState.IsEditing && WizardState.EditingSnapshotId.HasValue)
-        {
-            // Load existing snapshot data
-            var snapshot = await SnapshotService.GetByIdAsync(WizardState.EditingSnapshotId.Value);
-            if (snapshot != null)
+            // Get family ID
+            var authState = await AuthState.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
-                WizardState.SnapshotDate = snapshot.SnapshotDate.ToDateTime(TimeOnly.MinValue);
-                
-                WizardState.AccountRows = accounts.Select(a => {
-                    var line = snapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
-                    return new WizardStateService.AccountRow {
-                        Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
-                        Amount = line?.Amount ?? 0,
-                        ContributionBasis = line?.ContributionBasis ?? 0
-                    };
-                }).ToList();
-                
-                WizardState.InvestmentRows = snapshot.Investments.Select(i => 
-                    new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
-                ).ToList();
-                
-                WizardState.ExpenseRows = budgetCategories.Select(c => {
-                    var expense = snapshot.Expenses.FirstOrDefault(e => e.CategoryId == c.Id);
-                    return new WizardStateService.ExpenseRow {
-                        CategoryId = c.Id, Name = c.Name, Icon = c.Icon, Color = c.Color,
-                        Budget = c.MonthlyBudget, Amount = expense?.Amount ?? 0, Notes = expense?.Notes
-                    };
-                }).ToList();
+                var user = await Auth.GetUserWithFamilyAsync(userId);
+                if (user != null) _familyId = user.FamilyId;
             }
-        }
-        else
-        {
-            // Load from latest snapshot or defaults
-            var lastSnapshot = await SnapshotService.GetLatestAsync(_familyId);
             
-            if (lastSnapshot != null)
+            // Load accounts
+            var accounts = await AccountService.GetAllAsync(_familyId);
+            _portfolios = await PortfolioService.GetAllAsync(_familyId);
+            var budgetCategories = await BudgetService.GetCategoriesAsync(_familyId);
+            
+            // Filter expense categories only for wizard's expense step
+            var expenseCategories = budgetCategories.Where(c => c.Type == CategoryType.Expense).ToList();
+            
+            if (WizardState.IsEditing && WizardState.EditingSnapshotId.HasValue)
             {
-                WizardState.AccountRows = accounts.Select(a => {
-                    var line = lastSnapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
-                    return new WizardStateService.AccountRow {
-                        Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
-                        Amount = line?.Amount ?? 0,
-                        ContributionBasis = line?.ContributionBasis ?? 0
-                    };
-                }).ToList();
-                
-                WizardState.InvestmentRows = lastSnapshot.Investments.Select(i => 
-                    new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
-                ).ToList();
+                // Load existing snapshot data
+                var snapshot = await SnapshotService.GetByIdAsync(WizardState.EditingSnapshotId.Value);
+                if (snapshot != null)
+                {
+                    WizardState.SnapshotDate = snapshot.SnapshotDate.ToDateTime(TimeOnly.MinValue);
+                    
+                    WizardState.AccountRows = accounts.Select(a => {
+                        var line = snapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
+                        return new WizardStateService.AccountRow {
+                            Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
+                            Amount = line?.Amount ?? 0,
+                            ContributionBasis = line?.ContributionBasis ?? 0
+                        };
+                    }).ToList();
+                    
+                    WizardState.InvestmentRows = snapshot.Investments.Select(i => 
+                        new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
+                    ).ToList();
+                    
+                    WizardState.ExpenseRows = expenseCategories.Select(c => {
+                        var expense = snapshot.Expenses.FirstOrDefault(e => e.CategoryId == c.Id);
+                        return new WizardStateService.ExpenseRow {
+                            CategoryId = c.Id, Name = c.Name, Icon = c.Icon, Color = c.Color,
+                            Budget = c.MonthlyBudget, Amount = expense?.Amount ?? 0, Notes = expense?.Notes
+                        };
+                    }).ToList();
+                }
             }
             else
             {
-                WizardState.AccountRows = accounts.Select(a => 
-                    new WizardStateService.AccountRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, Amount = 0, ContributionBasis = 0 }
-                ).ToList();
+                // Load from latest snapshot or defaults
+                var lastSnapshot = await SnapshotService.GetLatestAsync(_familyId);
                 
-                WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "VWCE", CostBasis = 0, Value = 0 });
-                WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "XEON", CostBasis = 0, Value = 0 });
+                if (lastSnapshot != null)
+                {
+                    WizardState.AccountRows = accounts.Select(a => {
+                        var line = lastSnapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
+                        return new WizardStateService.AccountRow {
+                            Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
+                            Amount = line?.Amount ?? 0,
+                            ContributionBasis = line?.ContributionBasis ?? 0
+                        };
+                    }).ToList();
+                    
+                    WizardState.InvestmentRows = lastSnapshot.Investments.Select(i => 
+                        new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
+                    ).ToList();
+                }
+                else
+                {
+                    WizardState.AccountRows = accounts.Select(a => 
+                        new WizardStateService.AccountRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, Amount = 0, ContributionBasis = 0 }
+                    ).ToList();
+                    
+                    WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "VWCE", CostBasis = 0, Value = 0 });
+                    WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "XEON", CostBasis = 0, Value = 0 });
+                }
+                
+                WizardState.ExpenseRows = expenseCategories.Select(c => 
+                    new WizardStateService.ExpenseRow { CategoryId = c.Id, Name = c.Name, Icon = c.Icon, Color = c.Color, Budget = c.MonthlyBudget, Amount = 0 }
+                ).ToList();
             }
-            
-            WizardState.ExpenseRows = budgetCategories.Select(c => 
-                new WizardStateService.ExpenseRow { CategoryId = c.Id, Name = c.Name, Icon = c.Icon, Color = c.Color, Budget = c.MonthlyBudget, Amount = 0 }
-            ).ToList();
         }
-        
-        _loading = false;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadData Error: {ex}");
+            Toast.ShowError($"Errore caricamento dati: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
     
     private void AddInvestment()

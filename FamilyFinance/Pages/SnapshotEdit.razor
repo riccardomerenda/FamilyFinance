@@ -631,27 +631,35 @@
 
     async Task Save()
     {
-        var dateOnly = DateOnly.FromDateTime(_date);
-        var accs = _accRows.Select(r => (r.Id, r.Amount, r.ContributionBasis)).ToList();
-        var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value, r.PortfolioId)).ToList();
-        var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
+        try
+        {
+            var dateOnly = DateOnly.FromDateTime(_date);
+            var accs = _accRows.Select(r => (r.Id, r.Amount, r.ContributionBasis)).ToList();
+            var invs = _invRows.Select(r => (r.Name, r.CostBasis, r.Value, r.PortfolioId)).ToList();
+            var recs = _recRows.Select(r => (r.Desc, r.Amount, r.Status, (DateOnly?)null)).ToList();
 
-        var snapshotId = await SnapshotService.SaveAsync(_familyId, Id == 0 ? null : Id, dateOnly, accs, invs, recs);
-        
-        // Save expenses
-        if (_expenseRows.Any())
-        {
-            var expenses = _expenseRows.Select(e => (e.CategoryId, e.Amount, e.Notes)).ToList();
-            await SnapshotService.SaveExpensesAsync(snapshotId, expenses);
+            var snapshotId = await SnapshotService.SaveAsync(_familyId, Id == 0 ? null : Id, dateOnly, accs, invs, recs);
+            
+            // Save expenses
+            if (_expenseRows.Any())
+            {
+                var expenses = _expenseRows.Select(e => (e.CategoryId, e.Amount, e.Notes)).ToList();
+                await SnapshotService.SaveExpensesAsync(snapshotId, expenses);
+            }
+            
+            // Save incomes
+            if (_incomeRows.Any(i => i.Amount > 0))
+            {
+                var incomes = _incomeRows.Select(i => (i.CategoryId, i.Amount, i.Notes)).ToList();
+                await SnapshotService.SaveIncomesAsync(snapshotId, incomes);
+            }
+            
+            Nav.NavigateTo("/dashboard?saved=true", forceLoad: true);
         }
-        
-        // Save incomes
-        if (_incomeRows.Any(i => i.Amount > 0))
+        catch (Exception ex)
         {
-            var incomes = _incomeRows.Select(i => (i.CategoryId, i.Amount, i.Notes)).ToList();
-            await SnapshotService.SaveIncomesAsync(snapshotId, incomes);
+            Toast.ShowError($"Errore durante il salvataggio: {ex.Message}");
+            Console.WriteLine($"Save Error: {ex}");
         }
-        
-        Nav.NavigateTo("/");
     }
 }

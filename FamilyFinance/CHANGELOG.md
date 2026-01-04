@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.1.0] - 2026-01-04 🛠️ UX IMPROVEMENTS & BUG FIXES
+
+### 🐛 Bug Fixes
+- **Snapshot Save Navigation**: Risolto bug che causava "Nothing at this address" dopo il salvataggio di uno snapshot. Ora naviga correttamente alla Dashboard con toast di conferma.
+- **Wizard "Chiudi Mese"**: Risolto loading infinito nel wizard quando si cliccava "Nuovo Snapshot" dalla Dashboard.
+- **Fly.io Deployment**: Risolto errore di permessi SQLite su volume persistente (esecuzione come root).
+- **Dockerfile**: Sostituito `adduser` con `useradd` per compatibilità con immagini .NET 10.
+
+### ✨ Improvements
+- **UX Naming**: Rinominato "Chiudi Mese" → "Nuovo Snapshot" per chiarezza. Il pulsante ora indica chiaramente che si sta creando un nuovo snapshot, non chiudendo qualcosa di esistente.
+- **Dashboard Badge**: Il badge "Mese Operativo" ora mostra la data dello snapshot effettivo invece della data odierna.
+- **Error Handling**: Aggiunto try-catch con toast di errore nei metodi Save() per migliore debugging.
+
+### 🔧 Technical
+- Filtro categorie nel wizard: ora mostra solo categorie di tipo `Expense` nello step delle spese.
+- Migliore gestione del ciclo di vita dei componenti Blazor (OnAfterRenderAsync per caricamento wizard).
+
+---
+
 ## [4.0.0] - 2026-01-03 🚀 NET 10 & UNIFIED CATEGORIES
 
 ### 🚀 Major Upgrade
