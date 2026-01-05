@@ -66,3 +66,22 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+/* Privacy Mode - Hide/Blur financial amounts */
+.privacy-mode .money,
+.privacy-mode [data-privacy="sensitive"] {
+    filter: blur(8px);
+    user-select: none;
+    transition: filter 0.3s ease;
+}
+
+.privacy-mode .money:hover,
+.privacy-mode [data-privacy="sensitive"]:hover {
+    filter: blur(4px);
+}
+
+/* Optional: Replace with asterisks instead of blur */
+.privacy-mode-hidden .money::before,
+.privacy-mode-hidden [data-privacy="sensitive"]::before {
+    content: "•••••";
+}

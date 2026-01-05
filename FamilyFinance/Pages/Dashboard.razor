@@ -169,7 +169,7 @@ else
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["ChartLiquidity"]</span>
             </div>
             <p class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white money">@_t.Liquidity.ToString("N0") €</p>
-            <p class="text-xs text-gray-400 mt-1">+ @_t.InterestLiquidity.ToString("N0") € @L["ChartInterests"]</p>
+            <p class="text-xs text-gray-400 mt-1 money">+ @_t.InterestLiquidity.ToString("N0") € @L["ChartInterests"]</p>
         </div>
 
         <!-- Investments Card -->
@@ -183,7 +183,7 @@ else
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["ChartInvestments"]</span>
             </div>
             <p class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white money">@_t.InvestmentsValue.ToString("N0") €</p>
-            <p class="text-xs mt-1 @(_t.InvestmentsGainLoss >= 0 ? "text-emerald-500" : "text-red-500") font-medium">
+            <p class="text-xs mt-1 money @(_t.InvestmentsGainLoss >= 0 ? "text-emerald-500" : "text-red-500") font-medium">
                 @(_t.InvestmentsGainLoss >= 0 ? "+" : "")@_t.InvestmentsGainLoss.ToString("N0") € (@(_t.InvestmentsGainLossPercent >= 0 ? "+" : "")@_t.InvestmentsGainLossPercent.ToString("N1")%)
             </p>
         </div>

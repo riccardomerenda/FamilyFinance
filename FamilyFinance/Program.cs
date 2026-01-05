@@ -126,6 +126,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthService>(); // Temporary Keep self-registration for backward compatibility if needed, or remove if confident
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddScoped<NotificationService>();  // Toast notifications
+builder.Services.AddScoped<PrivacyService>();        // Privacy mode for hiding amounts
 builder.Services.AddScoped<ActivityLogService>();   // Activity audit logging
 builder.Services.AddScoped<WizardStateService>();   // Monthly closing wizard state
 builder.Services.AddScoped<IInsightService, InsightService>(); // Dashboard insights

@@ -198,6 +198,18 @@
         
         /* Hide Blazor error UI */
         #blazor-error-ui { display: none; }
+        
+        /* Privacy Mode - Blur financial amounts */
+        .privacy-mode .money,
+        .privacy-mode [data-privacy="sensitive"] {
+            filter: blur(8px);
+            user-select: none;
+            transition: filter 0.3s ease;
+        }
+        .privacy-mode .money:hover,
+        .privacy-mode [data-privacy="sensitive"]:hover {
+            filter: blur(4px);
+        }
     </style>
     
     <link rel="icon" type="image/png" href="favicon.png"/>

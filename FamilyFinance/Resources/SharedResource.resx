@@ -622,6 +622,11 @@
   <data name="MonthClosedSuccess" xml:space="preserve"><value>Snapshot creato con successo!</value></data>
   <data name="MonthUpdatedSuccess" xml:space="preserve"><value>Mese aggiornato con successo!</value></data>
 
+  <!-- Privacy Mode -->
+  <data name="HideAmounts" xml:space="preserve"><value>Nascondi importi</value></data>
+  <data name="ShowAmounts" xml:space="preserve"><value>Mostra importi</value></data>
+  <data name="PrivacyMode" xml:space="preserve"><value>Modalità Privacy</value></data>
+
   <!-- Dashboard Insights -->
   <data name="InsightWealthUp" xml:space="preserve"><value>Patrimonio in crescita!</value></data>
   <data name="InsightWealthUpMsg" xml:space="preserve"><value>Il tuo patrimonio è aumentato del {0}% rispetto al mese scorso. Ottimo lavoro!</value></data>

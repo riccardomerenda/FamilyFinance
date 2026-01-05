@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.3.0] - 2026-01-05 🔒 PRIVACY MODE
+
+### ✨ New Feature: Privacy Mode
+- **Toggle nell'header**: Pulsante con icona occhio per nascondere/mostrare gli importi.
+- **Blur effect**: Gli importi finanziari vengono sfocati (8px blur) quando la modalità è attiva.
+- **Hover reveal**: Passando il mouse sugli importi sfocati, il blur si riduce leggermente.
+- **Multi-pagina**: Privacy mode attivo su Dashboard e Investimenti.
+
+### 🔧 Technical
+- Nuovo `PrivacyService` per gestire lo stato privacy globale.
+- CSS blur applicato a elementi con classe `.money`.
+- Localizzazioni IT/EN per "Nascondi/Mostra importi".
+
+---
+
 ## [4.2.0] - 2026-01-04 🧠 SMART SNAPSHOT DATE
 
 ### ✨ New Feature: Smart Date Suggestion

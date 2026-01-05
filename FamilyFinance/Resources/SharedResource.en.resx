@@ -622,6 +622,11 @@
   <data name="MonthClosedSuccess" xml:space="preserve"><value>Snapshot created successfully!</value></data>
   <data name="MonthUpdatedSuccess" xml:space="preserve"><value>Month updated successfully!</value></data>
 
+  <!-- Privacy Mode -->
+  <data name="HideAmounts" xml:space="preserve"><value>Hide amounts</value></data>
+  <data name="ShowAmounts" xml:space="preserve"><value>Show amounts</value></data>
+  <data name="PrivacyMode" xml:space="preserve"><value>Privacy Mode</value></data>
+
   <!-- Dashboard Insights -->
   <data name="InsightWealthUp" xml:space="preserve"><value>Wealth is growing!</value></data>
   <data name="InsightWealthUpMsg" xml:space="preserve"><value>Your wealth increased by {0}% compared to last month. Great job!</value></data>
