@@ -719,5 +719,11 @@
   <data name="SmartCatBetaDesc" xml:space="preserve"><value>The system learns from your choices: the more you use it, the smarter it gets!</value></data>
   <data name="AddNewCategory" xml:space="preserve"><value>Add Category</value></data>
   <data name="Uncategorized" xml:space="preserve"><value>Uncategorized</value></data>
+  <data name="CollectCredit" xml:space="preserve"><value>Collect</value></data>
+  <data name="CollectCreditTitle" xml:space="preserve"><value>Collect Credit</value></data>
+  <data name="SelectTargetAccount" xml:space="preserve"><value>Select target account</value></data>
+  <data name="MarkAsReceivedOnly" xml:space="preserve"><value>Mark as received only</value></data>
+  <data name="CreditCollectedSuccess" xml:space="preserve"><value>Credit collected successfully</value></data>
+  <data name="TransferTo" xml:space="preserve"><value>Transfer to</value></data>
 </root>
 

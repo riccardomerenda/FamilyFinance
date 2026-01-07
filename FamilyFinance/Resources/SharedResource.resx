@@ -719,5 +719,11 @@
   <data name="SmartCatBetaDesc" xml:space="preserve"><value>Il sistema impara dalle tue scelte: più lo usi, più diventa preciso!</value></data>
   <data name="AddNewCategory" xml:space="preserve"><value>Aggiungi Categoria</value></data>
   <data name="Uncategorized" xml:space="preserve"><value>Non categorizzato</value></data>
+  <data name="CollectCredit" xml:space="preserve"><value>Incassa</value></data>
+  <data name="CollectCreditTitle" xml:space="preserve"><value>Incassa Credito</value></data>
+  <data name="SelectTargetAccount" xml:space="preserve"><value>Seleziona conto di destinazione</value></data>
+  <data name="MarkAsReceivedOnly" xml:space="preserve"><value>Solo segna come ricevuto</value></data>
+  <data name="CreditCollectedSuccess" xml:space="preserve"><value>Credito incassato con successo</value></data>
+  <data name="TransferTo" xml:space="preserve"><value>Trasferisci su</value></data>
 </root>
 

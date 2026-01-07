@@ -38,6 +38,13 @@ public interface ISnapshotService
     /// Save monthly incomes for a snapshot
     /// </summary>
     Task SaveIncomesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> incomes);
+
+    /// <summary>
+    /// Mark a receivable as collected and optionally transfer the amount to an account
+    /// </summary>
+    /// <param name="receivableId">The receivable ID to mark as collected</param>
+    /// <param name="targetAccountId">Optional: Account ID to add the amount to</param>
+    Task<ServiceResult> CollectReceivableAsync(int receivableId, int? targetAccountId);
 }
 
 /// <summary>

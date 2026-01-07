@@ -350,5 +350,60 @@ public class SnapshotService : ISnapshotService
             .Where(i => i.SnapshotId == snapshotId)
             .ToListAsync();
     }
+
+    public async Task<ServiceResult> CollectReceivableAsync(int receivableId, int? targetAccountId)
+    {
+        var receivable = await _db.Receivables
+            .Include(r => r.Snapshot)
+            .FirstOrDefaultAsync(r => r.Id == receivableId);
+
+        if (receivable == null)
+        {
+            _logger.LogWarning("Receivable {ReceivableId} not found", receivableId);
+            return ServiceResult.Fail("Credito non trovato");
+        }
+
+        if (receivable.Status != ReceivableStatus.Open)
+        {
+            _logger.LogWarning("Receivable {ReceivableId} is not open (status: {Status})", receivableId, receivable.Status);
+            return ServiceResult.Fail("Questo credito non è più aperto");
+        }
+
+        // Mark as received
+        receivable.Status = ReceivableStatus.Received;
+
+        // If target account specified, add amount to that account's snapshot line
+        if (targetAccountId.HasValue)
+        {
+            var snapshotLine = await _db.SnapshotLines
+                .FirstOrDefaultAsync(l => l.SnapshotId == receivable.SnapshotId && l.AccountId == targetAccountId.Value);
+
+            if (snapshotLine != null)
+            {
+                snapshotLine.Amount += receivable.Amount;
+                _logger.LogInformation("Added {Amount} to account {AccountId} in snapshot {SnapshotId}", 
+                    receivable.Amount, targetAccountId.Value, receivable.SnapshotId);
+            }
+            else
+            {
+                // Create new snapshot line if it doesn't exist
+                var newLine = new SnapshotLine
+                {
+                    SnapshotId = receivable.SnapshotId,
+                    AccountId = targetAccountId.Value,
+                    Amount = receivable.Amount,
+                    ContributionBasis = 0
+                };
+                _db.SnapshotLines.Add(newLine);
+                _logger.LogInformation("Created new snapshot line for account {AccountId} with amount {Amount}", 
+                    targetAccountId.Value, receivable.Amount);
+            }
+        }
+
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Receivable {ReceivableId} marked as collected", receivableId);
+
+        return ServiceResult.Ok();
+    }
 }
 

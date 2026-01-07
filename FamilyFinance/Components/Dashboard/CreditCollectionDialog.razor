@@ -1,0 +1,90 @@
+@using FamilyFinance.Models
+@inject IStringLocalizer<SharedResource> L
+
+@if (IsOpen)
+{
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-in" @onclick="Close">
+        <div class="w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in" @onclick:stopPropagation="true">
+            <!-- Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-amber-500 to-orange-500">
+                <h2 class="text-xl font-bold text-white">@L["CollectCreditTitle"]</h2>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-6 space-y-4">
+                <!-- Credit Info -->
+                <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800/30">
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">@Credit?.Description</p>
+                    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">@(Credit?.Amount.ToString("N0") ?? "0") €</p>
+                </div>
+                
+                <!-- Account Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@L["SelectTargetAccount"]</label>
+                    <select @bind="_selectedAccountId" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                        <option value="">@L["MarkAsReceivedOnly"]</option>
+                        @foreach (var account in Accounts)
+                        {
+                            <option value="@account.Id">@account.Name</option>
+                        }
+                    </select>
+                </div>
+                
+                @if (_selectedAccountId.HasValue)
+                {
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                        <span>@L["TransferTo"]: <strong>@(Accounts.FirstOrDefault(a => a.Id == _selectedAccountId)?.Name)</strong></span>
+                    </div>
+                }
+            </div>
+            
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                <button @onclick="Close" class="px-4 py-2 text-gray-600 dark:text-gray-400 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    @L["Cancel"]
+                </button>
+                <button @onclick="Confirm" disabled="@_saving" class="px-6 py-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                    @if (_saving)
+                    {
+                        <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    }
+                    else
+                    {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    }
+                    @L["CollectCredit"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public Receivable? Credit { get; set; }
+    [Parameter] public List<Account> Accounts { get; set; } = new();
+    [Parameter] public EventCallback<int?> OnConfirm { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    
+    private int? _selectedAccountId;
+    private bool _saving;
+    
+    private void Close()
+    {
+        _selectedAccountId = null;
+        OnClose.InvokeAsync();
+    }
+    
+    private async Task Confirm()
+    {
+        _saving = true;
+        await OnConfirm.InvokeAsync(_selectedAccountId);
+        _selectedAccountId = null;
+        _saving = false;
+    }
+}

@@ -5,7 +5,9 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using FamilyFinance.Services
 @using FamilyFinance.Components
+
 @using static FamilyFinance.Components.GuidedTour
+@using AccountModel = FamilyFinance.Models.Account
 @inject ISnapshotService SnapshotService
 @inject IGoalService GoalService
 @inject IJSRuntime JS
@@ -16,6 +18,7 @@
 @inject WizardStateService WizardState
 @inject IInsightService InsightService
 @inject NotificationService Toast
+@inject IAccountService AccountService
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
 
@@ -24,6 +27,14 @@
 
 <!-- Guided Tour -->
 <GuidedTour TourId="dashboard-tour" Steps="_tourSteps" OnComplete="OnTourComplete" />
+
+<!-- Credit Collection Dialog -->
+<FamilyFinance.Components.Dashboard.CreditCollectionDialog 
+    IsOpen="_showCollectDialog" 
+    Credit="_selectedCredit" 
+    Accounts="_liquidityAccounts"
+    OnConfirm="OnCreditCollected"
+    OnClose="() => _showCollectDialog = false" />
 
 @if (_loading)
 {
@@ -319,13 +330,20 @@ else
                     @foreach (var r in _latest.Receivables.Where(x => x.Status == ReceivableStatus.Open))
                     {
                         <div class="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
-                            <span class="font-medium text-gray-700 dark:text-gray-300 text-sm">@r.Description</span>
-                            <span class="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-bold money">
-                                @r.Amount.ToString("N0") €
-                            </span>
+                            <div class="flex-1 min-w-0">
+                                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm block truncate">@r.Description</span>
+                                <span class="text-lg font-bold text-amber-600 dark:text-amber-400 money">@r.Amount.ToString("N0") €</span>
+                            </div>
+                            <button @onclick="() => OpenCollectDialog(r)" class="ml-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                @L["CollectCredit"]
+                            </button>
                         </div>
                     }
                 </div>
+
             </div>
         }
 
@@ -393,6 +411,11 @@ else
     // Tour steps - defined after L is available
     private List<TourStep> _tourSteps = new();
     private bool _showSaveToast = false;
+    
+    // Credit collection dialog state
+    private bool _showCollectDialog = false;
+    private Receivable? _selectedCredit;
+    private List<AccountModel> _liquidityAccounts = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -419,6 +442,10 @@ else
             _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
             _insights = await InsightService.GetInsightsAsync(_familyId);
             await BuildCharts();
+            
+            // Load liquidity accounts for credit collection dialog
+            var allAccounts = await AccountService.GetAllAsync(_familyId);
+            _liquidityAccounts = allAccounts.Where(a => a.Category == AccountCategory.Liquidity && a.IsActive).ToList();
         }
         
         _loading = false;
@@ -593,5 +620,39 @@ else
         
         _loading = false;
         StateHasChanged();
+    }
+    
+    private void OpenCollectDialog(Receivable credit)
+    {
+        _selectedCredit = credit;
+        _showCollectDialog = true;
+    }
+    
+    private async Task OnCreditCollected(int? targetAccountId)
+    {
+        if (_selectedCredit == null) return;
+        
+        var result = await SnapshotService.CollectReceivableAsync(_selectedCredit.Id, targetAccountId);
+        
+        _showCollectDialog = false;
+        _selectedCredit = null;
+        
+        if (result.Success)
+        {
+            Toast.ShowSuccess(L["CreditCollectedSuccess"]);
+            
+            // Reload data
+            _latest = await SnapshotService.GetLatestAsync(_familyId);
+            if (_latest != null)
+            {
+                _t = await SnapshotService.CalculateTotalsAsync(_latest);
+                await BuildCharts();
+            }
+            StateHasChanged();
+        }
+        else
+        {
+            Toast.ShowError(result.Error ?? L["GenericError"]);
+        }
     }
 }
