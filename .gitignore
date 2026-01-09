@@ -67,3 +67,9 @@ secrets.json
 # IDE specific
 *.DotSettings.user
 
+# Data Protection Keys (sensitive)
+**/keys/
+
+# Temp files
+temp_*
+*.tmp
