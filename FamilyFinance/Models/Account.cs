@@ -9,6 +9,11 @@ public class Account : IFamilyOwned
     public bool IsActive { get; set; } = true;
     public bool IsInterest { get; set; } = false;
     
+    /// <summary>
+    /// Live balance of the account, updated when transactions are imported
+    /// </summary>
+    public decimal CurrentBalance { get; set; }
+    
     // Family ownership (IFamilyOwned)
     public int FamilyId { get; set; }
     public Family? Family { get; set; }

@@ -1,0 +1,360 @@
+@page "/recurring"
+@using System.Security.Claims
+@using FamilyFinance.Models
+@using FamilyFinance.Services.Interfaces
+@inject IRecurringTransactionService RecurringService
+@inject IBudgetService BudgetService
+@inject FamilyFinance.Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService Toast
+@attribute [Authorize]
+
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <div class="flex items-center gap-2">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["RecurringTransactions"]</h1>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["RecurringTransactionsDesc"]</p>
+    </div>
+    <div class="flex gap-2">
+        <button @onclick="ShowGenerateConfirm" class="inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            @string.Format(L["GenerateFor"], DateTime.Today.ToString("MMMM"))
+        </button>
+        <button @onclick="NewRecurring" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        @L["AddRecurring"]
+    </button>
+</div>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-in delay-1">
+    <div class="bento-card p-5">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["MonthlyExpenses"]</p>
+        </div>
+        <p class="text-2xl font-bold text-red-500 money">-@_monthlyExpenses.ToString("N0") €</p>
+    </div>
+    <div class="bento-card p-5">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                </svg>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["MonthlyIncome"]</p>
+        </div>
+        <p class="text-2xl font-bold text-green-500 money">+@_monthlyIncome.ToString("N0") €</p>
+    </div>
+    <div class="bento-card p-5 hero-gradient text-white">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <p class="text-sm font-medium text-white/80">@L["NetMonthly"]</p>
+        </div>
+        <p class="text-2xl font-bold money">@((_monthlyIncome - _monthlyExpenses).ToString("N0")) €</p>
+    </div>
+</div>
+
+<!-- Upcoming Section -->
+@if (_upcoming.Any())
+{
+    <div class="mb-8 animate-in delay-2">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["UpcomingNext30Days"]</h2>
+        <div class="flex flex-wrap gap-3">
+            @foreach (var up in _upcoming.Take(5))
+            {
+                <div class="bento-card p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background-color: @(up.Recurring.Category?.Color ?? "#6366f1")20">
+                        @(up.Recurring.Category?.Icon ?? "💰")
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 dark:text-gray-200">@up.Recurring.Name</p>
+                        <p class="text-xs text-gray-500">@up.NextDate.ToString("dd MMM") • @(up.DaysUntil == 0 ? L["Today"] : $"{up.DaysUntil} {L["DaysRemaining"]}")</p>
+                    </div>
+                    <span class="ml-auto font-semibold @(up.Recurring.Type == TransactionType.Income ? "text-green-500" : "text-red-500") money">
+                        @(up.Recurring.Type == TransactionType.Income ? "+" : "-")@up.Recurring.Amount.ToString("N0") €
+                    </span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Recurring List -->
+@if (!_recurring.Any())
+{
+    <div class="bento-card text-center py-16 animate-in delay-3">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoRecurringTransactions"]</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">@L["NoRecurringTransactionsDesc"]</p>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in delay-3">
+        @foreach (var r in _recurring)
+        {
+            <div class="bento-card p-5 group">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl transition-transform group-hover:scale-110" style="background-color: @(r.Category?.Color ?? "#6366f1")20">
+                            @(r.Category?.Icon ?? "💰")
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 dark:text-gray-200">@r.Name</h3>
+                            <p class="text-sm text-gray-500">
+                                @(r.Frequency switch {
+                                    RecurrenceFrequency.Daily => L["Daily"],
+                                    RecurrenceFrequency.Weekly => L["Weekly"],
+                                    RecurrenceFrequency.Monthly => L["Monthly"],
+                                    RecurrenceFrequency.Yearly => L["Yearly"],
+                                    _ => r.Frequency.ToString()
+                                })
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button @onclick="() => Edit(r)" class="p-2 text-gray-400 hover:text-primary-500 rounded-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                        </button>
+                        <button @onclick="() => Delete(r.Id)" class="p-2 text-gray-400 hover:text-red-500 rounded-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-xl font-bold @(r.Type == TransactionType.Income ? "text-green-500" : "text-red-500") money">
+                    @(r.Type == TransactionType.Income ? "+" : "-")@r.Amount.ToString("N0") €
+                </p>
+            </div>
+        }
+    </div>
+}
+
+<!-- Edit Modal -->
+@if (_editing != null)
+{
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+                @(_editing.Id == 0 ? L["AddRecurring"] : L["EditRecurring"])
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Name"]</label>
+                    <input @bind="_editing.Name" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" placeholder="Netflix, Salary..." />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Type"]</label>
+                    <select @bind="_editing.Type" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <option value="@TransactionType.Expense">@L["Expense"]</option>
+                        <option value="@TransactionType.Income">@L["Income"]</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Amount"] (€)</label>
+                    <input type="number" @bind="_editing.Amount" step="0.01" min="0" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Frequency"]</label>
+                    <select @bind="_editing.Frequency" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <option value="@RecurrenceFrequency.Monthly">@L["Monthly"]</option>
+                        <option value="@RecurrenceFrequency.Weekly">@L["Weekly"]</option>
+                        <option value="@RecurrenceFrequency.Yearly">@L["Yearly"]</option>
+                        <option value="@RecurrenceFrequency.Daily">@L["Daily"]</option>
+                    </select>
+                </div>
+                
+                @if (_editing.Frequency == RecurrenceFrequency.Monthly)
+                {
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["DayOfMonth"]</label>
+                        <input type="number" @bind="_editing.DayOfMonth" min="1" max="31" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                    </div>
+                }
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Category"]</label>
+                    <select @bind="_editing.CategoryId" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <option value="">@L["SelectCategory"]</option>
+                        @foreach (var cat in _categories)
+                        {
+                            <option value="@cat.Id">@cat.Icon @cat.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button @onclick="Save" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                    @L["Save"]
+                </button>
+                <button @onclick="() => _editing = null" class="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Generate Confirmation Modal -->
+@if (_showGenerateConfirm)
+{
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _showGenerateConfirm = false">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200 dark:border-gray-700" @onclick:stopPropagation="true">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">@L["GenerateTransactions"]</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">@L["GenerateTransactionsConfirm"]</p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button @onclick="ConfirmGenerate" disabled="@_generating" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                    @if (_generating)
+                    {
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    }
+                    @L["Yes"]
+                </button>
+                <button @onclick="() => _showGenerateConfirm = false" disabled="@_generating" class="px-4 py-2.5 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<RecurringTransaction> _recurring = new();
+    List<UpcomingTransaction> _upcoming = new();
+    List<BudgetCategory> _categories = new();
+    RecurringTransaction? _editing;
+    int _familyId;
+    decimal _monthlyExpenses;
+    decimal _monthlyIncome;
+    bool _showGenerateConfirm = false;
+    bool _generating = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+                await LoadData();
+            }
+        }
+    }
+
+    async Task LoadData()
+    {
+        _recurring = await RecurringService.GetAllAsync(_familyId);
+        _upcoming = await RecurringService.GetUpcomingAsync(_familyId, 30);
+        _categories = await BudgetService.GetCategoriesAsync(_familyId);
+        _monthlyExpenses = await RecurringService.GetMonthlyTotalAsync(_familyId, TransactionType.Expense);
+        _monthlyIncome = await RecurringService.GetMonthlyTotalAsync(_familyId, TransactionType.Income);
+    }
+
+    void NewRecurring()
+    {
+        _editing = new RecurringTransaction
+        {
+            FamilyId = _familyId,
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Type = TransactionType.Expense,
+            Frequency = RecurrenceFrequency.Monthly,
+            DayOfMonth = DateTime.Today.Day
+        };
+    }
+
+    void Edit(RecurringTransaction r)
+    {
+        _editing = new RecurringTransaction
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Amount = r.Amount,
+            Type = r.Type,
+            Frequency = r.Frequency,
+            DayOfMonth = r.DayOfMonth,
+            CategoryId = r.CategoryId,
+            FamilyId = r.FamilyId,
+            StartDate = r.StartDate,
+            IsActive = r.IsActive
+        };
+    }
+
+    async Task Save()
+    {
+        if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
+        await RecurringService.SaveAsync(_editing);
+        _editing = null;
+        await LoadData();
+    }
+
+    async Task Delete(int id)
+    {
+        await RecurringService.DeleteAsync(id);
+        await LoadData();
+    }
+
+    void ShowGenerateConfirm()
+    {
+        _showGenerateConfirm = true;
+    }
+
+    async Task ConfirmGenerate()
+    {
+        _generating = true;
+        var today = DateTime.Today;
+        var result = await RecurringService.ProcessRecurringForMonthAsync(_familyId, today.Year, today.Month);
+        _generating = false;
+        _showGenerateConfirm = false;
+
+        if (result.Success)
+        {
+            Toast.ShowSuccess(string.Format(L["GenerateTransactionsSuccess"], result.Value));
+        }
+        else
+        {
+            Toast.ShowError(result.Error ?? L["GenerateTransactionsError"]);
+        }
+    }
+}

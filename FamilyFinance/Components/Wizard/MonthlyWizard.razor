@@ -1,8 +1,11 @@
 @using FamilyFinance.Services
 @using FamilyFinance.Services.Interfaces
 @using FamilyFinance.Models
+@using FamilyFinance
 @using System.Security.Claims
-@inject WizardStateService WizardState
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Localization
+@inject FamilyFinance.Services.WizardStateService WizardState
 @inject ISnapshotService SnapshotService
 @inject IAccountService AccountService
 @inject IPortfolioService PortfolioService
@@ -408,13 +411,18 @@
                         var line = snapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
                         return new WizardStateService.AccountRow {
                             Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
-                            Amount = line?.Amount ?? 0,
-                            ContributionBasis = line?.ContributionBasis ?? 0
+                            Amount = Math.Round(line?.Amount ?? 0, 2),
+                            ContributionBasis = Math.Round(line?.ContributionBasis ?? 0, 2)
                         };
                     }).ToList();
                     
                     WizardState.InvestmentRows = snapshot.Investments.Select(i => 
-                        new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
+                        new WizardStateService.InvestmentRow { 
+                            Name = i.Name, 
+                            CostBasis = Math.Round(i.CostBasis, 2), 
+                            Value = Math.Round(i.Value, 2), 
+                            PortfolioId = i.PortfolioId 
+                        }
                     ).ToList();
                     
                     WizardState.ExpenseRows = expenseCategories.Select(c => {
@@ -437,13 +445,18 @@
                         var line = lastSnapshot.Lines.FirstOrDefault(l => l.AccountId == a.Id);
                         return new WizardStateService.AccountRow {
                             Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category,
-                            Amount = line?.Amount ?? 0,
-                            ContributionBasis = line?.ContributionBasis ?? 0
+                            Amount = Math.Round(line?.Amount ?? 0, 2),
+                            ContributionBasis = Math.Round(line?.ContributionBasis ?? 0, 2)
                         };
                     }).ToList();
                     
                     WizardState.InvestmentRows = lastSnapshot.Investments.Select(i => 
-                        new WizardStateService.InvestmentRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }
+                        new WizardStateService.InvestmentRow { 
+                            Name = i.Name, 
+                            CostBasis = Math.Round(i.CostBasis, 2), 
+                            Value = Math.Round(i.Value, 2), 
+                            PortfolioId = i.PortfolioId 
+                        }
                     ).ToList();
                 }
                 else

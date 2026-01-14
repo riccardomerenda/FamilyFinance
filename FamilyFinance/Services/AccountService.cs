@@ -114,5 +114,50 @@ public class AccountService : IAccountService
 
     // Legacy method for backward compatibility
     public async Task DeleteAsync(int id) => await DeleteAsync(id, null);
+
+    /// <summary>
+    /// Updates the account's current balance by adding a delta (can be negative for expenses)
+    /// </summary>
+    public async Task<ServiceResult> UpdateBalanceAsync(int accountId, decimal delta)
+    {
+        var account = await _db.Accounts.FirstOrDefaultAsync(a => a.Id == accountId && !a.IsDeleted);
+        if (account == null)
+        {
+            _logger.LogWarning("Account {AccountId} not found for balance update", accountId);
+            return ServiceResult.Fail("Conto non trovato");
+        }
+
+        account.CurrentBalance += delta;
+        account.UpdatedAt = DateTime.UtcNow;
+        
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Updated balance for account {AccountId} by {Delta}. New balance: {NewBalance}", 
+            accountId, delta, account.CurrentBalance);
+        
+        return ServiceResult.Ok();
+    }
+
+    /// <summary>
+    /// Sets the account's current balance to a specific value
+    /// </summary>
+    public async Task<ServiceResult> SetBalanceAsync(int accountId, decimal newBalance)
+    {
+        var account = await _db.Accounts.FirstOrDefaultAsync(a => a.Id == accountId && !a.IsDeleted);
+        if (account == null)
+        {
+            _logger.LogWarning("Account {AccountId} not found for balance set", accountId);
+            return ServiceResult.Fail("Conto non trovato");
+        }
+
+        var oldBalance = account.CurrentBalance;
+        account.CurrentBalance = newBalance;
+        account.UpdatedAt = DateTime.UtcNow;
+        
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Set balance for account {AccountId} from {OldBalance} to {NewBalance}", 
+            accountId, oldBalance, newBalance);
+        
+        return ServiceResult.Ok();
+    }
 }
 

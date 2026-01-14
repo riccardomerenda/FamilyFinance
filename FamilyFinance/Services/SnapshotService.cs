@@ -14,17 +14,20 @@ public class SnapshotService : ISnapshotService
     private readonly IValidator<Snapshot> _snapshotValidator;
     private readonly IValidator<InvestmentAsset> _investmentValidator;
     private readonly IValidator<Receivable> _receivableValidator;
+    private readonly IAccountService _accountService;
 
     public SnapshotService(AppDbContext db, ILogger<SnapshotService> logger, 
         IValidator<Snapshot> snapshotValidator,
         IValidator<InvestmentAsset> investmentValidator,
-        IValidator<Receivable> receivableValidator)
+        IValidator<Receivable> receivableValidator,
+        IAccountService accountService)
     {
         _db = db;
         _logger = logger;
         _snapshotValidator = snapshotValidator;
         _investmentValidator = investmentValidator;
         _receivableValidator = receivableValidator;
+        _accountService = accountService;
     }
 
     public async Task<List<Snapshot>> GetAllAsync(int familyId)
@@ -250,36 +253,75 @@ public class SnapshotService : ISnapshotService
     /// <summary>
     /// Optimized method to get all snapshots with calculated totals in a SINGLE database query
     /// Avoids N+1 problem by using projection instead of loading full entities
+    /// Transaction-First: Includes both Transaction aggregates and MonthlyExpense totals
     /// </summary>
     public async Task<List<SnapshotSummary>> GetAllWithTotalsAsync(int familyId)
     {
         _logger.LogDebug("Fetching all snapshots with totals for family {FamilyId}", familyId);
-        return await _db.Snapshots
+        
+        // Get base snapshot data
+        var snapshots = await _db.Snapshots
             .Where(s => s.FamilyId == familyId && !s.IsDeleted)
             .OrderBy(s => s.SnapshotDate)
-            .Select(s => new SnapshotSummary(
+            .Select(s => new
+            {
                 s.Id,
                 s.SnapshotDate,
-                // Liquidity: sum of lines where account category is Liquidity
-                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity).Sum(l => l.Amount),
-                // Investments Value
-                s.Investments.Sum(i => i.Value),
-                // Investments Cost
-                s.Investments.Sum(i => i.CostBasis),
-                // Credits Open
-                s.Receivables.Where(r => r.Status == ReceivableStatus.Open).Sum(r => r.Amount),
-                // Pension/Insurance Value
-                s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.Amount),
-                // Pension/Insurance Contributions
-                s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.ContributionBasis),
-                // Interest Liquidity
-                s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount),
-                // Income Total
-                s.Incomes.Sum(i => i.Amount),
-                // Expense Total
-                s.Expenses.Sum(e => e.Amount)
-            ))
+                Liquidity = s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity).Sum(l => l.Amount),
+                InvestmentsValue = s.Investments.Sum(i => i.Value),
+                InvestmentsCost = s.Investments.Sum(i => i.CostBasis),
+                CreditsOpen = s.Receivables.Where(r => r.Status == ReceivableStatus.Open).Sum(r => r.Amount),
+                PensionValue = s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.Amount),
+                PensionContrib = s.Lines.Where(l => l.Account.Category == AccountCategory.Pension || l.Account.Category == AccountCategory.Insurance).Sum(l => l.ContributionBasis),
+                InterestLiquidity = s.Lines.Where(l => l.Account.Category == AccountCategory.Liquidity && l.Account.IsInterest).Sum(l => l.Amount),
+                // Legacy MonthlyExpense/Income totals
+                LegacyIncomeTotal = s.Incomes.Sum(i => i.Amount),
+                LegacyExpenseTotal = s.Expenses.Sum(e => e.Amount)
+            })
             .ToListAsync();
+        
+        // Get transaction aggregates by month for this family (Transaction-First approach)
+        var transactionAggregates = await _db.Transactions
+            .Where(t => t.FamilyId == familyId && !t.IsDeleted)
+            .GroupBy(t => new { t.Date.Year, t.Date.Month, t.Type })
+            .Select(g => new
+            {
+                g.Key.Year,
+                g.Key.Month,
+                g.Key.Type,
+                Total = g.Sum(t => t.Amount)
+            })
+            .ToListAsync();
+        
+        // Build summaries combining snapshot data with transaction aggregates
+        return snapshots.Select(s =>
+        {
+            // Find transaction totals for this snapshot's month
+            var txExpenses = transactionAggregates
+                .Where(a => a.Year == s.SnapshotDate.Year && a.Month == s.SnapshotDate.Month && a.Type == TransactionType.Expense)
+                .Sum(a => a.Total);
+            var txIncomes = transactionAggregates
+                .Where(a => a.Year == s.SnapshotDate.Year && a.Month == s.SnapshotDate.Month && a.Type == TransactionType.Income)
+                .Sum(a => a.Total);
+            
+            // Transaction-First: Use transaction totals if available, otherwise fall back to legacy
+            var expenseTotal = txExpenses > 0 ? txExpenses + s.LegacyExpenseTotal : s.LegacyExpenseTotal;
+            var incomeTotal = txIncomes > 0 ? txIncomes + s.LegacyIncomeTotal : s.LegacyIncomeTotal;
+            
+            return new SnapshotSummary(
+                s.Id,
+                s.SnapshotDate,
+                s.Liquidity,
+                s.InvestmentsValue,
+                s.InvestmentsCost,
+                s.CreditsOpen,
+                s.PensionValue,
+                s.PensionContrib,
+                s.InterestLiquidity,
+                incomeTotal,
+                expenseTotal
+            );
+        }).ToList();
     }
     
     public async Task SaveExpensesAsync(int snapshotId, List<(int CategoryId, decimal Amount, string? Notes)> expenses)
@@ -375,6 +417,9 @@ public class SnapshotService : ISnapshotService
         // If target account specified, add amount to that account's snapshot line
         if (targetAccountId.HasValue)
         {
+            // Update LIVE balance
+            await _accountService.UpdateBalanceAsync(targetAccountId.Value, receivable.Amount);
+
             var snapshotLine = await _db.SnapshotLines
                 .FirstOrDefaultAsync(l => l.SnapshotId == receivable.SnapshotId && l.AccountId == targetAccountId.Value);
 

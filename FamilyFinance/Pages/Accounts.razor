@@ -44,6 +44,9 @@
                                 <span class="px-2 py-0.5 text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">@L["Interests"]</span>
                             }
                         </div>
+                        <p class="text-xl font-bold text-gray-800 dark:text-gray-200 mt-2 font-mono">
+                            @a.CurrentBalance.ToString("N2") €
+                        </p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -84,6 +87,15 @@
                             <option value="@c">@c</option>
                         }
                     </InputSelect>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["CurrentBalance"]</label>
+                    <div class="relative">
+                        <InputNumber @bind-Value="_editing.CurrentBalance" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 font-mono" />
+                        <span class="absolute right-4 top-3 text-gray-400">€</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">@L["InitialBalanceHelp"]</p>
                 </div>
                 
                 <div class="flex items-center gap-3">
@@ -130,7 +142,12 @@
     };
 
     void NewAccount() => _editing = new AccountModel { FamilyId = _familyId };
-    void Edit(AccountModel a) => _editing = a;
+    void Edit(AccountModel a) 
+    {
+        _editing = a;
+        // Round to 2 decimal places for display/edit
+        _editing.CurrentBalance = Math.Round(_editing.CurrentBalance, 2);
+    }
     
     async Task Delete(AccountModel a)
     {
@@ -141,8 +158,19 @@
     async Task Save()
     {
         if (string.IsNullOrWhiteSpace(_editing?.Name)) return;
+        
+        var isNew = _editing.Id == 0;
         _editing.FamilyId = _familyId; // Ensure FamilyId is set
+        
         await AccountService.SaveAsync(_editing);
+        
+        // For existing accounts, explicitly update the balance 
+        // (SaveAsync only updates metadata for existing accounts)
+        if (!isNew)
+        {
+            await AccountService.SetBalanceAsync(_editing.Id, _editing.CurrentBalance);
+        }
+        
         _editing = null;
         await OnInitializedAsync();
     }

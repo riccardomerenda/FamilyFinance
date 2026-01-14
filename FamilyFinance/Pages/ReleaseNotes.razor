@@ -99,6 +99,35 @@
     {
         new ReleaseInfo
         {
+            Version = "4.4.0",
+            Date = new DateTime(2026, 01, 14),
+            Emoji = "🏗️",
+            IsMajor = true,
+            Title = "Refactoring Architettura: Transaction-First",
+            Sections = new List<ReleaseSection>
+            {
+                new("🏗️", "Nuova Architettura", new List<string>
+                {
+                    "Passaggio a modello 'Transaction-First': le transazioni sono ora la fonte di verità",
+                    "Introduzione 'Saldi Live': i conti hanno un saldo corrente indipendente dagli snapshot",
+                    "Deprecazione graduale delle vecchie spese mensili manuali"
+                }),
+                new("🔄", "Motore Ricorrenti", new List<string>
+                {
+                    "Generazione automatica delle transazioni dai template ricorrenti",
+                    "Logica di prevenzione duplicati e aggiornamento saldi in tempo reale",
+                    "Nuova interfaccia per la gestione delle scadenze mensili"
+                }),
+                 new("✨", "Miglioramenti UX", new List<string>
+                {
+                    "Tool 'Allinea Saldi' per sincronizzare i conti con l'ultimo snapshot",
+                    "Visualizzazione stato 'Incassato' per i crediti storici",
+                    "Ottimizzazione delle performance nel calcolo dei totali dashboard"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "2.5.0",
             Date = new DateTime(2025, 12, 21),
             Emoji = "🚀",
@@ -339,6 +368,35 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.4.0",
+            Date = new DateTime(2026, 01, 14),
+            Emoji = "🏗️",
+            IsMajor = true,
+            Title = "Architecture Refactor: Transaction-First",
+            Sections = new List<ReleaseSection>
+            {
+                new("🏗️", "New Architecture", new List<string>
+                {
+                    "Shift to 'Transaction-First' model: transactions are now the source of truth",
+                    "Introduction of 'Live Balances': accounts track current funds independent of snapshots",
+                    "Gradual deprecation of legacy manual monthly expenses"
+                }),
+                new("🔄", "Recurring Engine", new List<string>
+                {
+                    "Automatic transaction generation from recurring templates",
+                    "Duplicate prevention logic and real-time balance updates",
+                    "New interface for managing monthly dues"
+                }),
+                 new("✨", "UX Improvements", new List<string>
+                {
+                    "'Align Balances' tool to sync accounts with latest snapshot",
+                    "'Collected' status visualization for historical receivables",
+                    "Performance optimization for dashboard total calculations"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "2.5.0",

@@ -720,10 +720,120 @@
   <data name="AddNewCategory" xml:space="preserve"><value>Add Category</value></data>
   <data name="Uncategorized" xml:space="preserve"><value>Uncategorized</value></data>
   <data name="CollectCredit" xml:space="preserve"><value>Collect</value></data>
+  <data name="Collected" xml:space="preserve"><value>Collected</value></data>
   <data name="CollectCreditTitle" xml:space="preserve"><value>Collect Credit</value></data>
   <data name="SelectTargetAccount" xml:space="preserve"><value>Select target account</value></data>
   <data name="MarkAsReceivedOnly" xml:space="preserve"><value>Mark as received only</value></data>
   <data name="CreditCollectedSuccess" xml:space="preserve"><value>Credit collected successfully</value></data>
   <data name="TransferTo" xml:space="preserve"><value>Transfer to</value></data>
-</root>
 
+  <!-- Transactions Page -->
+  <data name="Transactions" xml:space="preserve"><value>Transactions</value></data>
+  <data name="TransactionsDesc" xml:space="preserve"><value>Manage your individual income and expenses</value></data>
+  <data name="AddTransaction" xml:space="preserve"><value>Add Transaction</value></data>
+  <data name="EditTransaction" xml:space="preserve"><value>Edit Transaction</value></data>
+  <data name="NoTransactions" xml:space="preserve"><value>No transactions</value></data>
+  <data name="NoTransactionsDesc" xml:space="preserve"><value>Start by adding your first transaction</value></data>
+  <data name="TotalTransactions" xml:space="preserve"><value>Total Transactions</value></data>
+  <data name="NetBalance" xml:space="preserve"><value>Net Balance</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Expense" xml:space="preserve"><value>Expense</value></data>
+  <data name="Income" xml:space="preserve"><value>Income</value></data>
+  <data name="Type" xml:space="preserve"><value>Type</value></data>
+  <data name="All" xml:space="preserve"><value>All</value></data>
+  <data name="Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="SelectCategory" xml:space="preserve"><value>Select category</value></data>
+  <data name="Payee" xml:space="preserve"><value>Payee</value></data>
+  <data name="Optional" xml:space="preserve"><value>optional</value></data>
+
+  <!-- Recurring Page -->
+  <data name="RecurringTransactions" xml:space="preserve"><value>Recurring Transactions</value></data>
+  <data name="RecurringTransactionsDesc" xml:space="preserve"><value>Manage subscriptions, salaries and regular payments</value></data>
+  <data name="AddRecurring" xml:space="preserve"><value>Add Recurring</value></data>
+  <data name="EditRecurring" xml:space="preserve"><value>Edit Recurring</value></data>
+  <data name="NoRecurringTransactions" xml:space="preserve"><value>No recurring transactions</value></data>
+  <data name="NoRecurringTransactionsDesc" xml:space="preserve"><value>Add subscriptions like Netflix, bills or salary</value></data>
+  <data name="MonthlyIncome" xml:space="preserve"><value>Monthly Income</value></data>
+  <data name="NetMonthly" xml:space="preserve"><value>Net Monthly</value></data>
+  <data name="UpcomingNext30Days" xml:space="preserve"><value>Upcoming 30 days</value></data>
+  <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="DaysRemaining" xml:space="preserve"><value>days</value></data>
+  <data name="Frequency" xml:space="preserve"><value>Frequency</value></data>
+  <data name="Daily" xml:space="preserve"><value>Daily</value></data>
+  <data name="Weekly" xml:space="preserve"><value>Weekly</value></data>
+  <data name="Monthly" xml:space="preserve"><value>Monthly</value></data>
+  <data name="Yearly" xml:space="preserve"><value>Yearly</value></data>
+  <data name="DayOfMonth" xml:space="preserve"><value>Day of Month</value></data>
+
+  <!-- Reports Page -->
+  <data name="Reports" xml:space="preserve"><value>Reports</value></data>
+  <data name="ReportsDesc" xml:space="preserve"><value>Generate monthly and yearly reports</value></data>
+  <data name="ReportType" xml:space="preserve"><value>Report Type</value></data>
+  <data name="MonthlyReport" xml:space="preserve"><value>Monthly Report</value></data>
+  <data name="YearlyReport" xml:space="preserve"><value>Yearly Report</value></data>
+  <data name="GenerateReport" xml:space="preserve"><value>Generate Report</value></data>
+  <data name="SelectReportToGenerate" xml:space="preserve"><value>Select a report</value></data>
+  <data name="SelectReportToGenerateDesc" xml:space="preserve"><value>Choose the report type and period to analyze</value></data>
+  <data name="AnnualReport" xml:space="preserve"><value>Annual Report</value></data>
+  <data name="ExpensesByCategory" xml:space="preserve"><value>Expenses by Category</value></data>
+  <data name="CurrentNetWorth" xml:space="preserve"><value>Current Net Worth</value></data>
+  <data name="MonthlyChange" xml:space="preserve"><value>Monthly Change</value></data>
+  <data name="NetWorthChange" xml:space="preserve"><value>Net Worth Change</value></data>
+  <data name="TotalSavings" xml:space="preserve"><value>Total Savings</value></data>
+  <data name="MonthlyBreakdown" xml:space="preserve"><value>Monthly Breakdown</value></data>
+  <data name="Savings" xml:space="preserve"><value>Savings</value></data>
+  <data name="ExportPDF" xml:space="preserve"><value>Export PDF</value></data>
+  <data name="ExportExcel" xml:space="preserve"><value>Export Excel</value></data>
+  <data name="ManualAdjustment" xml:space="preserve"><value>Manual Adjustment</value></data>
+  <data name="CategoryTotal" xml:space="preserve"><value>Category Total</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="TransactionMode" xml:space="preserve"><value>Transaction Mode</value></data>
+  <data name="TransactionModeDesc" xml:space="preserve"><value>Expense data is calculated from imported transactions.</value></data>
+  <data name="ManualMode" xml:space="preserve"><value>Manual Mode</value></data>
+  <data name="ManualModeDesc" xml:space="preserve"><value>Enter expenses manually or import a CSV statement.</value></data>
+  <data name="ViewAllTransactions" xml:space="preserve"><value>View all transactions</value></data>
+  <data name="ImportCSV" xml:space="preserve"><value>Import CSV</value></data>
+  <data name="BalanceUpdated" xml:space="preserve"><value>Balance updated</value></data>
+  <data name="CloseMonth" xml:space="preserve"><value>Close Month</value></data>
+  <data name="CloseMonthPrompt" xml:space="preserve"><value>Do you want to close the month?</value></data>
+  <data name="CloseMonthDesc" xml:space="preserve"><value>This will create a historical snapshot with current balances.</value></data>
+  <data name="Later" xml:space="preserve"><value>Later</value></data>
+  <data name="ConfirmClose" xml:space="preserve"><value>Confirm Close</value></data>
+  <data name="SnapshotSaved" xml:space="preserve"><value>Snapshot saved successfully</value></data>
+  <data name="LiveData" xml:space="preserve"><value>Live Data</value></data>
+  <data name="LiveDataDesc" xml:space="preserve"><value>This data shows current account balances in real-time.</value></data>
+  <data name="CurrentBalance" xml:space="preserve"><value>Current Balance</value></data>
+  <data name="InitialBalanceHelp" xml:space="preserve"><value>Edit this value to align the account balance (e.g. initial balance).</value></data>
+  <data name="AlignBalances" xml:space="preserve"><value>Align Balances from Snapshot</value></data>
+  <data name="AlignBalancesDesc" xml:space="preserve"><value>Reset current balances of all accounts using values from the latest snapshot.</value></data>
+  <data name="Sync" xml:space="preserve"><value>Sync</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Balances updated successfully ({0} accounts).</value></data>
+  <data name="Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Documentation" xml:space="preserve"><value>Documentation</value></data>
+  <data name="Support" xml:space="preserve"><value>Support</value></data>
+  <data name="Guide_Subtitle" xml:space="preserve"><value>User Guide and FAQ</value></data>
+  <data name="LiveBalanceSystem_Title" xml:space="preserve"><value>Live Balance System</value></data>
+  <data name="LiveBalanceSystem_Desc" xml:space="preserve"><value>FamilyFinance uses a hybrid Live Balance + Historical Snapshot system. This means the Dashboard always shows your real-time situation, while history remains saved in secure monthly snapshots.</value></data>
+  <data name="LiveMode_Title" xml:space="preserve"><value>1. Live Mode</value></data>
+  <data name="LiveMode_Desc" xml:space="preserve"><value>Import transactions or add them manually. Account balances update instantly.</value></data>
+  <data name="MonthClose_Title" xml:space="preserve"><value>2. Month Close</value></data>
+  <data name="MonthClose_Desc" xml:space="preserve"><value>At month end, use the "Close Month" button on the Dashboard to create a historical Snapshot.</value></data>
+  <data name="Analysis_Title" xml:space="preserve"><value>3. Analysis</value></data>
+  <data name="Analysis_Desc" xml:space="preserve"><value>View historical reports based on consolidated snapshot data.</value></data>
+  <data name="FAQ_Title" xml:space="preserve"><value>Frequently Asked Questions (FAQ)</value></data>
+  <data name="FAQ_Q1" xml:space="preserve"><value>Why do I see a different balance between Dashboard and "Compare"?</value></data>
+  <data name="FAQ_A1" xml:space="preserve"><value>The Dashboard shows Live data (today). The Compare page uses Historical Snapshots (last consolidation). If you haven't closed the current month, Compare shows last month's data.</value></data>
+  <data name="FAQ_Q2" xml:space="preserve"><value>What happens if I import an old CSV?</value></data>
+  <data name="FAQ_A2" xml:space="preserve"><value>The system will update the current account balance by adding/subtracting the imported transactions. Note that the historical snapshot for that month will remain unchanged to preserve history.</value></data>
+  <data name="FAQ_Q3" xml:space="preserve"><value>How do I align the initial balance?</value></data>
+  <data name="FAQ_A3" xml:space="preserve"><value>You can manually edit an account's balance from the Accounts page (pencil icon). Or, in Data Management, use the "Align Balances from Snapshot" tool to reset everything to the last save.</value></data>
+  <data name="FAQ_Q4" xml:space="preserve"><value>Do I still need to create manual snapshots?</value></data>
+  <data name="FAQ_A4" xml:space="preserve"><value>Not for ordinary month closing. The system will prompt you with a banner on the Dashboard. You can still create additional manual snapshots if needed.</value></data>
+  <data name="Help_Footer_Contact" xml:space="preserve"><value>Need more help? Contact technical support.</value></data>
+  <data name="GenerateTransactions" xml:space="preserve"><value>Generate Transactions</value></data>
+  <data name="GenerateTransactionsConfirm" xml:space="preserve"><value>Do you want to generate transactions for this month? Only missing ones will be created.</value></data>
+  <data name="GenerateTransactionsSuccess" xml:space="preserve"><value>Transactions generated successfully ({0})</value></data>
+  <data name="GenerateTransactionsError" xml:space="preserve"><value>Generation error</value></data>
+  <data name="GenerateFor" xml:space="preserve"><value>Generate for {0}</value></data>
+</root>

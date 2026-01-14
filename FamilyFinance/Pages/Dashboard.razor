@@ -19,8 +19,43 @@
 @inject IInsightService InsightService
 @inject NotificationService Toast
 @inject IAccountService AccountService
+@inject IMonthCloseService MonthCloseService
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
+
+
+<!-- Month Close Banner -->
+@if (_monthToClose != null)
+{
+    <div class="mb-6 bg-indigo-600 rounded-xl p-4 text-white shadow-lg shadow-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4">
+        <div class="flex items-center gap-4">
+            <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg">@L["CloseMonth"] @_monthToClose.Value.ToString("MMMM yyyy")</h3>
+                <p class="text-indigo-100 text-sm">@L["CloseMonthPrompt"]</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <button @onclick="DismissMonthClose" class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-colors">
+                @L["Later"]
+            </button>
+            <button @onclick="CloseMonth" disabled="@_closingMonth" class="flex-1 sm:flex-none px-4 py-2 text-sm font-bold bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
+                @if (_closingMonth)
+                {
+                    <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                }
+                @L["ConfirmClose"]
+            </button>
+        </div>
+    </div>
+}
 
 <!-- Monthly Wizard -->
 <FamilyFinance.Components.Wizard.MonthlyWizard OnSaved="OnWizardSaved" />
@@ -130,6 +165,16 @@ else
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             <span>@L["OperativeMonth"]: <strong class="group-hover:text-primary-600 transition-colors">@(_latest?.SnapshotDate.ToString("MMMM yyyy") ?? DateTime.Today.ToString("MMMM yyyy"))</strong></span>
+            @if (_usingLiveData)
+            {
+                <div class="ml-3 px-2 py-0.5 text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center gap-1.5 border border-amber-200 dark:border-amber-800 animate-in fade-in" title="@L["LiveDataDesc"]">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    @L["LiveData"]
+                </div>
+            }
             @if (isCurrentMonthClosed)
             {
                 <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">✓</span>
@@ -401,8 +446,12 @@ else
 @code {
     private bool _loading = true;
     private bool _initialized = false; // Prevents double loading during prerendering
+    private bool _usingLiveData = false; // Live Balance feature
     private Snapshot? _latest;
     private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    private DateTime? _monthToClose;
+    private bool _closingMonth = false;
+    
     private object _trendConfig = new { }, _compConfig = new { }, _cashFlowConfig = new { };
     private List<Goal>? _goals;
     private List<FamilyFinance.Services.Interfaces.Insight>? _insights;
@@ -410,6 +459,34 @@ else
     
     // Tour steps - defined after L is available
     private List<TourStep> _tourSteps = new();
+
+
+    
+    private async Task CloseMonth()
+    {
+        if (_monthToClose == null) return;
+        
+        _closingMonth = true;
+        var result = await MonthCloseService.CloseMonthAsync(_familyId, _monthToClose.Value.Year, _monthToClose.Value.Month);
+        _closingMonth = false;
+        
+        if (result.Success)
+        {
+            Toast.ShowSuccess(L["SnapshotSaved"]);
+            _monthToClose = null; // Hide banner
+            await LoadDashboardData(); // Refresh data
+        }
+        else
+        {
+            Toast.ShowError("Error: " + string.Join(", ", result.Errors));
+        }
+    }
+    
+    private void DismissMonthClose()
+    {
+        _monthToClose = null;
+    }
+
     private bool _showSaveToast = false;
     
     // Credit collection dialog state
@@ -429,23 +506,53 @@ else
         if (!string.IsNullOrEmpty(userId))
         {
             var appUser = await Auth.GetUserWithFamilyAsync(userId);
-            if (appUser != null)
+        if (appUser != null)
             {
                 _familyId = appUser.FamilyId;
+                
+                // Check for month close
+                _monthToClose = await MonthCloseService.GetMonthToCloseAsync(_familyId);
             }
         }
         
+        await LoadDashboardData();
+    }
+    
+    private async Task LoadDashboardData()
+    {
         _latest = await SnapshotService.GetLatestAsync(_familyId);
         if (_latest != null)
         {
             _t = await SnapshotService.CalculateTotalsAsync(_latest);
-            _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
-            _insights = await InsightService.GetInsightsAsync(_familyId);
-            await BuildCharts();
             
-            // Load liquidity accounts for credit collection dialog
+            // Load liquidity accounts for live balance
             var allAccounts = await AccountService.GetAllAsync(_familyId);
             _liquidityAccounts = allAccounts.Where(a => a.Category == AccountCategory.Liquidity && a.IsActive).ToList();
+            
+            // LIVE BALANCE OVERRIDE
+            // If we have live accounts, use their CurrentBalance instead of the static snapshot lines
+            if (_liquidityAccounts.Any())
+            {
+                var liveLiquidity = _liquidityAccounts.Sum(a => a.CurrentBalance);
+                
+                // Only override if we have data (or if we want to force live mode)
+                // We create a new Totals record with updated Liquidity and recalculated totals
+                _t = _t with 
+                { 
+                    Liquidity = liveLiquidity,
+                    CurrentTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen,
+                    ProjectedTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen,
+                    GrandTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen + _t.PensionInsuranceValue
+                };
+                
+                _usingLiveData = true;
+            }
+
+            _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
+            _insights = await InsightService.GetInsightsAsync(_familyId);
+            
+            // Build charts with the updated _t
+            await BuildCharts();
         }
         
         _loading = false;

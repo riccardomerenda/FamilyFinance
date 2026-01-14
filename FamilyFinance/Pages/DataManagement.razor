@@ -240,6 +240,40 @@
             </button>
         </div>
 
+        <!-- Align Balances Section -->
+        <div class="col-span-12 lg:col-span-12 bento-card p-6 lg:p-8 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white animate-in delay-2">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">@L["AlignBalances"]</h3>
+                        <p class="text-slate-300 text-sm max-w-xl">@L["AlignBalancesDesc"]</p>
+                    </div>
+                </div>
+                
+                <button @onclick="SyncBalances" disabled="@_isSyncing" class="px-6 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center gap-2">
+                    @if (_isSyncing)
+                    {
+                        <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    }
+                    @L["Sync"]
+                </button>
+            </div>
+        </div>
+
         <!-- Export Options Grid -->
         <div class="col-span-12 lg:col-span-4 bento-card p-5 animate-in delay-3">
             <div class="flex items-center gap-3 mb-4">
@@ -323,6 +357,7 @@
     private ImportResult? _importResult;
     private bool _replaceExisting = false;
     private bool _isImporting = false;
+    private bool _isSyncing = false;
     private int _familyId;
 
     protected override async Task OnInitializedAsync()
@@ -549,6 +584,48 @@
         catch (Exception ex)
         {
             Toast.ShowError(L["ExportError"].Value + ": " + ex.Message);
+        }
+    }
+
+    
+    async Task SyncBalances()
+    {
+        _isSyncing = true;
+        try
+        {
+            var latest = await SnapshotService.GetLatestAsync(_familyId);
+            if (latest == null)
+            {
+                Toast.ShowError("Nessuno snapshot trovato");
+                return;
+            }
+            
+            var fullSnapshot = await SnapshotService.GetByIdAsync(latest.Id);
+            if (fullSnapshot == null || !fullSnapshot.Lines.Any())
+            {
+                Toast.ShowError("Snapshot vuoto o non valido");
+                return;
+            }
+            
+            int count = 0;
+            foreach (var line in fullSnapshot.Lines)
+            {
+                await AccountService.SetBalanceAsync(line.AccountId, line.Amount);
+                count++;
+            }
+            
+            // Add delay to ensure UI loading state is perceivable
+            await Task.Delay(500);
+            
+            Toast.ShowSuccess(string.Format(L["SyncSuccess"], count));
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError("Errore sincronizzazione: " + ex.Message);
+        }
+        finally
+        {
+            _isSyncing = false;
         }
     }
 }

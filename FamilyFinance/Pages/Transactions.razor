@@ -1,0 +1,332 @@
+@page "/transactions"
+@using System.Security.Claims
+@using FamilyFinance.Models
+@using FamilyFinance.Services.Interfaces
+@inject ITransactionService TransactionService
+@inject IBudgetService BudgetService
+@inject IAccountService AccountService
+@inject FamilyFinance.Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Nav
+@attribute [Authorize]
+
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <div class="flex items-center gap-2">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["Transactions"]</h1>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["TransactionsDesc"]</p>
+    </div>
+    <button @onclick="NewTransaction" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        @L["AddTransaction"]
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="bento-card p-4 mb-6 animate-in delay-1">
+    <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["From"]</label>
+            <input type="date" @bind="_filter.FromDate" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["To"]</label>
+            <input type="date" @bind="_filter.ToDate" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["Type"]</label>
+            <select @bind="_filterType" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                <option value="">@L["All"]</option>
+                <option value="Expense">@L["Expense"]</option>
+                <option value="Income">@L["Income"]</option>
+            </select>
+        </div>
+        <button @onclick="ApplyFilter" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+            @L["Filter"]
+        </button>
+        <button @onclick="ClearFilter" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            @L["Clear"]
+        </button>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 animate-in delay-2">
+    <div class="bento-card p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalTransactions"]</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">@_totalCount</p>
+    </div>
+    <div class="bento-card p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalExpenses"]</p>
+        <p class="text-2xl font-bold text-red-500 money">-@_totalExpenses.ToString("N0") €</p>
+    </div>
+    <div class="bento-card p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalIncome"]</p>
+        <p class="text-2xl font-bold text-green-500 money">+@_totalIncome.ToString("N0") €</p>
+    </div>
+    <div class="bento-card p-4 hero-gradient text-white">
+        <p class="text-sm text-white/80 mb-1">@L["NetBalance"]</p>
+        <p class="text-2xl font-bold money">@((_totalIncome - _totalExpenses).ToString("N0")) €</p>
+    </div>
+</div>
+
+<!-- Transactions List -->
+@if (_loading)
+{
+    <div class="flex items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+}
+else if (!_transactions.Any())
+{
+    <div class="bento-card text-center py-16 animate-in delay-3">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["NoTransactions"]</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">@L["NoTransactionsDesc"]</p>
+    </div>
+}
+else
+{
+    <div class="bento-card overflow-hidden animate-in delay-3">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-800/50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Date"]</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Description"]</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Category"]</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Amount"]</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                @foreach (var tx in _transactions)
+                {
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                            @tx.Date.ToString("dd MMM yyyy")
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">@tx.Description</div>
+                            @if (!string.IsNullOrEmpty(tx.Payee))
+                            {
+                                <div class="text-xs text-gray-500">@tx.Payee</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            @if (tx.Category != null)
+                            {
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs" style="background-color: @(tx.Category.Color)20; color: @tx.Category.Color">
+                                    @tx.Category.Icon @tx.Category.Name
+                                </span>
+                            }
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                            <span class="text-sm font-semibold money @(tx.Type == TransactionType.Income ? "text-green-500" : "text-red-500")">
+                                @(tx.Type == TransactionType.Income ? "+" : "-")@tx.Amount.ToString("N0") €
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                            <button @onclick="() => Edit(tx)" class="p-1 text-gray-400 hover:text-primary-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </button>
+                            <button @onclick="() => Delete(tx.Id)" class="p-1 text-gray-400 hover:text-red-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Edit Modal -->
+@if (_editing != null)
+{
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in" @onclick="() => _editing = null">
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/20 dark:border-gray-700/50" @onclick:stopPropagation="true">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+                @(_editing.Id == 0 ? L["AddTransaction"] : L["EditTransaction"])
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Date"]</label>
+                    <input type="date" @bind="_editDate" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Type"]</label>
+                    <select @bind="_editing.Type" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <option value="@TransactionType.Expense">@L["Expense"]</option>
+                        <option value="@TransactionType.Income">@L["Income"]</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Description"]</label>
+                    <input @bind="_editing.Description" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Amount"] (€)</label>
+                    <input type="number" @bind="_editing.Amount" step="0.01" min="0" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Category"]</label>
+                    <select @bind="_editing.CategoryId" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <option value="">@L["SelectCategory"]</option>
+                        @foreach (var cat in _categories)
+                        {
+                            <option value="@cat.Id">@cat.Icon @cat.Name</option>
+                        }
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">@L["Payee"] (@L["Optional"])</label>
+                    <input @bind="_editing.Payee" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button @onclick="Save" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                    @L["Save"]
+                </button>
+                <button @onclick="() => _editing = null" class="px-4 py-3 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                    @L["Cancel"]
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<Transaction> _transactions = new();
+    List<BudgetCategory> _categories = new();
+    Transaction? _editing;
+    TransactionFilter _filter = new() { Take = 100 };
+    string _filterType = "";
+    DateTime? _editDate;
+    int _familyId;
+    bool _loading = true;
+    int _totalCount;
+    decimal _totalExpenses;
+    decimal _totalIncome;
+
+    [SupplyParameterFromQuery(Name = "from")]
+    public DateOnly? QueryFrom { get; set; }
+
+    [SupplyParameterFromQuery(Name = "to")]
+    public DateOnly? QueryTo { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+                
+                // Use query params if available, otherwise default to last month
+                if (QueryFrom.HasValue) 
+                    _filter.FromDate = QueryFrom.Value;
+                else 
+                    _filter.FromDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-1));
+
+                if (QueryTo.HasValue) 
+                    _filter.ToDate = QueryTo.Value;
+                else 
+                    _filter.ToDate = DateOnly.FromDateTime(DateTime.Today);
+
+                await LoadData();
+            }
+        }
+        _loading = false;
+    }
+
+    async Task LoadData()
+    {
+        _categories = await BudgetService.GetCategoriesAsync(_familyId);
+        await ApplyFilter();
+    }
+
+    async Task ApplyFilter()
+    {
+        _filter.Type = string.IsNullOrEmpty(_filterType) ? null : Enum.Parse<TransactionType>(_filterType);
+        _transactions = await TransactionService.GetAllAsync(_familyId, _filter);
+        _totalCount = await TransactionService.GetCountAsync(_familyId, _filter);
+        _totalExpenses = _transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
+        _totalIncome = _transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+    }
+
+    async Task ClearFilter()
+    {
+        _filter = new TransactionFilter { Take = 100 };
+        _filterType = "";
+        await ApplyFilter();
+    }
+
+    void NewTransaction()
+    {
+        _editing = new Transaction
+        {
+            FamilyId = _familyId,
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            Type = TransactionType.Expense,
+            ImportSource = "manual"
+        };
+        _editDate = DateTime.Today;
+    }
+
+    void Edit(Transaction tx)
+    {
+        _editing = new Transaction
+        {
+            Id = tx.Id,
+            Date = tx.Date,
+            Amount = tx.Amount,
+            Type = tx.Type,
+            Description = tx.Description,
+            Payee = tx.Payee,
+            CategoryId = tx.CategoryId,
+            FamilyId = tx.FamilyId,
+            ImportSource = tx.ImportSource
+        };
+        _editDate = tx.Date.ToDateTime(TimeOnly.MinValue);
+    }
+
+    async Task Save()
+    {
+        if (_editing == null || string.IsNullOrWhiteSpace(_editing.Description)) return;
+        
+        if (_editDate.HasValue)
+            _editing.Date = DateOnly.FromDateTime(_editDate.Value);
+        
+        await TransactionService.SaveAsync(_editing);
+        _editing = null;
+        await ApplyFilter();
+    }
+
+    async Task Delete(long id)
+    {
+        await TransactionService.DeleteAsync(id);
+        await ApplyFilter();
+    }
+}

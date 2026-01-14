@@ -132,6 +132,10 @@ builder.Services.AddScoped<WizardStateService>();   // Monthly closing wizard st
 builder.Services.AddScoped<IInsightService, InsightService>(); // Dashboard insights
 builder.Services.AddScoped<ICsvImportService, CsvImportService>(); // Smart CSV Import
 builder.Services.AddScoped<ICategoryRuleService, CategoryRuleService>(); // Auto-learning categorization
+builder.Services.AddScoped<ITransactionService, TransactionService>(); // Individual transactions
+builder.Services.AddScoped<IRecurringTransactionService, RecurringTransactionService>(); // Recurring transactions
+builder.Services.AddScoped<IReportService, ReportService>(); // Report generation
+builder.Services.AddScoped<IMonthCloseService, MonthCloseService>(); // Month closing logic
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();

@@ -9,6 +9,7 @@
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
 @inject AuthService Auth
+@inject ITransactionService TransactionService
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
     
@@ -244,6 +245,45 @@
             
             // Get Expenses (Detailed)
             _expenses = await BudgetService.GetExpensesAsync(Id);
+
+            // MERGE TRANSACTIONS (Phase 2 Evolution)
+            var monthTransactions = await TransactionService.GetByMonthAsync(familyId, _snapshot.SnapshotDate.Year, _snapshot.SnapshotDate.Month);
+            var expensesTransactions = monthTransactions.Where(t => t.Type == TransactionType.Expense).ToList();
+
+            if (expensesTransactions.Any())
+            {
+                var groupedTx = expensesTransactions.GroupBy(t => t.CategoryId ?? 0); 
+
+                foreach (var group in groupedTx)
+                {
+                    var existingExpense = _expenses.FirstOrDefault(e => e.CategoryId == group.Key);
+                    var sumAmount = group.Sum(t => t.Amount);
+                    
+                    if (existingExpense != null)
+                    {
+                        existingExpense.Amount += sumAmount;
+                    }
+                    else
+                    {
+                        // Create new in-memory expense line for display
+                        var firstTx = group.First();
+                        var cat = firstTx.Category;
+                        if (cat == null && group.Key == 0) 
+                        {
+                            cat = new BudgetCategory { Id = 0, Name = L["Uncategorized"], Color = "#9ca3af", Icon = "❓" };
+                        }
+                        
+                        _expenses.Add(new MonthlyExpense
+                        {
+                            CategoryId = group.Key,
+                            Amount = sumAmount,
+                            Category = cat
+                        });
+                    }
+                }
+                
+            }
+
             _totalExpenses = _expenses.Sum(e => e.Amount);
 
             // Get Previous Snapshot for Delta
@@ -259,17 +299,11 @@
             }
             else
             {
-                // First snapshot ever, assume delta = wealth (or 0?)
-                // Let's assume 0 delta implies income = total expenses (maintenance) to avoid confusing "Huge Income"
-                // Actually, if Wealth is 10k, and expenses 1k, Income would be 11k. Correct.
-                 _wealthDelta = _currentTotals.CurrentTotal; // Or 0?
-                 // Usually for first month, Delta is tricky. Let's set Delta to 0 if no previous.
+                // First snapshot ever
                  _wealthDelta = 0;
             }
 
             // Logic: Income = Expenses + Delta Wealth
-            // E.g. Spent 1000, Wealth increased by 500 -> Implied Income 1500
-            // E.g. Spent 1000, Wealth decreased by 200 (Delta -200) -> Implied Income 800
             _estimatedIncome = _totalExpenses + _wealthDelta;
         }
         catch (Exception ex)

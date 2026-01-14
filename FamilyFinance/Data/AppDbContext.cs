@@ -21,6 +21,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
     public DbSet<MonthlyIncome> MonthlyIncomes => Set<MonthlyIncome>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<RecurringTransaction> RecurringTransactions => Set<RecurringTransaction>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -38,6 +40,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<Snapshot>().Property(x => x.SnapshotDate).HasConversion(dateOnlyConverter);
         modelBuilder.Entity<Receivable>().Property(x => x.ExpectedDate).HasConversion(nullableDateOnlyConverter);
         modelBuilder.Entity<Goal>().Property(x => x.Deadline).HasConversion(nullableDateOnlyConverter);
+        modelBuilder.Entity<Transaction>().Property(x => x.Date).HasConversion(dateOnlyConverter);
+        modelBuilder.Entity<RecurringTransaction>().Property(x => x.StartDate).HasConversion(dateOnlyConverter);
+        modelBuilder.Entity<RecurringTransaction>().Property(x => x.EndDate).HasConversion(nullableDateOnlyConverter);
 
         modelBuilder.Entity<SnapshotLine>().HasIndex(x => new { x.SnapshotId, x.AccountId }).IsUnique();
         
@@ -129,5 +134,59 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .WithMany(s => s.Incomes)
             .HasForeignKey(i => i.SnapshotId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Transaction configuration
+        modelBuilder.Entity<Transaction>()
+            .HasIndex(t => new { t.FamilyId, t.Date });
+        modelBuilder.Entity<Transaction>()
+            .HasIndex(t => new { t.FamilyId, t.CategoryId });
+        modelBuilder.Entity<Transaction>()
+            .HasIndex(t => t.ExternalId);
+        
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.Family)
+            .WithMany()
+            .HasForeignKey(t => t.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.Category)
+            .WithMany()
+            .HasForeignKey(t => t.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.Account)
+            .WithMany()
+            .HasForeignKey(t => t.AccountId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<Transaction>()
+            .HasOne(t => t.ImportBatch)
+            .WithMany()
+            .HasForeignKey(t => t.ImportBatchId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // RecurringTransaction configuration
+        modelBuilder.Entity<RecurringTransaction>()
+            .HasIndex(r => r.FamilyId);
+        
+        modelBuilder.Entity<RecurringTransaction>()
+            .HasOne(r => r.Family)
+            .WithMany()
+            .HasForeignKey(r => r.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<RecurringTransaction>()
+            .HasOne(r => r.Category)
+            .WithMany()
+            .HasForeignKey(r => r.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<RecurringTransaction>()
+            .HasOne(r => r.Account)
+            .WithMany()
+            .HasForeignKey(r => r.AccountId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

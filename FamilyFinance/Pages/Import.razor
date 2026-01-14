@@ -3,14 +3,16 @@
 @using FamilyFinance.Models.Import
 @using FamilyFinance.Services.Interfaces
 @using System.Security.Claims
+@using AccountModel = FamilyFinance.Models.Account
 @inject ICsvImportService ImportService
 @inject IBudgetService BudgetService
-@inject ISnapshotService SnapshotService
 @inject ICategoryRuleService CategoryRuleService
 @inject Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
+@inject ITransactionService TransactionService
+@inject IAccountService AccountService
 @attribute [Authorize]
 
 <PageTitle>@L["ImportTransactions"] - FamilyFinance</PageTitle>
@@ -70,11 +72,21 @@
                     </div>
                     
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">@L["UploadCsvTitle"]</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mb-8">@L["UploadCsvDesc"]</p>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">@L["UploadCsvDesc"]</p>
+                    
+                    <div class="mb-8 max-w-xs mx-auto text-left">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Account <span class="text-red-500">*</span></label>
+                        <select @bind="_selectedAccountId" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2.5 focus:ring-violet-500 focus:border-violet-500 shadow-sm">
+                            <option value="0">-- Select Account --</option>
+                            @foreach(var acc in _accounts) {
+                                <option value="@acc.Id">@acc.Name</option>
+                            }
+                        </select>
+                    </div>
                     
                     <InputFile OnChange="LoadFiles" class="hidden" id="fileInput" accept=".csv,.txt" />
                     
-                    <label for="fileInput" class="cursor-pointer inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/30 hover:scale-105">
+                    <label for="fileInput" class="cursor-pointer inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/30 hover:scale-105 select-none @(_selectedAccountId == 0 ? "opacity-50 cursor-not-allowed pointer-events-none grayscale" : "")">
                         @if (_loading)
                         {
                             <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
@@ -230,19 +242,6 @@
                         </div>
                         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
                         
-                        <!-- Target Month Selector -->
-                        <div class="flex items-center gap-2">
-                             <label class="text-xs font-medium text-gray-500 uppercase">Target:</label>
-                             <select @bind="_targetSnapshotId" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm py-1.5 px-3 max-w-[180px]">
-                                <option value="0">📅 Auto-detect (by Date)</option>
-                                @foreach(var s in _snapshots.OrderByDescending(x => x.SnapshotDate)) {
-                                    <option value="@s.Id">@s.SnapshotDate.ToString("MMMM yyyy")</option>
-                                }
-                            </select>
-                        </div>
-                        
-                        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                        
                         <!-- Bulk Actions -->
                         <div class="flex items-center gap-2">
                             <select @onchange="BulkAssignCategory" class="rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm py-1.5 px-3">
@@ -375,8 +374,8 @@
     private string[] _previewHeaders = Array.Empty<string>();
     private List<ImportedTransaction> _transactions = new();
     private List<BudgetCategory> _categories = new();
-    private List<Snapshot> _snapshots = new();
-    private int _targetSnapshotId = 0;
+    private List<AccountModel> _accounts = new();
+    private int _selectedAccountId;
     private List<string> _importMessages = new();
     private MemoryStream? _fileStream;
     private int _familyId;
@@ -400,7 +399,11 @@
             {
                 _familyId = user.FamilyId;
                 _categories = await BudgetService.GetCategoriesAsync(_familyId);
-                _snapshots = await SnapshotService.GetAllAsync(_familyId);
+                
+                // Load accounts for selection
+                var allAccounts = await AccountService.GetAllAsync(_familyId);
+                _accounts = allAccounts.Where(a => a.IsActive && a.Category == FamilyFinance.Models.AccountCategory.Liquidity).ToList();
+                if (_accounts.Any()) _selectedAccountId = _accounts.First().Id;
             }
         }
     }
@@ -516,64 +519,69 @@
             return;
         }
 
-        // Group by Month to handle imports spanning multiple months
-        var byMonth = toImport.GroupBy(t => new { t.Date.Year, t.Date.Month });
-        
-        bool anyError = false;
-
         // LEARN from user's categorization choices
-        // Only learn from transactions that have a category assigned
         foreach (var tx in toImport.Where(t => t.SuggestedCategoryId.HasValue))
         {
             await CategoryRuleService.LearnFromCategorizationAsync(_familyId, tx.Description, tx.SuggestedCategoryId!.Value);
         }
 
-        // NEW LOGIC: If Target Snapshot is selected, force all there
-        if (_targetSnapshotId > 0)
+        var newTransactions = new List<Transaction>();
+        // Fallback category
+        var variCategory = _categories.FirstOrDefault(c => c.Name.Contains("Vari", StringComparison.OrdinalIgnoreCase)) ?? _categories.FirstOrDefault();
+
+        foreach (var item in toImport)
         {
-             var expenses = toImport.Select(t => (
-                CategoryId: t.SuggestedCategoryId ?? _categories.FirstOrDefault(c => c.Name == "Vari")?.Id ?? _categories.First().Id,
-                Amount: Math.Abs(t.Amount),
-                Notes: (string?)t.Description
-            )).ToList();
-            
-            await BudgetService.AddImportedExpensesAsync(_targetSnapshotId, expenses);
-            _importMessages.Add($"✅ Imported {expenses.Count} transactions into selected month.");
-        }
-        else 
-        {
-            // AUTO DETECT Logic
-            foreach(var monthGroup in byMonth)
+            var isExpense = item.Amount < 0;
+            var amount = Math.Abs(item.Amount);
+            var categoryId = item.SuggestedCategoryId ?? variCategory?.Id;
+
+            var newTx = new Transaction
             {
-                // Find or Create Snapshot for that month
-                var snapshot = _snapshots.FirstOrDefault(s => s.SnapshotDate.Year == monthGroup.Key.Year && s.SnapshotDate.Month == monthGroup.Key.Month);
-                
-                if (snapshot != null)
-                {
-                    var expenses = monthGroup.Select(t => (
-                        CategoryId: t.SuggestedCategoryId ?? _categories.FirstOrDefault(c => c.Name == "Vari")?.Id ?? _categories.First().Id,
-                        Amount: Math.Abs(t.Amount),
-                        Notes: (string?)t.Description
-                    )).ToList();
-                    
-                    await BudgetService.AddImportedExpensesAsync(snapshot.Id, expenses);
-                    _importMessages.Add($"✅ Imported {expenses.Count} transactions for {monthGroup.Key.Month}/{monthGroup.Key.Year}");
-                }
-                else
-                {
-                    _importMessages.Add($"❌ {monthGroup.Key.Month}/{monthGroup.Key.Year} not found. Please create this month in the Dashboard or select a different Target.");
-                    anyError = true;
-                }
-            }
+                FamilyId = _familyId,
+                Date = item.Date,
+                Amount = amount,
+                Description = item.Description,
+                Type = isExpense ? TransactionType.Expense : TransactionType.Income,
+                CategoryId = categoryId,
+                AccountId = _selectedAccountId,
+                ImportSource = "csv",
+                ExternalId = item.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            newTransactions.Add(newTx);
         }
-        
-        _saving = false;
-        
-        if (!anyError)
+
+        var result = await TransactionService.CreateManyAsync(newTransactions);
+
+        if (result.Success)
         {
-            await Task.Delay(1000); // Show success briefly
-            Nav.NavigateTo("/dashboard", forceLoad: true);
+             _importMessages.Add($"✅ {L["SuccessImport"]} ({newTransactions.Count})");
+             
+             // Update account balance (Live Balance feature)
+             var incomeTotal = newTransactions.Where(t => t.Type == FamilyFinance.Models.TransactionType.Income).Sum(t => t.Amount);
+             var expenseTotal = newTransactions.Where(t => t.Type == FamilyFinance.Models.TransactionType.Expense).Sum(t => t.Amount);
+             var netChange = incomeTotal - expenseTotal;
+             
+             if (_selectedAccountId > 0 && netChange != 0)
+             {
+                 await AccountService.UpdateBalanceAsync(_selectedAccountId, netChange);
+                 _importMessages.Add($"💰 {L["BalanceUpdated"]} ({(netChange >= 0 ? "+" : "")}{netChange:N2} €)");
+             }
+             
+             await Task.Delay(1000); 
+             
+             // Redirect with filters covering the imported range
+             var minDate = newTransactions.Min(t => t.Date);
+             var maxDate = newTransactions.Max(t => t.Date);
+             Nav.NavigateTo($"/transactions?from={minDate:yyyy-MM-dd}&to={maxDate:yyyy-MM-dd}", forceLoad: true);
         }
+        else
+        {
+            _importMessages.Add($"❌ Error: {result.Error}");
+        }
+
+        _saving = false;
     }
     
     private void GoBack()

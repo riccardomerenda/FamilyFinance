@@ -720,10 +720,121 @@
   <data name="AddNewCategory" xml:space="preserve"><value>Aggiungi Categoria</value></data>
   <data name="Uncategorized" xml:space="preserve"><value>Non categorizzato</value></data>
   <data name="CollectCredit" xml:space="preserve"><value>Incassa</value></data>
+  <data name="Collected" xml:space="preserve"><value>Incassato</value></data>
   <data name="CollectCreditTitle" xml:space="preserve"><value>Incassa Credito</value></data>
   <data name="SelectTargetAccount" xml:space="preserve"><value>Seleziona conto di destinazione</value></data>
   <data name="MarkAsReceivedOnly" xml:space="preserve"><value>Solo segna come ricevuto</value></data>
   <data name="CreditCollectedSuccess" xml:space="preserve"><value>Credito incassato con successo</value></data>
   <data name="TransferTo" xml:space="preserve"><value>Trasferisci su</value></data>
+
+  <!-- Transactions Page -->
+  <data name="Transactions" xml:space="preserve"><value>Transazioni</value></data>
+  <data name="TransactionsDesc" xml:space="preserve"><value>Gestisci le tue entrate e uscite individuali</value></data>
+  <data name="AddTransaction" xml:space="preserve"><value>Aggiungi Transazione</value></data>
+  <data name="EditTransaction" xml:space="preserve"><value>Modifica Transazione</value></data>
+  <data name="NoTransactions" xml:space="preserve"><value>Nessuna transazione</value></data>
+  <data name="NoTransactionsDesc" xml:space="preserve"><value>Inizia aggiungendo la tua prima transazione</value></data>
+  <data name="TotalTransactions" xml:space="preserve"><value>Tot. Transazioni</value></data>
+  <data name="NetBalance" xml:space="preserve"><value>Saldo Netto</value></data>
+  <data name="Description" xml:space="preserve"><value>Descrizione</value></data>
+  <data name="Amount" xml:space="preserve"><value>Importo</value></data>
+  <data name="Expense" xml:space="preserve"><value>Spesa</value></data>
+  <data name="Income" xml:space="preserve"><value>Entrata</value></data>
+  <data name="Type" xml:space="preserve"><value>Tipo</value></data>
+  <data name="All" xml:space="preserve"><value>Tutti</value></data>
+  <data name="Clear" xml:space="preserve"><value>Pulisci</value></data>
+  <data name="SelectCategory" xml:space="preserve"><value>Seleziona categoria</value></data>
+  <data name="Payee" xml:space="preserve"><value>Beneficiario</value></data>
+  <data name="Optional" xml:space="preserve"><value>opzionale</value></data>
+
+  <!-- Recurring Page -->
+  <data name="RecurringTransactions" xml:space="preserve"><value>Transazioni Ricorrenti</value></data>
+  <data name="RecurringTransactionsDesc" xml:space="preserve"><value>Gestisci abbonamenti, stipendi e pagamenti regolari</value></data>
+  <data name="AddRecurring" xml:space="preserve"><value>Aggiungi Ricorrente</value></data>
+  <data name="EditRecurring" xml:space="preserve"><value>Modifica Ricorrente</value></data>
+  <data name="NoRecurringTransactions" xml:space="preserve"><value>Nessuna transazione ricorrente</value></data>
+  <data name="NoRecurringTransactionsDesc" xml:space="preserve"><value>Aggiungi abbonamenti come Netflix, bollette o stipendio</value></data>
+  <data name="MonthlyIncome" xml:space="preserve"><value>Entrate Mensili</value></data>
+  <data name="NetMonthly" xml:space="preserve"><value>Netto Mensile</value></data>
+  <data name="UpcomingNext30Days" xml:space="preserve"><value>Prossimi 30 giorni</value></data>
+  <data name="Today" xml:space="preserve"><value>Oggi</value></data>
+  <data name="DaysRemaining" xml:space="preserve"><value>giorni</value></data>
+  <data name="Frequency" xml:space="preserve"><value>Frequenza</value></data>
+  <data name="Daily" xml:space="preserve"><value>Giornaliero</value></data>
+  <data name="Weekly" xml:space="preserve"><value>Settimanale</value></data>
+  <data name="Monthly" xml:space="preserve"><value>Mensile</value></data>
+  <data name="Yearly" xml:space="preserve"><value>Annuale</value></data>
+  <data name="DayOfMonth" xml:space="preserve"><value>Giorno del Mese</value></data>
+
+  <!-- Reports Page -->
+  <data name="Reports" xml:space="preserve"><value>Report</value></data>
+  <data name="ReportsDesc" xml:space="preserve"><value>Genera report mensili e annuali</value></data>
+  <data name="ReportType" xml:space="preserve"><value>Tipo Report</value></data>
+  <data name="MonthlyReport" xml:space="preserve"><value>Report Mensile</value></data>
+  <data name="YearlyReport" xml:space="preserve"><value>Report Annuale</value></data>
+  <data name="GenerateReport" xml:space="preserve"><value>Genera Report</value></data>
+  <data name="SelectReportToGenerate" xml:space="preserve"><value>Seleziona un report</value></data>
+  <data name="SelectReportToGenerateDesc" xml:space="preserve"><value>Scegli il tipo di report e il periodo da analizzare</value></data>
+  <data name="AnnualReport" xml:space="preserve"><value>Report Annuale</value></data>
+  <data name="ExpensesByCategory" xml:space="preserve"><value>Spese per Categoria</value></data>
+  <data name="CurrentNetWorth" xml:space="preserve"><value>Patrimonio Attuale</value></data>
+  <data name="MonthlyChange" xml:space="preserve"><value>Variazione Mensile</value></data>
+  <data name="NetWorthChange" xml:space="preserve"><value>Variazione Patrimonio</value></data>
+  <data name="TotalSavings" xml:space="preserve"><value>Risparmio Totale</value></data>
+  <data name="MonthlyBreakdown" xml:space="preserve"><value>Dettaglio Mensile</value></data>
+  <data name="Savings" xml:space="preserve"><value>Risparmio</value></data>
+  <data name="ExportPDF" xml:space="preserve"><value>Esporta PDF</value></data>
+  <data name="ExportExcel" xml:space="preserve"><value>Esporta Excel</value></data>
+  <data name="ManualAdjustment" xml:space="preserve"><value>Aggiustamento Manuale</value></data>
+  <data name="CategoryTotal" xml:space="preserve"><value>Totale Categoria</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>Vedi dettagli</value></data>
+  <data name="TransactionMode" xml:space="preserve"><value>Modalità Transazioni</value></data>
+  <data name="TransactionModeDesc" xml:space="preserve"><value>I dati delle spese vengono calcolati dalle transazioni importate.</value></data>
+  <data name="ManualMode" xml:space="preserve"><value>Modalità Manuale</value></data>
+  <data name="ManualModeDesc" xml:space="preserve"><value>Inserisci le spese manualmente o importa un estratto conto CSV.</value></data>
+  <data name="ViewAllTransactions" xml:space="preserve"><value>Vedi tutte le transazioni</value></data>
+  <data name="ImportCSV" xml:space="preserve"><value>Importa CSV</value></data>
+  <data name="BalanceUpdated" xml:space="preserve"><value>Saldo aggiornato</value></data>
+  <data name="CloseMonth" xml:space="preserve"><value>Chiudi Mese</value></data>
+  <data name="CloseMonthPrompt" xml:space="preserve"><value>Vuoi chiudere il mese?</value></data>
+  <data name="CloseMonthDesc" xml:space="preserve"><value>Questo creerà uno snapshot storico con i saldi attuali.</value></data>
+  <data name="Later" xml:space="preserve"><value>Più Tardi</value></data>
+  <data name="ConfirmClose" xml:space="preserve"><value>Conferma Chiusura</value></data>
+  <data name="SnapshotSaved" xml:space="preserve"><value>Snapshot salvato con successo</value></data>
+  <data name="LiveData" xml:space="preserve"><value>Dati Live</value></data>
+  <data name="LiveDataDesc" xml:space="preserve"><value>Questi dati mostrano i saldi attuali dei conti in tempo reale.</value></data>
+  <data name="CurrentBalance" xml:space="preserve"><value>Saldo Corrente</value></data>
+  <data name="InitialBalanceHelp" xml:space="preserve"><value>Modifica questo valore per allineare il saldo del conto (es. saldo iniziale).</value></data>
+  <data name="AlignBalances" xml:space="preserve"><value>Allinea Saldi da Snapshot</value></data>
+  <data name="AlignBalancesDesc" xml:space="preserve"><value>Reimposta i saldi correnti di tutti i conti usando i valori dell'ultimo snapshot disponibile.</value></data>
+  <data name="Sync" xml:space="preserve"><value>Sincronizza</value></data>
+  <data name="SyncSuccess" xml:space="preserve"><value>Saldi aggiornati con successo ({0} conti).</value></data>
+  <data name="Help" xml:space="preserve"><value>Aiuto</value></data>
+  <data name="Documentation" xml:space="preserve"><value>Documentazione</value></data>
+  <data name="Support" xml:space="preserve"><value>Supporto</value></data>
+  <data name="Guide_Subtitle" xml:space="preserve"><value>Guida utente e FAQ</value></data>
+  <data name="LiveBalanceSystem_Title" xml:space="preserve"><value>Live Balance System</value></data>
+  <data name="LiveBalanceSystem_Desc" xml:space="preserve"><value>FamilyFinance usa un sistema ibrido Live Balance + Snapshot Storici. Questo significa che la Dashboard mostra sempre la tua situazione reale in tempo reale, mentre la cronologia rimane salvata in fotografia mensili sicure.</value></data>
+  <data name="LiveMode_Title" xml:space="preserve"><value>1. Live Mode</value></data>
+  <data name="LiveMode_Desc" xml:space="preserve"><value>Importa le transazioni o inseriscile a mano. Il saldo dei conti si aggiorna istantaneamente.</value></data>
+  <data name="MonthClose_Title" xml:space="preserve"><value>2. Chiusura Mese</value></data>
+  <data name="MonthClose_Desc" xml:space="preserve"><value>A fine mese, usa il tasto "Chiudi Mese" dalla Dashboard per creare uno Snapshot storico.</value></data>
+  <data name="Analysis_Title" xml:space="preserve"><value>3. Analisi</value></data>
+  <data name="Analysis_Desc" xml:space="preserve"><value>Consulta i report storici basati sui dati consolidati degli snapshot.</value></data>
+  <data name="FAQ_Title" xml:space="preserve"><value>Domande Frequenti (FAQ)</value></data>
+  <data name="FAQ_Q1" xml:space="preserve"><value>Perché vedo un saldo diverso tra Dashboard e "Confronta"?</value></data>
+  <data name="FAQ_A1" xml:space="preserve"><value>La Dashboard mostra i dati Live (oggi). La pagina Confronta usa gli Snapshot storici (ultimo consolidamento). Se non hai chiuso il mese corrente, la pagina Confronta è ferma al mese scorso.</value></data>
+  <data name="FAQ_Q2" xml:space="preserve"><value>Cosa succede se importo un CSV vecchio?</value></data>
+  <data name="FAQ_A2" xml:space="preserve"><value>Il sistema aggiornerà il saldo attuale del conto sommando/sottraendo l'importo delle transazioni importate. Nota che lo snapshot storico di quel mese rimarrà invariato per preservare la cronologia.</value></data>
+  <data name="FAQ_Q3" xml:space="preserve"><value>Come allineo il saldo iniziale?</value></data>
+  <data name="FAQ_A3" xml:space="preserve"><value>Puoi modificare manualmente il saldo di un conto dalla pagina Conti (clicca l'icona matita). Oppure, in Gestione Dati, usa lo strumento "Allinea Saldi da Snapshot" per reimpostare tutto all'ultimo salvataggio.</value></data>
+  <data name="FAQ_Q4" xml:space="preserve"><value>Devo ancora creare snapshot manualmente?</value></data>
+  <data name="FAQ_A4" xml:space="preserve"><value>Non più per la chiusura mese ordinaria. Il sistema ti inviterà a farlo con un banner in Dashboard. Puoi comunque creare snapshot manuali aggiuntivi se necessario.</value></data>
+  <data name="Help_Footer_Contact" xml:space="preserve"><value>Hai bisogno di altro aiuto? Contatta il supporto tecnico.</value></data>
+  <data name="GenerateTransactions" xml:space="preserve"><value>Genera Transazioni</value></data>
+  <data name="GenerateTransactionsConfirm" xml:space="preserve"><value>Vuoi generare le transazioni per questo mese? Verranno create solo quelle non ancora esistenti.</value></data>
+  <data name="GenerateTransactionsSuccess" xml:space="preserve"><value>Transazioni generate con successo ({0})</value></data>
+  <data name="GenerateTransactionsError" xml:space="preserve"><value>Errore nella generazione</value></data>
+  <data name="GenerateFor" xml:space="preserve"><value>Genera per {0}</value></data>
 </root>
 

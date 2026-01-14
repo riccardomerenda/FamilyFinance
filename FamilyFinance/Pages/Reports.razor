@@ -1,0 +1,289 @@
+@page "/reports"
+@using System.Security.Claims
+@using FamilyFinance.Models
+@using FamilyFinance.Services.Interfaces
+@inject IReportService ReportService
+@inject FamilyFinance.Services.AuthService Auth
+@inject AuthenticationStateProvider AuthState
+@inject IStringLocalizer<SharedResource> L
+@attribute [Authorize]
+
+<div class="flex items-center justify-between mb-8 animate-in">
+    <div>
+        <div class="flex items-center gap-2">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">@L["Reports"]</h1>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">@L["ReportsDesc"]</p>
+    </div>
+</div>
+
+<!-- Report Type Selector -->
+<div class="bento-card p-4 mb-6 animate-in delay-1">
+    <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["ReportType"]</label>
+            <select @bind="_reportType" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <option value="Monthly">@L["MonthlyReport"]</option>
+                <option value="Yearly">@L["YearlyReport"]</option>
+            </select>
+        </div>
+        
+        @if (_reportType == "Monthly")
+        {
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["Month"]</label>
+                <input type="month" @bind="_selectedMonth" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800" />
+            </div>
+        }
+        else
+        {
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-600 dark:text-gray-400">@L["Year"]</label>
+                <select @bind="_selectedYear" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 5; y--)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+        }
+        
+        <button @onclick="GenerateReport" class="px-5 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all">
+            @L["GenerateReport"]
+        </button>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="flex items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+}
+else if (_monthlyReport != null)
+{
+    <!-- Monthly Report Display -->
+    <div class="space-y-6 animate-in">
+        <!-- Header -->
+        <div class="bento-card p-6 hero-gradient text-white">
+            <h2 class="text-2xl font-bold mb-2">@_monthlyReport.Period.ToString("MMMM yyyy")</h2>
+            <p class="text-white/80">@_monthlyReport.FamilyName</p>
+        </div>
+        
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalIncome"]</p>
+                <p class="text-2xl font-bold text-green-500 money">+@_monthlyReport.TotalIncome.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalExpenses"]</p>
+                <p class="text-2xl font-bold text-red-500 money">-@_monthlyReport.TotalExpenses.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["NetSavings"]</p>
+                <p class="text-2xl font-bold @(_monthlyReport.NetSavings >= 0 ? "text-green-500" : "text-red-500") money">@_monthlyReport.NetSavings.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["SavingsRate"]</p>
+                <p class="text-2xl font-bold text-primary-500">@_monthlyReport.SavingsRate.ToString("N1")%</p>
+            </div>
+        </div>
+        
+        <!-- Expenses by Category -->
+        @if (_monthlyReport.ExpensesByCategory.Any())
+        {
+            <div class="bento-card p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["ExpensesByCategory"]</h3>
+                <div class="space-y-3">
+                    @foreach (var cat in _monthlyReport.ExpensesByCategory)
+                    {
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: @(cat.CategoryColor)20">
+                                @cat.CategoryIcon
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">@cat.CategoryName</span>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white money">@cat.Amount.ToString("N0") €</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="h-2 rounded-full" style="width: @(Math.Min(cat.Percentage, 100))%; background-color: @cat.CategoryColor"></div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-500 w-12 text-right">@cat.Percentage.ToString("N0")%</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        
+        <!-- Net Worth Section -->
+        <div class="bento-card p-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["NetWorth"]</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">@L["CurrentNetWorth"]</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white money">@_monthlyReport.NetWorth.ToString("N0") €</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">@L["MonthlyChange"]</p>
+                    <p class="text-2xl font-bold @(_monthlyReport.NetWorthChange >= 0 ? "text-green-500" : "text-red-500") money">
+                        @(_monthlyReport.NetWorthChange >= 0 ? "+" : "")@_monthlyReport.NetWorthChange.ToString("N0") €
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Buttons -->
+        <div class="flex gap-4">
+            <button @onclick="ExportPdf" disabled class="px-5 py-3 bg-red-500 text-white font-semibold rounded-xl opacity-50 cursor-not-allowed flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                @L["ExportPDF"] (Coming Soon)
+            </button>
+            <button @onclick="ExportExcel" disabled class="px-5 py-3 bg-green-500 text-white font-semibold rounded-xl opacity-50 cursor-not-allowed flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                </svg>
+                @L["ExportExcel"] (Coming Soon)
+            </button>
+        </div>
+    </div>
+}
+else if (_yearlyReport != null)
+{
+    <!-- Yearly Report Display -->
+    <div class="space-y-6 animate-in">
+        <div class="bento-card p-6 hero-gradient text-white">
+            <h2 class="text-2xl font-bold mb-2">@_yearlyReport.Year @L["AnnualReport"]</h2>
+            <p class="text-white/80">@_yearlyReport.FamilyName</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalIncome"]</p>
+                <p class="text-2xl font-bold text-green-500 money">+@_yearlyReport.TotalIncome.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalExpenses"]</p>
+                <p class="text-2xl font-bold text-red-500 money">-@_yearlyReport.TotalExpenses.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["TotalSavings"]</p>
+                <p class="text-2xl font-bold @(_yearlyReport.TotalSavings >= 0 ? "text-green-500" : "text-red-500") money">@_yearlyReport.TotalSavings.ToString("N0") €</p>
+            </div>
+            <div class="bento-card p-5">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">@L["NetWorthChange"]</p>
+                <p class="text-2xl font-bold @(_yearlyReport.NetWorthChange >= 0 ? "text-green-500" : "text-red-500") money">
+                    @(_yearlyReport.NetWorthChange >= 0 ? "+" : "")@_yearlyReport.NetWorthChange.ToString("N0") €
+                </p>
+            </div>
+        </div>
+        
+        <!-- Monthly Breakdown -->
+        @if (_yearlyReport.Months.Any())
+        {
+            <div class="bento-card p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">@L["MonthlyBreakdown"]</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 uppercase">
+                                <th class="pb-3">@L["Month"]</th>
+                                <th class="pb-3 text-right">@L["Income"]</th>
+                                <th class="pb-3 text-right">@L["Expenses"]</th>
+                                <th class="pb-3 text-right">@L["Savings"]</th>
+                                <th class="pb-3 text-right">@L["NetWorth"]</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach (var m in _yearlyReport.Months)
+                            {
+                                <tr>
+                                    <td class="py-3 font-medium">@m.Period.ToString("MMM")</td>
+                                    <td class="py-3 text-right text-green-500 money">+@m.TotalIncome.ToString("N0")</td>
+                                    <td class="py-3 text-right text-red-500 money">-@m.TotalExpenses.ToString("N0")</td>
+                                    <td class="py-3 text-right @(m.NetSavings >= 0 ? "text-green-500" : "text-red-500") money">@m.NetSavings.ToString("N0")</td>
+                                    <td class="py-3 text-right font-semibold money">@m.NetWorth.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="bento-card text-center py-16 animate-in delay-2">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">@L["SelectReportToGenerate"]</h3>
+        <p class="text-gray-500 dark:text-gray-400">@L["SelectReportToGenerateDesc"]</p>
+    </div>
+}
+
+@code {
+    string _reportType = "Monthly";
+    DateTime _selectedMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    int _selectedYear = DateTime.Today.Year;
+    int _familyId;
+    bool _loading;
+    
+    MonthlyReportData? _monthlyReport;
+    YearlyReportData? _yearlyReport;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null)
+            {
+                _familyId = user.FamilyId;
+            }
+        }
+    }
+
+    async Task GenerateReport()
+    {
+        _loading = true;
+        _monthlyReport = null;
+        _yearlyReport = null;
+        
+        try
+        {
+            if (_reportType == "Monthly")
+            {
+                _monthlyReport = await ReportService.GenerateMonthlyReportAsync(
+                    _familyId, _selectedMonth.Year, _selectedMonth.Month);
+            }
+            else
+            {
+                _yearlyReport = await ReportService.GenerateYearlyReportAsync(_familyId, _selectedYear);
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    void ExportPdf()
+    {
+        // TODO: Implement when QuestPDF is added
+    }
+
+    void ExportExcel()
+    {
+        // TODO: Implement when ClosedXML is added
+    }
+}
