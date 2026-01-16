@@ -19,7 +19,7 @@ public class InsightService : IInsightService
         _goalService = goalService;
     }
 
-    public async Task<List<Insight>> GetInsightsAsync(int familyId)
+    public async Task<List<Insight>> GetInsightsAsync(int familyId, decimal? currentLiveTotal = null)
     {
         var insights = new List<Insight>();
         
@@ -30,18 +30,42 @@ public class InsightService : IInsightService
             if (snapshots.Count == 0) return insights;
             
             var latest = snapshots.OrderByDescending(s => s.Date).FirstOrDefault();
-            var previous = snapshots.OrderByDescending(s => s.Date).Skip(1).FirstOrDefault();
             
             if (latest == null) return insights;
 
-            // 1. Wealth comparison vs previous month
-            if (previous != null)
+            // 1. Wealth comparison
+            // If we have a LIVE total, we compare: LIVE vs LATEST SNAPSHOT
+            // If we assume "latest" is a closed month, then Live represents "Month to Date" progress
+            
+            decimal change = 0;
+            decimal changePercent = 0;
+            bool hasComparison = false;
+
+            if (currentLiveTotal.HasValue)
             {
-                var change = latest.CurrentTotal - previous.CurrentTotal;
-                var changePercent = previous.CurrentTotal != 0 
-                    ? Math.Round((change / previous.CurrentTotal) * 100, 1) 
+                // Live comparison: Today vs Last Closed Snapshot
+                change = currentLiveTotal.Value - latest.GrandTotal;
+                changePercent = latest.GrandTotal != 0 
+                    ? Math.Round((change / latest.GrandTotal) * 100, 1) 
                     : 0;
-                
+                hasComparison = true;
+            }
+            else
+            {
+                // Fallback: Latest Snapshot vs Previous Snapshot
+                var previous = snapshots.OrderByDescending(s => s.Date).Skip(1).FirstOrDefault();
+                if (previous != null)
+                {
+                    change = latest.CurrentTotal - previous.CurrentTotal;
+                    changePercent = previous.CurrentTotal != 0 
+                        ? Math.Round((change / previous.CurrentTotal) * 100, 1) 
+                        : 0;
+                    hasComparison = true;
+                }
+            }
+            
+            if (hasComparison)
+            {
                 if (change > 0)
                 {
                     insights.Add(new Insight(

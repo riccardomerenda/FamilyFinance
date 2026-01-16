@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.7] - 2026-01-16
+
+### Improved
+- **Wealth Insight**: "Wealth Growth" now compares your **current live total** against the last closed month, providing immediate feedback on recent changes (imports, transfers).
+
 ## [0.4.6] - 2026-01-16
 
 ### Added

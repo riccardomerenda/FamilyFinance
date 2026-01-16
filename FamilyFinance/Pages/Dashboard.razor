@@ -525,31 +525,34 @@ else
         {
             _t = await SnapshotService.CalculateTotalsAsync(_latest);
             
-            // Load liquidity accounts for live balance
+            // Load liquidity, pension and insurance accounts for live balance
             var allAccounts = await AccountService.GetAllAsync(_familyId);
             _liquidityAccounts = allAccounts.Where(a => a.Category == AccountCategory.Liquidity && a.IsActive).ToList();
+            var pensionAccounts = allAccounts.Where(a => (a.Category == AccountCategory.Pension || a.Category == AccountCategory.Insurance) && a.IsActive).ToList();
             
             // LIVE BALANCE OVERRIDE
             // If we have live accounts, use their CurrentBalance instead of the static snapshot lines
-            if (_liquidityAccounts.Any())
+            if (_liquidityAccounts.Any() || pensionAccounts.Any())
             {
-                var liveLiquidity = _liquidityAccounts.Sum(a => a.CurrentBalance);
+                var liveLiquidity = _liquidityAccounts.Any() ? _liquidityAccounts.Sum(a => a.CurrentBalance) : _t.Liquidity;
+                var livePension = pensionAccounts.Any() ? pensionAccounts.Sum(a => a.CurrentBalance) : _t.PensionInsuranceValue;
                 
                 // Only override if we have data (or if we want to force live mode)
-                // We create a new Totals record with updated Liquidity and recalculated totals
+                // We create a new Totals record with updated Liquidity, Pension and recalculated totals
                 _t = _t with 
                 { 
                     Liquidity = liveLiquidity,
+                    PensionInsuranceValue = livePension,
                     CurrentTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen,
                     ProjectedTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen,
-                    GrandTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen + _t.PensionInsuranceValue
+                    GrandTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen + livePension
                 };
                 
                 _usingLiveData = true;
             }
 
             _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
-            _insights = await InsightService.GetInsightsAsync(_familyId);
+            _insights = await InsightService.GetInsightsAsync(_familyId, _t.GrandTotal);
             
             // Build charts with the updated _t
             await BuildCharts();

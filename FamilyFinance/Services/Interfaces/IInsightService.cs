@@ -18,5 +18,5 @@ public record Insight(
 
 public interface IInsightService
 {
-    Task<List<Insight>> GetInsightsAsync(int familyId);
+    Task<List<Insight>> GetInsightsAsync(int familyId, decimal? currentLiveTotal = null);
 }
