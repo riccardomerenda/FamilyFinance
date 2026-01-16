@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.8] - 2026-01-16
+
+### Fixed
+- **Import Wizard**: The "Import Selected" button now correctly shows the **Net Balance** (algebraic sum) instead of the total volume (absolute sum).
+
 ## [0.4.7] - 2026-01-16
 
 ### Improved
