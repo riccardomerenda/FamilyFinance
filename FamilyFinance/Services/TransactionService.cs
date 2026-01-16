@@ -13,11 +13,13 @@ public class TransactionService : ITransactionService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<TransactionService> _logger;
+    private readonly IAccountService _accountService;
     
-    public TransactionService(AppDbContext db, ILogger<TransactionService> logger)
+    public TransactionService(AppDbContext db, ILogger<TransactionService> logger, IAccountService accountService)
     {
         _db = db;
         _logger = logger;
+        _accountService = accountService;
     }
     
     public async Task<List<Transaction>> GetAllAsync(int familyId, TransactionFilter? filter = null)
@@ -80,6 +82,14 @@ public class TransactionService : ITransactionService
             {
                 transaction.CreatedAt = DateTime.UtcNow;
                 _db.Transactions.Add(transaction);
+                
+                // Update Account Balance (New)
+                if (transaction.AccountId.HasValue)
+                {
+                    var delta = GetSignedAmount(transaction);
+                    await _accountService.UpdateBalanceAsync(transaction.AccountId.Value, delta);
+                }
+                
                 _logger.LogInformation("Creating new transaction: {Description} - {Amount}", 
                     transaction.Description, transaction.Amount);
             }
@@ -88,7 +98,16 @@ public class TransactionService : ITransactionService
                 var existing = await _db.Transactions.FindAsync(transaction.Id);
                 if (existing == null)
                     return ServiceResult.Fail("Transaction not found");
+
+                // Calculate Balance Impact
+                // 1. Revert Old (subtract old signed amount)
+                if (existing.AccountId.HasValue)
+                {
+                    var oldDelta = GetSignedAmount(existing);
+                    await _accountService.UpdateBalanceAsync(existing.AccountId.Value, -oldDelta);
+                }
                 
+                // Update Properties
                 existing.Date = transaction.Date;
                 existing.Amount = transaction.Amount;
                 existing.Type = transaction.Type;
@@ -99,6 +118,13 @@ public class TransactionService : ITransactionService
                 existing.AccountId = transaction.AccountId;
                 existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = transaction.UpdatedBy;
+                
+                // 2. Apply New (add new signed amount)
+                if (existing.AccountId.HasValue)
+                {
+                    var newDelta = GetSignedAmount(existing);
+                    await _accountService.UpdateBalanceAsync(existing.AccountId.Value, newDelta);
+                }
                 
                 _logger.LogInformation("Updating transaction {Id}: {Description}", 
                     transaction.Id, transaction.Description);
@@ -125,6 +151,13 @@ public class TransactionService : ITransactionService
             transaction.IsDeleted = true;
             transaction.DeletedAt = DateTime.UtcNow;
             
+            // Revert Account Balance
+            if (transaction.AccountId.HasValue)
+            {
+                var delta = GetSignedAmount(transaction);
+                await _accountService.UpdateBalanceAsync(transaction.AccountId.Value, -delta);
+            }
+            
             await _db.SaveChangesAsync();
             _logger.LogInformation("Soft-deleted transaction {Id}", id);
             
@@ -137,6 +170,13 @@ public class TransactionService : ITransactionService
         }
     }
     
+    private decimal GetSignedAmount(Transaction t)
+    {
+        if (t.Type == TransactionType.Expense) return -Math.Abs(t.Amount);
+        if (t.Type == TransactionType.Income) return Math.Abs(t.Amount);
+        return t.Amount; // Transfer (assumed signed)
+    }
+
     public async Task<decimal> GetTotalByCategoryAsync(int familyId, int categoryId, DateOnly from, DateOnly to)
     {
         return await _db.Transactions

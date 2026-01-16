@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.10] - 2026-01-16
+
+### Improved
+- **Automatic Balance Sync**: Manually adding or deleting transactions now automatically updates the linked Account's balance by the corresponding amount (delta update).
+- **Import Wizard**: Added ability to Undo/Reject confirmed matches.
+
 ## [0.4.9] - 2026-01-16
 
 ### Improved
