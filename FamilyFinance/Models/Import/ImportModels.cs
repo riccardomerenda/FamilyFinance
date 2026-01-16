@@ -1,6 +1,6 @@
 namespace FamilyFinance.Models.Import;
 
-public enum TransactionMatchType { None, Recurring, Receivable }
+public enum TransactionMatchType { None, Recurring, Receivable, Transfer }
 
 public class ImportedTransaction
 {
@@ -26,6 +26,10 @@ public class ImportedTransaction
     // Receivable match (credit collection)
     public int? MatchedReceivableId { get; set; }
     public string? MatchedReceivableDesc { get; set; }
+
+    // Transfer match
+    public int? TargetAccountId { get; set; }
+    public string? TargetAccountName { get; set; }
     
     // User confirmation state
     public bool IsMatchConfirmed { get; set; } = false;

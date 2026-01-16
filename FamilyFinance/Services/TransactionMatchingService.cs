@@ -16,7 +16,10 @@ public interface ITransactionMatchingService
     /// <summary>
     /// Learns a recurring match from user's manual selection for future auto-matching
     /// </summary>
-    Task LearnRecurringMatchAsync(int familyId, string description, int recurringId);
+    /// <summary>
+    /// Learns a recurring match from user's manual selection for future auto-matching
+    /// </summary>
+    Task LearnRecurringMatchAsync(int familyId, string description, int? recurringId, int? targetAccountId);
 }
 
 public class TransactionMatchingService : ITransactionMatchingService
@@ -48,10 +51,14 @@ public class TransactionMatchingService : ITransactionMatchingService
             .Where(r => recentSnapshots.Contains(r.SnapshotId) && r.Status == ReceivableStatus.Open)
             .ToListAsync();
         
-        // Load learned recurring rules for this family
         var learnedRules = await _db.RecurringMatchRules
             .Where(r => r.FamilyId == familyId)
             .ToListAsync();
+
+        // Load account names for transfer mapping
+        var accountNames = await _db.Accounts
+            .Where(a => a.FamilyId == familyId)
+            .ToDictionaryAsync(a => a.Id, a => a.Name);
         
         foreach (var tx in transactions)
         {
@@ -70,6 +77,17 @@ public class TransactionMatchingService : ITransactionMatchingService
             
             if (learnedMatch != null)
             {
+                // check if it is a transfer
+                if (learnedMatch.TargetAccountId.HasValue && accountNames.ContainsKey(learnedMatch.TargetAccountId.Value))
+                {
+                     tx.MatchType = TransactionMatchType.Transfer;
+                     tx.TargetAccountId = learnedMatch.TargetAccountId;
+                     tx.TargetAccountName = accountNames[learnedMatch.TargetAccountId.Value];
+                     tx.MatchConfidence = 95;
+                     tx.IsMatchConfirmed = true;
+                     continue;
+                }
+
                 var recurring = recurringList.FirstOrDefault(r => r.Id == learnedMatch.RecurringTransactionId);
                 if (recurring != null)
                 {
@@ -185,8 +203,11 @@ public class TransactionMatchingService : ITransactionMatchingService
     /// <summary>
     /// Learns a recurring match from user's manual selection for future auto-matching
     /// </summary>
-    public async Task LearnRecurringMatchAsync(int familyId, string description, int recurringId)
+    public async Task LearnRecurringMatchAsync(int familyId, string description, int? recurringId, int? targetAccountId)
     {
+        // Must have at least one target
+        if (!recurringId.HasValue && !targetAccountId.HasValue) return;
+        
         // Extract a meaningful keyword from the description
         var descLower = description.ToLowerInvariant();
         var keywords = ExtractKeywords(descLower);
@@ -202,8 +223,11 @@ public class TransactionMatchingService : ITransactionMatchingService
         if (existingRule != null)
         {
             // Update existing rule
-            existingRule.RecurringTransactionId = recurringId;
+            if (recurringId.HasValue) existingRule.RecurringTransactionId = recurringId.Value;
+            existingRule.TargetAccountId = targetAccountId;
+            
             existingRule.UsageCount++;
+            existingRule.UpdatedAt = DateTime.UtcNow;
         }
         else
         {
@@ -211,7 +235,8 @@ public class TransactionMatchingService : ITransactionMatchingService
             _db.RecurringMatchRules.Add(new RecurringMatchRule
             {
                 FamilyId = familyId,
-                RecurringTransactionId = recurringId,
+                RecurringTransactionId = recurringId, // Nullable now
+                TargetAccountId = targetAccountId,
                 Keyword = keyword,
                 UsageCount = 1
             });

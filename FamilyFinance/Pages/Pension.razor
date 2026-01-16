@@ -16,7 +16,7 @@
         <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 }
-else if (_latest == null || (!_pensionLines.Any() && !_insuranceLines.Any()))
+else if (!_pensionLines.Any() && !_insuranceLines.Any())
 {
     <!-- Empty State -->
     <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -236,12 +236,13 @@ else
     </div>
 }
 
+@inject IAccountService AccountService
+
 @code {
     private bool _loading = true;
-    private Snapshot? _latest;
-    private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    private List<SnapshotLine> _pensionLines = new();
-    private List<SnapshotLine> _insuranceLines = new();
+    private FamilyFinance.Models.Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    private List<FamilyFinance.Models.SnapshotLine> _pensionLines = new();
+    private List<FamilyFinance.Models.SnapshotLine> _insuranceLines = new();
     private object _chartConfig = new { };
     private int _familyId;
 
@@ -258,16 +259,71 @@ else
             }
         }
 
-        _latest = await SnapshotService.GetLatestAsync(_familyId);
-        if (_latest != null)
-        {
-            _t = await SnapshotService.CalculateTotalsAsync(_latest);
-            _pensionLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Pension).ToList();
-            _insuranceLines = _latest.Lines.Where(x => x.Account.Category == AccountCategory.Insurance).ToList();
-            BuildCharts();
-        }
-        
+        await LoadData();
         _loading = false;
+    }
+
+    async Task LoadData()
+    {
+        // 1. Get Live Accounts (for current Value)
+        var allAccounts = await AccountService.GetActiveAsync(_familyId);
+        var pensionAccounts = allAccounts.Where(a => a.Category == FamilyFinance.Models.AccountCategory.Pension).ToList();
+        var insuranceAccounts = allAccounts.Where(a => a.Category == FamilyFinance.Models.AccountCategory.Insurance).ToList();
+
+        // 2. Get Statistics from latest snapshot (for Contribution Basis)
+        var latestSnapshot = await SnapshotService.GetLatestAsync(_familyId);
+        var snapshotLines = latestSnapshot?.Lines ?? new List<FamilyFinance.Models.SnapshotLine>();
+
+        // 3. Merge Data
+        _pensionLines = MapToLines(pensionAccounts, snapshotLines);
+        _insuranceLines = MapToLines(insuranceAccounts, snapshotLines);
+
+        // 4. Calculate Totals Live
+        CalculateTotals();
+        
+        // 5. Build Charts
+        BuildCharts();
+    }
+
+    List<FamilyFinance.Models.SnapshotLine> MapToLines(List<FamilyFinance.Models.Account> accounts, List<FamilyFinance.Models.SnapshotLine> snapshotLines)
+    {
+        var list = new List<FamilyFinance.Models.SnapshotLine>();
+        foreach (var acc in accounts)
+        {
+            var snapLine = snapshotLines.FirstOrDefault(l => l.AccountId == acc.Id);
+            list.Add(new FamilyFinance.Models.SnapshotLine
+            {
+                AccountId = acc.Id,
+                Account = acc,
+                Amount = acc.CurrentBalance, // LIVE Value
+                ContributionBasis = snapLine?.ContributionBasis ?? 0 // Historical Basis
+            });
+        }
+        return list;
+    }
+
+    void CalculateTotals()
+    {
+        var pensionValue = _pensionLines.Sum(x => x.Amount);
+        var pensionContrib = _pensionLines.Sum(x => x.ContributionBasis);
+        
+        var insuranceValue = _insuranceLines.Sum(x => x.Amount);
+        var insuranceContrib = _insuranceLines.Sum(x => x.ContributionBasis);
+
+        var totalValue = pensionValue + insuranceValue;
+        var totalContrib = pensionContrib + insuranceContrib;
+
+        var totalGain = totalValue - totalContrib;
+        var totalGainPercent = totalContrib > 0 ? (totalGain / totalContrib) * 100 : 0;
+
+        _t = new FamilyFinance.Models.Totals(
+            0, 0, 
+            0, 0, 
+            0,
+            totalValue, totalContrib, // Fixed order: Value (Amount), then Basis (Contrib)
+            0, 0,
+            0, 0, 0
+        );
     }
 
     void BuildCharts()
@@ -306,4 +362,3 @@ else
         };
     }
 }
-

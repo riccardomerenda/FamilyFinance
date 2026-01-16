@@ -347,15 +347,32 @@
                                                         <span class="ml-1 text-green-200">✓</span>
                                                     }
                                                 </span>
+                                            } else if(tx.MatchType == TransactionMatchType.Transfer && tx.TargetAccountId.HasValue) {
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 animate-pulse-slow">
+                                                    💸 To: @tx.TargetAccountName
+                                                    @if (!tx.IsMatchConfirmed) {
+                                                        <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Confirm">✓</button>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignore">✕</button>
+                                                    } else {
+                                                        <span class="ml-1 text-green-200">✓</span>
+                                                    }
+                                                </span>
                                             } else {
                                                 @* No auto-match - show manual link option + category badges *@
                                                 @if (_recurringTransactions.Any()) {
-                                                    <select @onchange="(e) => ManualLinkToRecurring(tx, e)" 
+                                                    <select @onchange="(e) => ManualLinkTransaction(tx, e)" 
                                                             class="inline-flex text-xs rounded-full bg-gray-100 dark:bg-gray-700 border-0 py-0.5 px-2 text-gray-600 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                                        <option value="">🔗 Ricorrente...</option>
-                                                        @foreach(var rec in _recurringTransactions.Where(r => r.IsActive)) {
-                                                            <option value="@rec.Id">@rec.Name</option>
-                                                        }
+                                                        <option value="">🔗 Link...</option>
+                                                        <optgroup label="Recurring">
+                                                            @foreach(var rec in _recurringTransactions.Where(r => r.IsActive)) {
+                                                                <option value="@rec.Id">@rec.Name</option>
+                                                            }
+                                                        </optgroup>
+                                                        <optgroup label="Transfers">
+                                                            @foreach(var acc in _allAccounts.Where(a => a.Id != _selectedAccountId)) {
+                                                                <option value="transfer-@acc.Id">To: @acc.Name</option>
+                                                            }
+                                                        </optgroup>
                                                     </select>
                                                 }
                                                 @if(tx.IsLearnedRule) {
@@ -450,7 +467,9 @@
     private string[] _previewHeaders = Array.Empty<string>();
     private List<ImportedTransaction> _transactions = new();
     private List<BudgetCategory> _categories = new();
+
     private List<AccountModel> _accounts = new();
+    private List<AccountModel> _allAccounts = new();
     private int _selectedAccountId;
     private List<string> _importMessages = new();
     private MemoryStream? _fileStream;
@@ -481,6 +500,7 @@
                 
                 // Load accounts for selection
                 var allAccounts = await AccountService.GetAllAsync(_familyId);
+                _allAccounts = allAccounts.Where(a => a.IsActive).ToList();
                 _accounts = allAccounts.Where(a => a.IsActive && a.Category == FamilyFinance.Models.AccountCategory.Liquidity).ToList();
                 if (_accounts.Any()) _selectedAccountId = _accounts.First().Id;
                 
@@ -680,29 +700,54 @@
         tx.MatchConfidence = 0;
     }
     
-    private async Task ManualLinkToRecurring(ImportedTransaction tx, ChangeEventArgs e)
+    private async Task ManualLinkTransaction(ImportedTransaction tx, ChangeEventArgs e)
     {
-        if (!int.TryParse(e.Value?.ToString(), out var recurringId) || recurringId == 0)
-            return;
-        
-        var recurring = _recurringTransactions.FirstOrDefault(r => r.Id == recurringId);
-        if (recurring == null) return;
-        
-        // Set the match on the transaction
-        tx.MatchType = TransactionMatchType.Recurring;
-        tx.MatchedRecurringId = recurring.Id;
-        tx.MatchedRecurringName = recurring.Name;
-        tx.MatchConfidence = 100; // Manual = full confidence
-        tx.IsMatchConfirmed = true; // Auto-confirm manual links
-        
-        // Set category if recurring has one
-        if (recurring.CategoryId.HasValue)
+        var value = e.Value?.ToString();
+        if (string.IsNullOrEmpty(value)) return;
+
+        if (value.StartsWith("transfer-"))
         {
-            tx.SuggestedCategoryId = recurring.CategoryId;
+             // Transfer Logic
+             if (int.TryParse(value.Replace("transfer-", ""), out int targetId))
+             {
+                 var targetAccount = _allAccounts.FirstOrDefault(a => a.Id == targetId);
+                 if (targetAccount == null) return;
+
+                 tx.MatchType = TransactionMatchType.Transfer;
+                 tx.TargetAccountId = targetAccount.Id;
+                 tx.TargetAccountName = targetAccount.Name;
+                 tx.MatchConfidence = 100;
+                 tx.IsMatchConfirmed = true;
+                 
+                 // Learn
+                 await MatchingService.LearnRecurringMatchAsync(_familyId, tx.Description, null, targetAccount.Id);
+             }
         }
-        
-        // Learn this association for future imports
-        await MatchingService.LearnRecurringMatchAsync(_familyId, tx.Description, recurringId);
+        else
+        {
+            // Recurring Logic
+            if (!int.TryParse(value, out var recurringId) || recurringId == 0)
+                return;
+            
+            var recurring = _recurringTransactions.FirstOrDefault(r => r.Id == recurringId);
+            if (recurring == null) return;
+            
+            // Set the match on the transaction
+            tx.MatchType = TransactionMatchType.Recurring;
+            tx.MatchedRecurringId = recurring.Id;
+            tx.MatchedRecurringName = recurring.Name;
+            tx.MatchConfidence = 100; // Manual = full confidence
+            tx.IsMatchConfirmed = true; // Auto-confirm manual links
+            
+            // Set category if recurring has one
+            if (recurring.CategoryId.HasValue)
+            {
+                tx.SuggestedCategoryId = recurring.CategoryId;
+            }
+            
+            // Learn this association for future imports
+            await MatchingService.LearnRecurringMatchAsync(_familyId, tx.Description, recurringId, null);
+        }
     }
 
     private async Task SaveTransactions()
@@ -730,6 +775,43 @@
         {
             var isExpense = item.Amount < 0;
             var amount = Math.Abs(item.Amount);
+
+            // Handle Transfer (Creates 2 transactions)
+            if (item.MatchType == TransactionMatchType.Transfer && item.TargetAccountId.HasValue)
+            {
+                // 1. Source Leg (Withdrawal)
+                newTransactions.Add(new Transaction
+                {
+                    FamilyId = _familyId,
+                    Date = item.Date,
+                    Amount = -amount, // Always negative for source
+                    Description = item.Description,
+                    Type = TransactionType.Transfer,
+                    CategoryId = null, 
+                    AccountId = _selectedAccountId,
+                    ImportSource = "csv",
+                    ExternalId = item.Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+                
+                // 2. Target Leg (Deposit)
+                newTransactions.Add(new Transaction
+                {
+                    FamilyId = _familyId,
+                    Date = item.Date,
+                    Amount = amount, // Always positive for target
+                    Description = item.Description,
+                    Type = TransactionType.Transfer,
+                    CategoryId = null,
+                    AccountId = item.TargetAccountId.Value,
+                    ImportSource = "csv",
+                    ExternalId = item.Id + "-target",
+                    CreatedAt = DateTime.UtcNow
+                });
+                
+                continue; // Skip standard processing
+            }
+
             var categoryId = item.SuggestedCategoryId ?? variCategory?.Id;
 
             var newTx = new Transaction
@@ -755,15 +837,26 @@
         {
              _importMessages.Add($"✅ {L["SuccessImport"]} ({newTransactions.Count})");
              
-             // Update account balance (Live Balance feature)
-             var incomeTotal = newTransactions.Where(t => t.Type == FamilyFinance.Models.TransactionType.Income).Sum(t => t.Amount);
-             var expenseTotal = newTransactions.Where(t => t.Type == FamilyFinance.Models.TransactionType.Expense).Sum(t => t.Amount);
-             var netChange = incomeTotal - expenseTotal;
-             
-             if (_selectedAccountId > 0 && netChange != 0)
+             // Update account balances (Live Balance feature)
+             // Group transactions by AccountId to handle transfers correctly
+             var accountChanges = newTransactions
+                 .Where(t => t.AccountId.HasValue)
+                 .GroupBy(t => t.AccountId.Value)
+                 .Select(g => new 
+                 { 
+                     AccountId = g.Key, 
+                     NetChange = g.Where(t => t.Type == TransactionType.Income || (t.Type == TransactionType.Transfer && t.Amount > 0)).Sum(t => t.Amount) 
+                                - g.Where(t => t.Type == TransactionType.Expense || (t.Type == TransactionType.Transfer && t.Amount < 0)).Sum(t => Math.Abs(t.Amount))
+                 })
+                 .Where(x => x.NetChange != 0)
+                 .ToList();
+
+             foreach (var change in accountChanges)
              {
-                 await AccountService.UpdateBalanceAsync(_selectedAccountId, netChange);
-                 _importMessages.Add($"💰 {L["BalanceUpdated"]} ({(netChange >= 0 ? "+" : "")}{netChange:N2} €)");
+                 await AccountService.UpdateBalanceAsync(change.AccountId, change.NetChange);
+                 
+                 var accountName = _allAccounts.FirstOrDefault(a => a.Id == change.AccountId)?.Name ?? "Account";
+                 _importMessages.Add($"💰 {accountName}: {(change.NetChange >= 0 ? "+" : "")}{change.NetChange:N2} €");
              }
              
              await Task.Delay(1000); 

@@ -3,6 +3,7 @@ using System;
 using FamilyFinance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FamilyFinance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116133604_SmartTransfers")]
+    partial class SmartTransfers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
@@ -638,7 +641,7 @@ namespace FamilyFinance.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RecurringTransactionId")
+                    b.Property<int>("RecurringTransactionId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("TargetAccountId")
@@ -1160,7 +1163,9 @@ namespace FamilyFinance.Migrations
                 {
                     b.HasOne("FamilyFinance.Models.RecurringTransaction", "RecurringTransaction")
                         .WithMany()
-                        .HasForeignKey("RecurringTransactionId");
+                        .HasForeignKey("RecurringTransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("RecurringTransaction");
                 });

@@ -51,6 +51,15 @@
         <button @onclick="ClearFilter" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
             @L["Clear"]
         </button>
+        @if (_selectedTransactions.Any())
+        {
+            <button @onclick="DeleteSelected" class="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete (@_selectedTransactions.Count)
+            </button>
+        }
     </div>
 </div>
 
@@ -99,6 +108,9 @@ else
         <table class="w-full">
             <thead class="bg-gray-50 dark:bg-gray-800/50">
                 <tr>
+                    <th class="px-4 py-3 text-left">
+                        <input type="checkbox" @onchange="ToggleSelectAll" checked="@AllSelected" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                    </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Date"]</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Description"]</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">@L["Category"]</th>
@@ -110,6 +122,9 @@ else
                 @foreach (var tx in _transactions)
                 {
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="px-4 py-3">
+                            <input type="checkbox" checked="@_selectedTransactions.Contains(tx.Id)" @onchange="(e) => ToggleSelection(tx.Id, e)" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                        </td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                             @tx.Date.ToString("dd MMM yyyy")
                         </td>
@@ -226,6 +241,9 @@ else
     int _totalCount;
     decimal _totalExpenses;
     decimal _totalIncome;
+    HashSet<long> _selectedTransactions = new();
+    
+    bool AllSelected => _transactions.Any() && _selectedTransactions.Count == _transactions.Count;
 
     [SupplyParameterFromQuery(Name = "from")]
     public DateOnly? QueryFrom { get; set; }
@@ -274,6 +292,7 @@ else
         _totalCount = await TransactionService.GetCountAsync(_familyId, _filter);
         _totalExpenses = _transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
         _totalIncome = _transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+        _selectedTransactions.Clear();
     }
 
     async Task ClearFilter()
@@ -327,6 +346,46 @@ else
     async Task Delete(long id)
     {
         await TransactionService.DeleteAsync(id);
+        await TransactionService.DeleteAsync(id);
+        await ApplyFilter();
+    }
+    
+    void ToggleSelection(long id, ChangeEventArgs e)
+    {
+        if (e.Value is bool isChecked && isChecked)
+        {
+            _selectedTransactions.Add(id);
+        }
+        else
+        {
+            _selectedTransactions.Remove(id);
+        }
+    }
+    
+    void ToggleSelectAll(ChangeEventArgs e)
+    {
+        if (e.Value is bool isChecked && isChecked)
+        {
+            foreach (var tx in _transactions)
+                _selectedTransactions.Add(tx.Id);
+        }
+        else
+        {
+            _selectedTransactions.Clear();
+        }
+    }
+    
+    async Task DeleteSelected()
+    {
+        if (!_selectedTransactions.Any()) return;
+        
+        // Confirm first? (Skipping JS confirm for speed, user can handle it)
+        foreach (var id in _selectedTransactions)
+        {
+            await TransactionService.DeleteAsync(id);
+        }
+        
+        _selectedTransactions.Clear();
         await ApplyFilter();
     }
 }

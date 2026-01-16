@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.6] - 2026-01-16
+
+### Added
+- **Smart Transfers**: Intelligent handling of internal transfers during CSV import (creates withdrawal/deposit pair).
+- **Pension Page Live Data**: Pension & Insurance page now shows live account balances merged with historical contribution data.
+- **Bulk Delete**: Ability to select and delete multiple transactions at once.
+
+### Fixed
+- Fixed issue where Pension page showed stale snapshot data.
+- Fixed `FOREIGN KEY` constraint errors on recurring match rules.
+
+
 ## [4.4.0] - 2026-01-16
 
 ### Added

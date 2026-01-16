@@ -8,7 +8,7 @@ namespace FamilyFinance.Models;
 public class RecurringMatchRule : BaseEntity
 {
     public int FamilyId { get; set; }
-    public int RecurringTransactionId { get; set; }
+    public int? RecurringTransactionId { get; set; }
     
     /// <summary>
     /// Extracted keyword from transaction description (lowercase).
@@ -24,4 +24,9 @@ public class RecurringMatchRule : BaseEntity
     
     // Navigation
     public RecurringTransaction? RecurringTransaction { get; set; }
+    
+    /// <summary>
+    /// If set, this rule identifies a transfer to this account ID instead of a recurring transaction.
+    /// </summary>
+    public int? TargetAccountId { get; set; }
 }
