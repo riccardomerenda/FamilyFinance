@@ -7,7 +7,7 @@ public interface ICsvImportService
     /// <summary>
     /// Reads the first few lines of a CSV to help user map columns
     /// </summary>
-    Task<List<string[]>> PreviewCsvAsync(Stream content, int linesToRead = 5);
+    Task<List<string[]>> PreviewCsvAsync(Stream content, int skipRows = 0, char delimiter = '\0', int linesToRead = 5);
     
     /// <summary>
     /// Parses the full CSV using the provided mapping

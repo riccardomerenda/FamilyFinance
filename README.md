@@ -34,6 +34,7 @@
 | 📅 **Monthly Wizard** | Guided 4-step closing workflow |
 | 🔄 **Import History (BETA)** | View import logs and smart revert changes |
 | 💸 **Budget Tracking** | Expense categories with monthly limits |
+| 🧠 **Smart Matching** | Auto-detect recurring transactions & learn from manual links |
 | 🌍 **Multi-language** | Italian & English |
 | 👨‍👩‍👧 **Multi-user** | Family accounts with role-based access |
 | 🎭 **Demo Mode** | Try with sample data, no signup required |

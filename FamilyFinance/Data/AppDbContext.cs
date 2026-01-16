@@ -23,6 +23,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<MonthlyIncome> MonthlyIncomes => Set<MonthlyIncome>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<RecurringTransaction> RecurringTransactions => Set<RecurringTransaction>();
+    public DbSet<RecurringMatchRule> RecurringMatchRules => Set<RecurringMatchRule>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

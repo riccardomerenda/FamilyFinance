@@ -194,7 +194,7 @@ else
     decimal _totalBudget;
     int _familyId;
 
-    readonly string[] _availableIcons = { "🏠", "🛒", "🚗", "⚡", "🎭", "🏥", "👕", "🍕", "📱", "💰", "✈️", "🎓", "🐕", "🎁", "💊", "🏋️", "📚", "🎮", "☕", "🍺" };
+    private string[] _availableIcons = AppConstants.CategoryEmojis;
     readonly string[] _availableColors = { "#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6b7280", "#84cc16", "#3b82f6" };
 
     protected override async Task OnInitializedAsync()

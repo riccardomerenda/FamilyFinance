@@ -136,6 +136,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>(); // Indivi
 builder.Services.AddScoped<IRecurringTransactionService, RecurringTransactionService>(); // Recurring transactions
 builder.Services.AddScoped<IReportService, ReportService>(); // Report generation
 builder.Services.AddScoped<IMonthCloseService, MonthCloseService>(); // Month closing logic
+builder.Services.AddScoped<ITransactionMatchingService, TransactionMatchingService>(); // Smart import matching
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();

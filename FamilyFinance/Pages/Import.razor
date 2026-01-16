@@ -13,6 +13,8 @@
 @inject IStringLocalizer<SharedResource> L
 @inject ITransactionService TransactionService
 @inject IAccountService AccountService
+@inject ITransactionMatchingService MatchingService
+@inject IRecurringTransactionService RecurringService
 @attribute [Authorize]
 
 <PageTitle>@L["ImportTransactions"] - FamilyFinance</PageTitle>
@@ -155,7 +157,25 @@
                         <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-100 dark:border-gray-700">
                             <h3 class="font-semibold mb-4 text-sm uppercase tracking-wide text-gray-500">Options</h3>
                             
+                            <!-- Bank Preset -->
+                            <div class="mb-4">
+                                <label class="block text-xs font-medium mb-1 text-gray-500">Bank Preset</label>
+                                <select @onchange="ApplyBankPreset" class="w-full rounded-lg text-sm p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+                                    <option value="">-- Generic --</option>
+                                    <option value="unicredit">Unicredit</option>
+                                    <option value="bbva">BBVA</option>
+                                    <option value="intesa">Intesa Sanpaolo</option>
+                                    <option value="fineco">Fineco</option>
+                                    <option value="revolut">Revolut</option>
+                                </select>
+                            </div>
+                            
                             <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium mb-1 text-gray-500">Skip Rows</label>
+                                    <input type="number" @bind="_mapping.SkipRows" min="0" max="20" @bind:after="RefreshPreview" class="w-full rounded text-sm p-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600" />
+                                    <span class="text-[10px] text-gray-400">Rows before header</span>
+                                </div>
                                 <div>
                                     <label class="block text-xs font-medium mb-1 text-gray-500">Skip Header Row</label>
                                     <label class="relative inline-flex items-center cursor-pointer">
@@ -166,6 +186,20 @@
                                 <div>
                                     <label class="block text-xs font-medium mb-1 text-gray-500">Date Format</label>
                                     <input type="text" @bind="_mapping.DateFormat" class="w-full rounded text-sm p-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600" placeholder="dd/MM/yyyy" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1 text-gray-500">Decimal Separator</label>
+                                    <select @bind="_mapping.DecimalSeparator" class="w-full rounded text-sm p-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+                                        <option value=",">, (Comma)</option>
+                                        <option value=".">. (Dot)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1 text-gray-500">CSV Delimiter</label>
+                                    <select @bind="_mapping.Delimiter" @bind:after="RefreshPreview" class="w-full rounded text-sm p-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+                                        <option value=",">, (Comma)</option>
+                                        <option value=";">; (Semicolon)</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +229,10 @@
                             </table>
                         </div>
                         
-                        <div class="mt-8 flex justify-end">
+                        <div class="mt-8 flex justify-between">
+                            <button @onclick="GoBack" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition-all">
+                                ← @L["Back"]
+                            </button>
                             <button @onclick="ProcessFile" disabled="@(!IsValidMapping())" 
                                     class="px-6 py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/30">
                                 @L["NextCategorize"]
@@ -236,6 +273,9 @@
                 <!-- Toolbar -->
                 <div class="p-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
+                        <button @onclick="GoBack" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-lg transition-all flex items-center gap-1">
+                            ← @L["Back"]
+                        </button>
                         <div class="text-sm">
                             <span class="font-bold text-gray-900 dark:text-white">@_transactions.Count(t => t.IsSelected)</span> 
                             <span class="text-gray-500">selected of @_transactions.Count</span>
@@ -283,12 +323,48 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">@tx.Date.ToString("dd/MM")</td>
                                     <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                        @tx.Description
-                                        @if(tx.IsLearnedRule) {
-                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200" title="@L["SmartCatLearnedTooltip"]">🧠 @L["Learned"]</span>
-                                        } else if(tx.ConfidenceScore > 80) {
-                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" title="@L["SmartCatAutoTooltip"]">✨ Smart</span>
-                                        }
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="flex-shrink-0 max-w-[300px] truncate" title="@tx.Description">@tx.Description</span>
+                                            
+                                            @* Smart Matching - Priority display *@
+                                            @if(tx.MatchType == TransactionMatchType.Recurring && tx.MatchedRecurringId.HasValue) {
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/30 animate-pulse-slow">
+                                                    🔄 @tx.MatchedRecurringName
+                                                    @if (!tx.IsMatchConfirmed) {
+                                                        <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Collega">✓</button>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignora">✕</button>
+                                                    } else {
+                                                        <span class="ml-1 text-green-200">✓</span>
+                                                    }
+                                                </span>
+                                            } else if(tx.MatchType == TransactionMatchType.Receivable && tx.MatchedReceivableId.HasValue) {
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 animate-pulse-slow">
+                                                    💳 @tx.MatchedReceivableDesc
+                                                    @if (!tx.IsMatchConfirmed) {
+                                                        <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Incassa">✓</button>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignora">✕</button>
+                                                    } else {
+                                                        <span class="ml-1 text-green-200">✓</span>
+                                                    }
+                                                </span>
+                                            } else {
+                                                @* No auto-match - show manual link option + category badges *@
+                                                @if (_recurringTransactions.Any()) {
+                                                    <select @onchange="(e) => ManualLinkToRecurring(tx, e)" 
+                                                            class="inline-flex text-xs rounded-full bg-gray-100 dark:bg-gray-700 border-0 py-0.5 px-2 text-gray-600 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                                        <option value="">🔗 Ricorrente...</option>
+                                                        @foreach(var rec in _recurringTransactions.Where(r => r.IsActive)) {
+                                                            <option value="@rec.Id">@rec.Name</option>
+                                                        }
+                                                    </select>
+                                                }
+                                                @if(tx.IsLearnedRule) {
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300" title="@L["SmartCatLearnedTooltip"]">🧠 @L["Learned"]</span>
+                                                } else if(tx.ConfidenceScore > 80) {
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" title="@L["SmartCatAutoTooltip"]">✨ Smart</span>
+                                                }
+                                            }
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-right font-mono @(tx.Amount < 0 ? "text-red-500" : "text-emerald-500")">
                                         @tx.Amount.ToString("N2")
@@ -385,7 +461,10 @@
     private string _newCategoryName = "";
     private string _newCategoryIcon = "📁";
     private ImportedTransaction? _targetTransaction = null;
-    private readonly string[] _categoryEmojis = { "🛒", "🍔", "🚗", "🛍️", "💡", "🏠", "📺", "💊", "🎁", "📚", "✈️", "💳", "📁" };
+    private readonly string[] _categoryEmojis = AppConstants.CategoryEmojis;
+    
+    // Manual Recurring Linking
+    private List<RecurringTransaction> _recurringTransactions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -404,6 +483,9 @@
                 var allAccounts = await AccountService.GetAllAsync(_familyId);
                 _accounts = allAccounts.Where(a => a.IsActive && a.Category == FamilyFinance.Models.AccountCategory.Liquidity).ToList();
                 if (_accounts.Any()) _selectedAccountId = _accounts.First().Id;
+                
+                // Load recurring transactions for manual linking
+                _recurringTransactions = await RecurringService.GetAllAsync(_familyId);
             }
         }
     }
@@ -469,6 +551,77 @@
         return _mapping.DateIndex >= 0 && _mapping.DescriptionIndex >= 0 && _mapping.AmountIndex >= 0;
     }
 
+    private async Task ApplyBankPreset(ChangeEventArgs e)
+    {
+        var preset = e.Value?.ToString() ?? "";
+        switch (preset)
+        {
+            case "unicredit":
+                _mapping.SkipRows = 0;
+                _mapping.Delimiter = ';';
+                _mapping.DateFormat = "dd.MM.yyyy";
+                _mapping.DecimalSeparator = ",";
+                _mapping.DateIndex = 0;
+                _mapping.DescriptionIndex = 2;
+                _mapping.AmountIndex = 3;
+                _mapping.HasHeaderRow = true;
+                break;
+            case "bbva":
+                _mapping.SkipRows = 4;
+                _mapping.Delimiter = ',';
+                _mapping.DateFormat = "dd/MM/yyyy";
+                _mapping.DecimalSeparator = ".";
+                _mapping.DateIndex = 0;
+                _mapping.DescriptionIndex = 3;
+                _mapping.AmountIndex = 4;
+                _mapping.HasHeaderRow = true;
+                break;
+            case "intesa":
+                _mapping.SkipRows = 0;
+                _mapping.Delimiter = ';';
+                _mapping.DateFormat = "dd/MM/yyyy";
+                _mapping.DecimalSeparator = ",";
+                _mapping.HasHeaderRow = true;
+                break;
+            case "fineco":
+                _mapping.SkipRows = 0;
+                _mapping.Delimiter = ';';
+                _mapping.DateFormat = "dd/MM/yyyy";
+                _mapping.DecimalSeparator = ",";
+                _mapping.HasHeaderRow = true;
+                break;
+            case "revolut":
+                _mapping.SkipRows = 0;
+                _mapping.Delimiter = ',';
+                _mapping.DateFormat = "yyyy-MM-dd";
+                _mapping.DecimalSeparator = ".";
+                _mapping.HasHeaderRow = true;
+                break;
+            default:
+                // Generic - reset to defaults
+                _mapping.SkipRows = 0;
+                _mapping.Delimiter = ',';
+                _mapping.DateFormat = "dd/MM/yyyy";
+                _mapping.DecimalSeparator = ",";
+                break;
+        }
+        await RefreshPreview();
+    }
+
+    private async Task RefreshPreview()
+    {
+        if (_fileStream == null) return;
+        
+        var preview = await ImportService.PreviewCsvAsync(_fileStream, _mapping.SkipRows, _mapping.Delimiter);
+        if (preview.Any())
+        {
+            var maxCols = preview.Max(r => r.Length);
+            _previewHeaders = new string[maxCols];
+            _previewRows = preview;
+        }
+        StateHasChanged();
+    }
+
     private async Task ProcessFile()
     {
         if (_fileStream == null) return;
@@ -477,6 +630,9 @@
         
         // Auto categorize
         await ImportService.AutoCategorizeAsync(_transactions, _familyId);
+        
+        // Smart matching - detect recurring transactions and receivables
+        await MatchingService.MatchTransactionsAsync(_transactions, _familyId);
         
         // Filter out obviously wrong rows (e.g. empty amount or date)
         _transactions = _transactions.Where(t => t.Amount != 0).ToList();
@@ -506,6 +662,47 @@
     private void ToggleSelectAll(bool val)
     {
         _transactions.ForEach(t => t.IsSelected = val);
+    }
+
+    // Smart Match confirmation handlers
+    private void ConfirmMatch(ImportedTransaction tx)
+    {
+        tx.IsMatchConfirmed = true;
+    }
+    
+    private void RejectMatch(ImportedTransaction tx)
+    {
+        tx.MatchType = TransactionMatchType.None;
+        tx.MatchedRecurringId = null;
+        tx.MatchedRecurringName = null;
+        tx.MatchedReceivableId = null;
+        tx.MatchedReceivableDesc = null;
+        tx.MatchConfidence = 0;
+    }
+    
+    private async Task ManualLinkToRecurring(ImportedTransaction tx, ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var recurringId) || recurringId == 0)
+            return;
+        
+        var recurring = _recurringTransactions.FirstOrDefault(r => r.Id == recurringId);
+        if (recurring == null) return;
+        
+        // Set the match on the transaction
+        tx.MatchType = TransactionMatchType.Recurring;
+        tx.MatchedRecurringId = recurring.Id;
+        tx.MatchedRecurringName = recurring.Name;
+        tx.MatchConfidence = 100; // Manual = full confidence
+        tx.IsMatchConfirmed = true; // Auto-confirm manual links
+        
+        // Set category if recurring has one
+        if (recurring.CategoryId.HasValue)
+        {
+            tx.SuggestedCategoryId = recurring.CategoryId;
+        }
+        
+        // Learn this association for future imports
+        await MatchingService.LearnRecurringMatchAsync(_familyId, tx.Description, recurringId);
     }
 
     private async Task SaveTransactions()

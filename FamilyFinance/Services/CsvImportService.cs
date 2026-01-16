@@ -29,22 +29,34 @@ public class CsvImportService : ICsvImportService
         _categoryRuleService = categoryRuleService;
     }
 
-    public Task<List<string[]>> PreviewCsvAsync(Stream content, int linesToRead = 5)
+    public Task<List<string[]>> PreviewCsvAsync(Stream content, int skipRows = 0, char delimiter = '\0', int linesToRead = 5)
     {
         var preview = new List<string[]>();
         content.Position = 0;
         
         using var reader = new StreamReader(content, leaveOpen: true);
         
-        // Detect delimiter from first line
+        // Skip initial rows (for files like BBVA with extra headers)
+        for (int i = 0; i < skipRows && !reader.EndOfStream; i++)
+        {
+            reader.ReadLine();
+        }
+        
+        // Detect delimiter from first data line if not specified
         string? firstLine = reader.ReadLine();
         if (firstLine == null) return Task.FromResult(preview);
         
-        char delimiter = DetectDelimiter(firstLine);
+        char effectiveDelimiter = delimiter != '\0' ? delimiter : DetectDelimiter(firstLine);
         
-        // Reset and read
+        // Reset and read from skip position
         content.Position = 0;
-        using var reader2 = new StreamReader(content, leaveOpen: true); // New reader for reset stream
+        using var reader2 = new StreamReader(content, leaveOpen: true);
+        
+        // Skip again
+        for (int i = 0; i < skipRows && !reader2.EndOfStream; i++)
+        {
+            reader2.ReadLine();
+        }
         
         int count = 0;
         while (!reader2.EndOfStream && count < linesToRead)
@@ -52,7 +64,7 @@ public class CsvImportService : ICsvImportService
             var line = reader2.ReadLine();
             if (!string.IsNullOrWhiteSpace(line))
             {
-                var fields = ParseCsvLine(line, delimiter);
+                var fields = ParseCsvLine(line, effectiveDelimiter);
                 preview.Add(fields);
                 count++;
             }
@@ -68,15 +80,28 @@ public class CsvImportService : ICsvImportService
         
         using var reader = new StreamReader(content, leaveOpen: true);
         
-        // Detect delimiter again or reuse logic? Let's detect.
+        // Skip initial rows (for files like BBVA with extra headers)
+        for (int i = 0; i < mapping.SkipRows && !reader.EndOfStream; i++)
+        {
+            reader.ReadLine();
+        }
+        
+        // Detect delimiter if not explicitly set, otherwise use mapping.Delimiter
         string? firstLine = reader.ReadLine();
         if (firstLine == null) return Task.FromResult(transactions);
-        char delimiter = DetectDelimiter(firstLine);
+        char delimiter = mapping.Delimiter != '\0' ? mapping.Delimiter : DetectDelimiter(firstLine);
         
-        // Skip header if needed
+        // Reset and skip again
         content.Position = 0;
         using var reader2 = new StreamReader(content, leaveOpen: true);
         
+        // Skip initial rows again
+        for (int i = 0; i < mapping.SkipRows && !reader2.EndOfStream; i++)
+        {
+            reader2.ReadLine();
+        }
+        
+        // Skip header row if configured
         if (mapping.HasHeaderRow && !reader2.EndOfStream)
         {
             reader2.ReadLine();
