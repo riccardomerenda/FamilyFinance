@@ -334,7 +334,7 @@
                                                         <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Collega">✓</button>
                                                         <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignora">✕</button>
                                                     } else {
-                                                        <span class="ml-1 text-green-200">✓</span>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full text-green-200 hover:text-white transition-colors" title="Annulla collegamento">✓ ✕</button>
                                                     }
                                                 </span>
                                             } else if(tx.MatchType == TransactionMatchType.Receivable && tx.MatchedReceivableId.HasValue) {
@@ -344,7 +344,7 @@
                                                         <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Incassa">✓</button>
                                                         <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignora">✕</button>
                                                     } else {
-                                                        <span class="ml-1 text-green-200">✓</span>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full text-green-200 hover:text-white transition-colors" title="Annulla incasso">✓ ✕</button>
                                                     }
                                                 </span>
                                             } else if(tx.MatchType == TransactionMatchType.Transfer && tx.TargetAccountId.HasValue) {
@@ -354,7 +354,7 @@
                                                         <button @onclick="() => ConfirmMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Confirm">✓</button>
                                                         <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="p-0.5 hover:bg-white/20 rounded-full transition-colors" title="Ignore">✕</button>
                                                     } else {
-                                                        <span class="ml-1 text-green-200">✓</span>
+                                                        <button @onclick="() => RejectMatch(tx)" @onclick:stopPropagation class="ml-1 p-0.5 hover:bg-white/20 rounded-full text-green-200 hover:text-white transition-colors" title="Cancel Transfer">✓ ✕</button>
                                                     }
                                                 </span>
                                             } else {

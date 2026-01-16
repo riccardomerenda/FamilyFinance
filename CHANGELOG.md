@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.9] - 2026-01-16
+
+### Improved
+- **Import Wizard**: Added ability to **Undo** (reject) a confirmed match (recurring or transfer) directly from the badge.
+
 ## [0.4.8] - 2026-01-16
 
 ### Fixed
