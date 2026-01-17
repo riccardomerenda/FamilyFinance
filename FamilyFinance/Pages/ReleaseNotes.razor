@@ -11,7 +11,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">@L["VersionHistory"]</p>
         </div>
         <div class="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-xl font-mono font-bold">
-            v@_currentVersion
+            v@(_currentVersion)
         </div>
     </div>
 
@@ -26,7 +26,7 @@
                             <span class="text-2xl">@release.Emoji</span>
                             <div>
                                 <h2 class="text-xl font-bold @(release.IsMajor ? "text-white" : "text-gray-800 dark:text-gray-100")">
-                                    v@release.Version
+                                    v@(release.Version)
                                 </h2>
                                 <p class="text-sm @(release.IsMajor ? "text-primary-100" : "text-gray-500 dark:text-gray-400")">
                                     @release.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentUICulture)
