@@ -30,7 +30,7 @@
 | 📸 **Monthly Snapshots** | Capture financial state and compare over time |
 | 🎯 **Goal Tracking** | Set savings targets with progress visualization |
 | 📊 **Interactive Dashboard** | Trend charts, composition breakdowns, net worth cards |
-| 💼 **Investment Portfolio** | Track assets with cost basis and gain/loss |
+| 💼 **Investment Portfolio** | Live asset tracking with cost basis and gain/loss (Directa integration) |
 | 📅 **Monthly Wizard** | Guided 4-step closing workflow |
 | 🔄 **Import History (BETA)** | View import logs and smart revert changes |
 | 💸 **Budget Tracking** | Expense categories with monthly limits |

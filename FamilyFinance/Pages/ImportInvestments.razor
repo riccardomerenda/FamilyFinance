@@ -1,0 +1,370 @@
+@page "/import-investments"
+@using FamilyFinance.Models
+@using FamilyFinance.Models.Import
+@using FamilyFinance.Services.Interfaces
+@using System.Security.Claims
+@inject IDirectaImportService DirectaService
+@inject IPortfolioService PortfolioService
+@inject IAssetHoldingService HoldingService
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResource> L
+@inject AuthenticationStateProvider AuthState
+@inject FamilyFinance.Services.AuthService Auth
+@inject NotificationService Toast
+@attribute [Authorize]
+
+<PageTitle>@L["ImportInvestments"] - FamilyFinance</PageTitle>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@L["ImportInvestments"]</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">@L["ImportInvestmentsDesc"]</p>
+        </div>
+        <button @onclick="Cancel" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            @L["Cancel"]
+        </button>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center gap-4">
+            @for (int i = 1; i <= 3; i++)
+            {
+                var step = i;
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold @StepCircleClass(step)">
+                        @step
+                    </div>
+                    <span class="text-sm font-medium @StepTextClass(step)">
+                        @(step == 1 ? L["ImportStepUpload"] : step == 2 ? L["ImportStepPreview"] : L["ImportStepConfirm"])
+                    </span>
+                </div>
+                @if (i < 3)
+                {
+                    <div class="w-12 h-1 rounded @(i < _currentStep ? "bg-cyan-500" : "bg-gray-200 dark:bg-gray-700")"></div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Wizard Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+        
+        @if (_currentStep == 1)
+        {
+            <!-- STEP 1: UPLOAD -->
+            <div class="p-12 text-center">
+                <div class="max-w-xl mx-auto">
+                    <div class="w-24 h-24 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">@L["UploadDirectaCsv"]</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">@L["UploadDirectaCsvDesc"]</p>
+                    
+                    <InputFile OnChange="LoadFile" class="hidden" id="fileInput" accept=".csv" />
+                    
+                    <label for="fileInput" class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 cursor-pointer transition-all shadow-lg shadow-cyan-500/30">
+                        @if (_loading)
+                        {
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            <span>@L["Loading"]</span>
+                        }
+                        else
+                        {
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                            <span>@L["SelectFile"]</span>
+                        }
+                    </label>
+                    
+                    <p class="mt-4 text-xs text-gray-400">@L["DirectaCsvFormat"]</p>
+                </div>
+            </div>
+        }
+        else if (_currentStep == 2)
+        {
+            <!-- STEP 2: PREVIEW & ASSIGN PORTFOLIOS -->
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">@L["PreviewAndAssign"]</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            @_importResult!.Assets.Count @L["AssetsFound"] • @L["ExtractionDate"]: @_importResult.ExtractionDate.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500">@L["TotalValue"]</div>
+                        <div class="text-xl font-bold text-cyan-600">@_importResult.Assets.Sum(a => a.CurrentValue).ToString("N2") €</div>
+                    </div>
+                </div>
+                
+                <!-- Assets Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-900/50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">@L["Ticker"]</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">@L["AssetName"]</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">@L["Quantity"]</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">@L["CostBasis"]</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">@L["CurrentValue"]</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">@L["GainLoss"]</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">@L["Portfolio"]</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach (var row in _previewRows)
+                            {
+                                var glClass = row.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
+                                var portfolioColor = _portfolios.FirstOrDefault(p => p.Id == row.PortfolioId)?.Color ?? "#6b7280";
+                                
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30">
+                                    <td class="px-4 py-3 font-mono font-semibold text-cyan-600 dark:text-cyan-400">@row.Ticker</td>
+                                    <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate" title="@row.FullName">@row.FullName</td>
+                                    <td class="px-4 py-3 text-right text-sm">@row.Quantity</td>
+                                    <td class="px-4 py-3 text-right text-sm">@row.CostBasis.ToString("N2") €</td>
+                                    <td class="px-4 py-3 text-right text-sm font-medium">@row.CurrentValue.ToString("N2") €</td>
+                                    <td class="px-4 py-3 text-right text-sm font-medium @glClass">
+                                        @(row.GainLoss >= 0 ? "+" : "")@row.GainLoss.ToString("N2") € (@(row.GainLossPercent >= 0 ? "+" : "")@row.GainLossPercent.ToString("N2")%)
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <select @bind="row.PortfolioId" class="w-full px-2 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" style="border-left: 3px solid @portfolioColor">
+                                            <option value="">@L["NoPortfolio"]</option>
+                                            @foreach (var p in _portfolios)
+                                            {
+                                                <option value="@p.Id">@p.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-gray-100 dark:bg-gray-900/70 font-semibold">
+                            <tr>
+                                <td colspan="3" class="px-4 py-3 text-right">@L["Total"]</td>
+                                <td class="px-4 py-3 text-right">@_previewRows.Sum(r => r.CostBasis).ToString("N2") €</td>
+                                <td class="px-4 py-3 text-right">@_previewRows.Sum(r => r.CurrentValue).ToString("N2") €</td>
+                                <td class="px-4 py-3 text-right @(_previewRows.Sum(r => r.GainLoss) >= 0 ? "text-green-600" : "text-red-600")">
+                                    @{var totalGl = _previewRows.Sum(r => r.GainLoss);}
+                                    @(totalGl >= 0 ? "+" : "")@totalGl.ToString("N2") €
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button @onclick="() => _currentStep = 1" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        ← @L["Back"]
+                    </button>
+                    <button @onclick="ConfirmImport" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 shadow-lg shadow-cyan-500/30 transition-all">
+                        @L["ConfirmImport"] →
+                    </button>
+                </div>
+            </div>
+        }
+        else if (_currentStep == 3)
+        {
+            <!-- STEP 3: SUCCESS -->
+            <div class="p-12 text-center">
+                <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">@L["ImportSuccess"]</h2>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">
+                    @_importedCount @L["AssetsImported"]
+                </p>
+                
+                <div class="flex items-center justify-center gap-4">
+                    <a href="/investments" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 shadow-lg shadow-cyan-500/30 transition-all">
+                        @L["ViewInvestments"]
+                    </a>
+                    <button @onclick="Reset" class="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 rounded-xl border border-gray-300 dark:border-gray-600">
+                        @L["ImportAnother"]
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    int _currentStep = 1;
+    bool _loading = false;
+    bool _saving = false;
+    int _familyId;
+    int _importedCount = 0;
+    
+    List<Portfolio> _portfolios = new();
+    DirectaImportResult? _importResult;
+    List<PreviewRow> _previewRows = new();
+    
+    class PreviewRow
+    {
+        public string Ticker { get; set; } = "";
+        public string? FullName { get; set; }
+        public string? ISIN { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal CostBasis { get; set; }
+        public decimal CurrentValue { get; set; }
+        public decimal GainLoss => CurrentValue - CostBasis;
+        public decimal GainLossPercent => CostBasis > 0 ? (GainLoss / CostBasis) * 100 : 0;
+        public int? PortfolioId { get; set; }
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var user = await Auth.GetUserWithFamilyAsync(userId);
+            if (user != null) _familyId = user.FamilyId;
+        }
+        
+        _portfolios = await PortfolioService.GetAllAsync(_familyId);
+    }
+    
+    async Task<Dictionary<string, int>> LoadExistingMappingsAsync()
+    {
+        var mappings = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var existingHoldings = await HoldingService.GetAllAsync(_familyId);
+        foreach (var h in existingHoldings)
+        {
+            mappings[h.Ticker] = h.PortfolioId;
+        }
+        return mappings;
+    }
+    
+    async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+        
+        _loading = true;
+        StateHasChanged();
+        
+        try
+        {
+            using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var memStream = new MemoryStream();
+            await stream.CopyToAsync(memStream);
+            memStream.Position = 0;
+            
+            _importResult = await DirectaService.ParsePortfolioCsvAsync(memStream);
+            
+            if (!_importResult.Success)
+            {
+                Toast.ShowError(_importResult.ErrorMessage ?? "Error parsing CSV");
+                _loading = false;
+                return;
+            }
+            
+            // Load existing portfolio mappings from live holdings
+            var existingMappings = await LoadExistingMappingsAsync();
+            
+            // Build preview rows with portfolio assignments
+            _previewRows = _importResult.Assets.Select(a => new PreviewRow
+            {
+                Ticker = a.Ticker,
+                FullName = a.FullName,
+                ISIN = a.ISIN,
+                Quantity = a.Quantity,
+                CostBasis = a.CostBasis,
+                CurrentValue = a.CurrentValue,
+                PortfolioId = existingMappings.TryGetValue(a.Ticker, out var pid) ? pid : null
+            }).ToList();
+            
+            _currentStep = 2;
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    async Task ConfirmImport()
+    {
+        // Validate: all assets must have a portfolio assigned
+        var unassigned = _previewRows.Where(r => !r.PortfolioId.HasValue).ToList();
+        if (unassigned.Any())
+        {
+            Toast.ShowError($"{unassigned.Count} assets have no portfolio assigned");
+            return;
+        }
+        
+        _saving = true;
+        StateHasChanged();
+        
+        try
+        {
+            // Build portfolio assignments dictionary
+            var assignments = _previewRows
+                .Where(r => r.PortfolioId.HasValue)
+                .ToDictionary(r => r.Ticker, r => r.PortfolioId!.Value);
+            
+            // Map back to DirectaAssetRow for service
+            var assets = _previewRows.Select(r => new DirectaAssetRow 
+            {
+                Ticker = r.Ticker,
+                FullName = r.FullName,
+                ISIN = r.ISIN,
+                Quantity = r.Quantity,
+                CostBasis = r.CostBasis,
+                CurrentValue = r.CurrentValue,
+                Price = r.Quantity > 0 ? r.CurrentValue / r.Quantity : 0
+            }).ToList();
+            
+            // Save directly to database
+            _importedCount = await HoldingService.UpdateFromImportAsync(_familyId, assets, assignments);
+            
+            _currentStep = 3;
+            Toast.ShowSuccess($"{_importedCount} {L["AssetsImported"]}");
+        }
+        catch (Exception ex)
+        {
+            Toast.ShowError($"Error: {ex.Message}");
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    
+    void Reset()
+    {
+        _currentStep = 1;
+        _importResult = null;
+        _previewRows.Clear();
+    }
+    
+    void Cancel() => Nav.NavigateTo("/investments");
+    
+    string StepCircleClass(int step)
+    {
+        if (step < _currentStep) return "bg-cyan-500 text-white";
+        if (step == _currentStep) return "bg-cyan-500 text-white ring-4 ring-cyan-200 dark:ring-cyan-900";
+        return "bg-gray-200 dark:bg-gray-700 text-gray-500";
+    }
+    
+    string StepTextClass(int step)
+    {
+        if (step <= _currentStep) return "text-gray-900 dark:text-white";
+        return "text-gray-400";
+    }
+}

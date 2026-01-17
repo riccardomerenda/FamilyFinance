@@ -116,6 +116,7 @@
   <data name="AccountsAndLiquidity" xml:space="preserve"><value>Accounts &amp; Liquidity</value></data>
   <data name="Interests" xml:space="preserve"><value>Interests</value></data>
   <data name="InvestmentsDirecta" xml:space="preserve"><value>Investments (Directa)</value></data>
+  <data name="ImportDirecta" xml:space="preserve"><value>📥 Import Directa</value></data>
   <data name="AddAsset" xml:space="preserve"><value>+ Asset</value></data>
   <data name="AssetNamePlaceholder" xml:space="preserve"><value>Name (e.g. VWCE)</value></data>
   <data name="CreditsToReceive" xml:space="preserve"><value>Credits (Money to receive)</value></data>
@@ -711,6 +712,22 @@
   <data name="ImportRevertError" xml:space="preserve"><value>Error reverting import</value></data>
   <data name="Items" xml:space="preserve"><value>items</value></data>
 
+  <!-- Investment Import Wizard -->
+  <data name="ImportInvestments" xml:space="preserve"><value>Import Investments</value></data>
+  <data name="ImportInvestmentsDesc" xml:space="preserve"><value>Import your portfolio from Directa CSV</value></data>
+  <data name="UploadDirectaCsv" xml:space="preserve"><value>Upload Directa CSV</value></data>
+  <data name="UploadDirectaCsvDesc" xml:space="preserve"><value>Export your portfolio from Directa and upload it here</value></data>
+  <data name="DirectaCsvFormat" xml:space="preserve"><value>Supported format: CSV exported from Directa SIM</value></data>
+  <data name="ImportStepPreview" xml:space="preserve"><value>Preview</value></data>
+  <data name="ImportStepConfirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="PreviewAndAssign" xml:space="preserve"><value>Preview and Assign Portfolios</value></data>
+  <data name="AssetsFound" xml:space="preserve"><value>assets found</value></data>
+  <data name="ExtractionDate" xml:space="preserve"><value>Extraction date</value></data>
+  <data name="Ticker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="AssetsImported" xml:space="preserve"><value>assets imported successfully</value></data>
+  <data name="ImportAnother" xml:space="preserve"><value>Import another</value></data>
+
   <!-- Smart Categorization -->
   <data name="Learned" xml:space="preserve"><value>Learned</value></data>
   <data name="SmartCatLearnedTooltip" xml:space="preserve"><value>Auto-categorized based on your previous choices</value></data>
@@ -836,4 +853,13 @@
   <data name="GenerateTransactionsSuccess" xml:space="preserve"><value>Transactions generated successfully ({0})</value></data>
   <data name="GenerateTransactionsError" xml:space="preserve"><value>Generation error</value></data>
   <data name="GenerateFor" xml:space="preserve"><value>Generate for {0}</value></data>
+
+  <!-- Live Holdings -->
+  <data name="ViewInvestments" xml:space="preserve"><value>View Investments</value></data>
+  <data name="LiveHoldingsMode" xml:space="preserve"><value>Live Holdings Mode</value></data>
+  <data name="LiveHoldingsModeDesc" xml:space="preserve"><value>Investments are managed in real-time. Use the import wizard to update data.</value></data>
+  <data name="NoInvestmentsInSnapshot" xml:space="preserve"><value>No investments in this snapshot</value></data>
+  <data name="ImportToAdd" xml:space="preserve"><value>Import to add investments</value></data>
+  <data name="ImportToStartTracking" xml:space="preserve"><value>Import from your broker to start tracking investments</value></data>
+  <data name="LastUpdated" xml:space="preserve"><value>Last updated</value></data>
 </root>

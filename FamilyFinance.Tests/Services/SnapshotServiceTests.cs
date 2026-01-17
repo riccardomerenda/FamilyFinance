@@ -1,6 +1,7 @@
 using FamilyFinance.Data;
 using FamilyFinance.Models;
 using FamilyFinance.Services;
+using FamilyFinance.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -22,10 +23,12 @@ public class SnapshotServiceTests : IDisposable
 
         _context = new AppDbContext(options);
         var logger = new Mock<ILogger<SnapshotService>>();
+        var accountService = new Mock<IAccountService>();
         _service = new SnapshotService(_context, logger.Object, 
             new SnapshotValidator(_context),
             new InvestmentAssetValidator(),
-            new ReceivableValidator());
+            new ReceivableValidator(),
+            accountService.Object);
 
         SeedTestData();
     }

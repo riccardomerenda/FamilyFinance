@@ -9,17 +9,20 @@ public class MonthCloseService : IMonthCloseService
     private readonly ISnapshotService _snapshotService;
     private readonly IAccountService _accountService;
     private readonly ITransactionService _transactionService;
+    private readonly IAssetHoldingService _assetHoldingService;
     private readonly ILogger<MonthCloseService> _logger;
 
     public MonthCloseService(
         ISnapshotService snapshotService,
         IAccountService accountService,
         ITransactionService transactionService,
+        IAssetHoldingService assetHoldingService,
         ILogger<MonthCloseService> logger)
     {
         _snapshotService = snapshotService;
         _accountService = accountService;
         _transactionService = transactionService;
+        _assetHoldingService = assetHoldingService;
         _logger = logger;
     }
 
@@ -74,25 +77,29 @@ public class MonthCloseService : IMonthCloseService
                 ContributionBasis: 0m // Basis not tracked automatically yet
             )).ToList();
 
-            // 2. Get Investments & Receivables (Copy from latest snapshot)
+            // 2. Get Live Investments from AssetHolding table
+            var liveHoldings = await _assetHoldingService.GetAllAsync(familyId);
+            var investments = liveHoldings
+                .Where(h => h.Quantity > 0)
+                .Select(h => (
+                    Name: h.Ticker, 
+                    CostBasis: h.TotalCostBasis, 
+                    Value: h.MarketValue, 
+                    PortfolioId: (int?)h.PortfolioId
+                ))
+                .ToList();
+
+            // 3. Get Receivables (still from latest snapshot for now)
             var latestSnapshot = await _snapshotService.GetLatestAsync(familyId);
-            
-            var investments = new List<(string Name, decimal CostBasis, decimal Value, int? PortfolioId)>();
             var receivables = new List<(string Description, decimal Amount, ReceivableStatus Status, DateOnly? ExpectedDate)>();
 
             if (latestSnapshot != null)
             {
-                // We need to re-fetch full snapshot to get collections if GetLatestAsync doesn't include them
-                // But usually GetLatestAsync logic should be checked. Let's assume we need to be safe.
                 var fullLatest = await _snapshotService.GetByIdAsync(latestSnapshot.Id);
                 if (fullLatest != null)
                 {
-                    investments = fullLatest.Investments
-                        .Select(i => (i.Name, i.CostBasis, i.Value, i.PortfolioId))
-                        .ToList();
-
                     receivables = fullLatest.Receivables
-                        .Where(r => r.Status == ReceivableStatus.Open) // Only copy open receivables
+                        .Where(r => r.Status == ReceivableStatus.Open)
                         .Select(r => (r.Description, r.Amount, r.Status, r.ExpectedDate))
                         .ToList();
                 }

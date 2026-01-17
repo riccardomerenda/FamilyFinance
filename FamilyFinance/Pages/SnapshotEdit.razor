@@ -7,6 +7,7 @@
 @inject IPortfolioService PortfolioService
 @inject IBudgetService BudgetService
 @inject ITransactionService TransactionService
+@inject IAssetHoldingService HoldingService
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
@@ -150,72 +151,41 @@
             </div>
         </div>
 
-        <!-- Investments -->
+        <!-- Investments (Read-only Summary) -->
         <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden mt-6">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
-                <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h2>
-                <button @onclick="AddInv" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">@L["AddAsset"]</button>
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    <h2 class="font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h2>
+                </div>
+                <a href="/investments" class="text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700">
+                    @L["ViewInvestments"] →
+                </a>
             </div>
             <div class="p-4">
-                <!-- Header -->
-                <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-1 mb-2">
-                    <div class="col-span-2">@L["Portfolio"]</div>
-                    <div class="col-span-3">@L["AssetName"]</div>
-                    <div class="col-span-2 text-right">@L["CostBasis"]</div>
-                    <div class="col-span-2 text-right">@L["CurrentValue"]</div>
-                    <div class="col-span-2 text-right">@L["GainLoss"]</div>
-                    <div class="col-span-1"></div>
+                <!-- Live Holdings Info Banner -->
+                <div class="p-4 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 mb-4">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl">📊</span>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-cyan-700 dark:text-cyan-300">@L["LiveHoldingsMode"]</p>
+                            <p class="text-xs text-cyan-600 dark:text-cyan-400 mt-1">@L["LiveHoldingsModeDesc"]</p>
+                        </div>
+                        <a href="/import-investments" class="inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-medium rounded-lg transition-colors shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                            @L["ImportDirecta"]
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="space-y-2">
-                    @foreach (var i in _invRows)
-                    {
-                        var gl = i.Value - i.CostBasis;
-                        var pct = i.CostBasis > 0 ? (gl / i.CostBasis) * 100 : 0;
-                        var portfolioColor = _portfolios.FirstOrDefault(p => p.Id == i.PortfolioId)?.Color ?? "#6b7280";
-                        
-                        <div class="grid grid-cols-12 gap-2 items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                            <div class="col-span-2">
-                                <select @bind="i.PortfolioId" class="w-full px-2 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs" style="border-left: 3px solid @portfolioColor">
-                                    <option value="">@L["NoPortfolio"]</option>
-                                    @foreach (var p in _portfolios)
-                                    {
-                                        <option value="@p.Id">@p.Name</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="col-span-3">
-                                <InputText @bind-Value="i.Name" placeholder="@L["AssetNamePlaceholder"]" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                            </div>
-                            <div class="col-span-2">
-                                <InputNumber @bind-Value="i.CostBasis" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                            </div>
-                            <div class="col-span-2">
-                                <InputNumber @bind-Value="i.Value" class="w-full px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm" />
-                            </div>
-                            <div class="col-span-2 text-right">
-                                @if (i.CostBasis > 0)
-                                {
-                                    <span class="text-sm font-medium @(gl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                        @(gl >= 0 ? "+" : "")@pct.ToString("N2")%
-                                    </span>
-                                }
-                            </div>
-                            <div class="col-span-1 flex justify-end">
-                                <button @onclick="() => _invRows.Remove(i)" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <!-- Totals by Portfolio -->
                 @if (_invRows.Any())
                 {
-                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                    <!-- Read-only Investment Summary -->
+                    <div class="space-y-2">
                         @foreach (var group in _invRows.GroupBy(x => x.PortfolioId))
                         {
                             var portfolio = _portfolios.FirstOrDefault(p => p.Id == group.Key);
@@ -225,15 +195,22 @@
                             var totalPct = totalCost > 0 ? (totalGl / totalCost) * 100 : 0;
                             var color = portfolio?.Color ?? "#6b7280";
                             
-                            <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: @(color)10; border-left: 3px solid @color">
-                                <span class="font-medium text-sm text-gray-700 dark:text-gray-300">
-                                    @(portfolio?.Name ?? L["NoPortfolio"])
-                                </span>
-                                <div class="flex items-center gap-4 text-sm">
-                                    <span class="text-gray-500 dark:text-gray-400">@totalCost.ToString("N0") € → @totalValue.ToString("N0") €</span>
-                                    <span class="font-bold @(totalGl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                        @(totalGl >= 0 ? "+" : "")@totalGl.ToString("N0") € (@(totalPct >= 0 ? "+" : "")@totalPct.ToString("N2")%)
-                                    </span>
+                            <div class="p-3 rounded-lg" style="background-color: @(color)10; border-left: 3px solid @color">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="font-medium text-sm text-gray-700 dark:text-gray-300">
+                                            @(portfolio?.Name ?? L["NoPortfolio"])
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                                            (@group.Count() assets)
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-sm">
+                                        <span class="text-gray-500 dark:text-gray-400">@totalCost.ToString("N0") € → @totalValue.ToString("N0") €</span>
+                                        <span class="font-bold @(totalGl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                            @(totalGl >= 0 ? "+" : "")@totalGl.ToString("N0") € (@(totalPct >= 0 ? "+" : "")@totalPct.ToString("N2")%)
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -245,7 +222,7 @@
                             var grandGl = grandValue - grandCost;
                             var grandPct = grandCost > 0 ? (grandGl / grandCost) * 100 : 0;
                         }
-                        <div class="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800 mt-2">
                             <span class="font-bold text-gray-800 dark:text-gray-200">@L["Total"]</span>
                             <div class="flex items-center gap-4">
                                 <span class="font-semibold text-gray-700 dark:text-gray-300">@grandCost.ToString("N0") € → @grandValue.ToString("N0") €</span>
@@ -254,6 +231,13 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-6 text-gray-500 dark:text-gray-400">
+                        <p class="text-sm">@L["NoInvestmentsInSnapshot"]</p>
+                        <a href="/import-investments" class="text-cyan-500 hover:underline text-sm mt-2 inline-block">@L["ImportToAdd"]</a>
                     </div>
                 }
             </div>
@@ -654,7 +638,6 @@
                     ContributionBasis = line?.ContributionBasis ?? 0 
                 };
             }).ToList();
-            _invRows = s.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }).ToList();
             _recRows = s.Receivables.Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
             
             // Load existing expenses
@@ -694,16 +677,16 @@
                         ContributionBasis = line?.ContributionBasis ?? 0 
                     };
                 }).ToList();
-                _invRows = last.Investments.Select(i => new InvRow { Name = i.Name, CostBasis = i.CostBasis, Value = i.Value, PortfolioId = i.PortfolioId }).ToList();
                 _recRows = last.Receivables.Where(r => r.Status == ReceivableStatus.Open).Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
             }
             else
             {
                 _accRows = accounts.Select(a => new AccRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, Amount = 0, ContributionBasis = 0 }).ToList();
-                _invRows.Add(new InvRow { Name = "VWCE", CostBasis = 0, Value = 0 });
-                _invRows.Add(new InvRow { Name = "XEON", CostBasis = 0, Value = 0 });
             }
         }
+        
+        // Always load investments from live holdings (section is read-only)
+        await LoadLiveHoldings();
         
         // Load transaction aggregates for the selected month
         await LoadTransactionAggregates();
@@ -711,8 +694,22 @@
         _loading = false;
     }
 
-    void AddInv() => _invRows.Add(new InvRow());
     void AddRec() => _recRows.Add(new RecRow());
+
+    async Task LoadLiveHoldings()
+    {
+        var holdings = await HoldingService.GetAllAsync(_familyId);
+        _invRows = holdings
+            .Where(h => h.Quantity > 0)
+            .Select(h => new InvRow 
+            { 
+                Name = h.Ticker, 
+                CostBasis = h.TotalCostBasis, 
+                Value = h.MarketValue, 
+                PortfolioId = h.PortfolioId 
+            })
+            .ToList();
+    }
 
     async Task LoadTransactionAggregates()
     {

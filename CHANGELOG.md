@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.11] - 2026-01-17
+
+### Added
+- **Live Holdings Architecture**: Investments are now managed in real-time (`Asset Holdings`) independent of monthly snapshots.
+- **Directa Integration**: Import wizard now updates live holdings directly.
+- **SnapshotEdit Update**: Read-only investment view with "Live Holdings" banner.
+- **MonthClose Integration**: Creating a monthly snapshot now automatically captures current live holdings.
+
 ## [0.4.10] - 2026-01-16
 
 ### Improved

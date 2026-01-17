@@ -137,6 +137,9 @@ builder.Services.AddScoped<IRecurringTransactionService, RecurringTransactionSer
 builder.Services.AddScoped<IReportService, ReportService>(); // Report generation
 builder.Services.AddScoped<IMonthCloseService, MonthCloseService>(); // Month closing logic
 builder.Services.AddScoped<ITransactionMatchingService, TransactionMatchingService>(); // Smart import matching
+builder.Services.AddScoped<IDirectaImportService, DirectaImportService>(); // Directa portfolio CSV import
+builder.Services.AddScoped<InvestmentImportStateService>(); // Investment import state transfer
+builder.Services.AddScoped<IAssetHoldingService, AssetHoldingService>(); // Live asset holdings
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();

@@ -24,6 +24,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<RecurringTransaction> RecurringTransactions => Set<RecurringTransaction>();
     public DbSet<RecurringMatchRule> RecurringMatchRules => Set<RecurringMatchRule>();
+    public DbSet<AssetHolding> AssetHoldings => Set<AssetHolding>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -189,5 +190,23 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(r => r.AccountId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // AssetHolding configuration
+        modelBuilder.Entity<AssetHolding>()
+            .HasIndex(a => new { a.FamilyId, a.Ticker });
+        modelBuilder.Entity<AssetHolding>()
+            .HasIndex(a => a.PortfolioId);
+        
+        modelBuilder.Entity<AssetHolding>()
+            .HasOne(a => a.Family)
+            .WithMany()
+            .HasForeignKey(a => a.FamilyId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<AssetHolding>()
+            .HasOne(a => a.Portfolio)
+            .WithMany()
+            .HasForeignKey(a => a.PortfolioId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
