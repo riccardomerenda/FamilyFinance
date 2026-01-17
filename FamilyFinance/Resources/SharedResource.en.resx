@@ -837,7 +837,21 @@
   <data name="MonthClose_Title" xml:space="preserve"><value>2. Month Close</value></data>
   <data name="MonthClose_Desc" xml:space="preserve"><value>At month end, use the "Close Month" button on the Dashboard to create a historical Snapshot.</value></data>
   <data name="Analysis_Title" xml:space="preserve"><value>3. Analysis</value></data>
-  <data name="Analysis_Desc" xml:space="preserve"><value>View historical reports based on consolidated snapshot data.</value></data>
+  <data name="Analysis_Desc" xml:space="preserve">
+    <value>Track your net worth growth, compare months, and visualize financial trends.</value>
+  </data>
+  <data name="BalanceSync_Title" xml:space="preserve">
+    <value>Auto Sync</value>
+  </data>
+  <data name="BalanceSync_Desc" xml:space="preserve">
+    <value>Changes to transactions automatically update account balances.</value>
+  </data>
+  <data name="FAQ_Q5" xml:space="preserve">
+    <value>I accepted a wrong match in Import Wizard, how to fix?</value>
+  </data>
+  <data name="FAQ_A5" xml:space="preserve">
+    <value>In the Import Wizard, simply click on the colored badge (e.g., ' Recurring') of the confirmed transaction. A dropdown will appear with the 'Undo Match' option.</value>
+  </data>
   <data name="FAQ_Title" xml:space="preserve"><value>Frequently Asked Questions (FAQ)</value></data>
   <data name="FAQ_Q1" xml:space="preserve"><value>Why do I see a different balance between Dashboard and "Compare"?</value></data>
   <data name="FAQ_A1" xml:space="preserve"><value>The Dashboard shows Live data (today). The Compare page uses Historical Snapshots (last consolidation). If you haven't closed the current month, Compare shows last month's data.</value></data>

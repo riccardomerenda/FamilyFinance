@@ -99,8 +99,86 @@
     {
         new ReleaseInfo
         {
+            Version = "4.4.5",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "🏗️",
+            IsMajor = false,
+            Title = "Architettura Live Holdings",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Live Holdings", new List<string>
+                {
+                    "Investimenti gestiti in tempo reale indipendentemente dagli snapshot mensili",
+                    "Wizard di importazione Directa aggiorna direttamente i saldi live",
+                    "Vista investimenti in sola lettura nello Snapshot Edit",
+                    "Snapshot mensile cattura automaticamente i saldi live correnti"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.4",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "🔄",
+            IsMajor = false,
+            Title = "Sync Saldi Automatico",
+            Sections = new List<ReleaseSection>
+            {
+                new("💰", "Balance Sync", new List<string>
+                {
+                    "Aggiunta/Rimozione transazioni aggiorna automaticamente il saldo del conto collegato (delta update)"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.3",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "↩️",
+            IsMajor = false,
+            Title = "Undo Import",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔙", "Import Wizard", new List<string>
+                {
+                    "Possibilità di annullare (Undo) un match confermato direttamente dal badge"
+                })
+            }
+        },
+         new ReleaseInfo
+        {
+            Version = "4.4.2",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "🧮",
+            IsMajor = false,
+            Title = "Fix Calcoli Import",
+            Sections = new List<ReleaseSection>
+            {
+                new("🐛", "Bug Fix", new List<string>
+                {
+                    "Il pulsante 'Importa Selezionati' ora mostra correttamente il saldo netto algebrico"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.1",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "📈",
+            IsMajor = false,
+            Title = "Wealth Insight Live",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Insight Dati", new List<string>
+                {
+                    "'Wealth Growth' confronta ora il totale live corrente con l'ultimo mese chiuso"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.4.0",
-            Date = new DateTime(2026, 01, 14),
+            Date = new DateTime(2026, 01, 16),
             Emoji = "🏗️",
             IsMajor = true,
             Title = "Refactoring Architettura: Transaction-First",
@@ -370,8 +448,86 @@
     {
         new ReleaseInfo
         {
+            Version = "4.4.5",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "🏗️",
+            IsMajor = false,
+            Title = "Live Holdings Architecture",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Live Holdings", new List<string>
+                {
+                    "Investments managed in real-time independent of monthly snapshots",
+                    "Directa import wizard updates live holdings directly",
+                    "Read-only investment view in Snapshot Edit",
+                    "Monthly closing automatically captures current live holdings"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.4",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "🔄",
+            IsMajor = false,
+            Title = "Automatic Balance Sync",
+            Sections = new List<ReleaseSection>
+            {
+                new("💰", "Balance Sync", new List<string>
+                {
+                    "Adding/Deleting transactions automatically updates linked Account balance (delta update)"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.3",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "↩️",
+            IsMajor = false,
+            Title = "Undo Import",
+            Sections = new List<ReleaseSection>
+            {
+                new("🔙", "Import Wizard", new List<string>
+                {
+                    "Ability to Undo/Reject a confirmed match directly from the badge"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.2",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "🧮",
+            IsMajor = false,
+            Title = "Import Calculation Fix",
+            Sections = new List<ReleaseSection>
+            {
+                new("🐛", "Bug Fix", new List<string>
+                {
+                    "'Import Selected' button now correctly shows Net Balance (algebraic sum)"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
+            Version = "4.4.1",
+            Date = new DateTime(2026, 01, 16),
+            Emoji = "📈",
+            IsMajor = false,
+            Title = "Wealth Insight Live",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Data Insight", new List<string>
+                {
+                    "'Wealth Growth' now compares current live total against last closed month"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.4.0",
-            Date = new DateTime(2026, 01, 14),
+            Date = new DateTime(2026, 01, 16),
             Emoji = "🏗️",
             IsMajor = true,
             Title = "Architecture Refactor: Transaction-First",
