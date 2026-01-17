@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.5.0] - 2026-01-17
+
+### Changed
+- **Dashboard 2.0**: Layout completamente riorganizzato. Command Center e Insights ora sono compatti e posizionati in alto per un accesso rapido senza rubare spazio.
+- **Dynamic Grid**: La sezione Obiettivi si adatta dinamicamente per mostrare le card Previdenza e Interessi sulla stessa riga, ottimizzando lo spazio.
+- **Command Center**: Ridisegnato come barra orizzontale compatta con suggerimenti contestuali integrati.
+
+### Removed
+- Rimossa la sezione "Quick Actions" in quanto ridondante con il nuovo Command Center.
+
 ## [4.4.5] - 2026-01-17
 
 ### Added

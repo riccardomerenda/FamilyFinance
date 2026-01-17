@@ -99,6 +99,28 @@
     {
         new ReleaseInfo
         {
+            Version = "4.5.0",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "✨",
+            IsMajor = false,
+            Title = "Dashboard 2.0",
+            Sections = new List<ReleaseSection>
+            {
+                new("🎨", "Nuovo Layout", new List<string>
+                {
+                    "Dashboard riorganizzata per una migliore gerarchia visiva: i KPI sono sempre in primo piano",
+                    "Command Center ridisegnato: ora è una barra compatta e discreta in alto",
+                    "Griglia Dinamica: Obiettivi, Previdenza e Interessi si adattano automaticamente per riempire lo spazio"
+                }),
+                new("🧹", "Pulizia", new List<string>
+                {
+                    "Rimossa la sezione 'Quick Actions' ridondante",
+                    "Insights ottimizzati e collassabili per ridurre il rumore visivo"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.4.5",
             Date = new DateTime(2026, 01, 17),
             Emoji = "🏗️",
@@ -447,6 +469,28 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+         new ReleaseInfo
+        {
+            Version = "4.5.0",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "✨",
+            IsMajor = false,
+            Title = "Dashboard 2.0",
+            Sections = new List<ReleaseSection>
+            {
+                new("🎨", "New Layout", new List<string>
+                {
+                    "Dashboard reorganized for better visual hierarchy: KPIs are always first",
+                    "Redesigned Command Center: now a compact and discreet bar at the top",
+                    "Dynamic Grid: Goals, Pension, and Interests automatically adapt to fill the space"
+                }),
+                new("🧹", "Cleanup", new List<string>
+                {
+                    "Removed redundant 'Quick Actions' section",
+                    "Insights optimized and collapsible to reduce visual noise"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "4.4.5",

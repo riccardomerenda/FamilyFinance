@@ -20,6 +20,7 @@
 @inject NotificationService Toast
 @inject IAccountService AccountService
 @inject IMonthCloseService MonthCloseService
+@inject FamilyFinance.Services.Interfaces.IAssetHoldingService AssetHoldingService
 
 <PageTitle>@L["Dashboard"] - FamilyFinance</PageTitle>
 
@@ -108,83 +109,25 @@ else if (_latest is null)
 }
 else
 {
-    <!-- Insights -->
-    <FamilyFinance.Components.Dashboard.InsightCard Insights="_insights" />
-    
-    <!-- Action Badges -->
-    <div class="flex flex-wrap items-center gap-3 mb-6 animate-in">
-        <!-- CSV Import Button -->
-        <a href="/import-wizard" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 font-medium rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors border border-indigo-200 dark:border-indigo-800">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            @L["ImportCsvBtn"]
-        </a>
-        
-        <a href="/import-history" class="relative inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            @L["History"]
-            <span class="absolute -top-2 -right-2 px-1.5 py-0.5 text-[0.6rem] font-bold bg-amber-500 text-white rounded-full shadow-sm">BETA</span>
-        </a>
+    <!-- Insights (Compact) -->
+    @if (_insights != null && _insights.Any())
+    {
+        <div class="mb-5 animate-in">
+            <FamilyFinance.Components.Dashboard.InsightCard Insights="_insights" />
+        </div>
+    }
 
-        @{
-            var currentMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
-            var isCurrentMonthClosed = _latest != null && _latest.SnapshotDate.Year == currentMonth.Year && _latest.SnapshotDate.Month == currentMonth.Month;
-            var nextMonthDate = _latest != null 
-                ? _latest.SnapshotDate.AddMonths(1) 
-                : new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
-        }
-        
-        <!-- Primary Action Button (contextual) -->
-        @if (isCurrentMonthClosed)
-        {
-            <!-- Current month already closed - show Edit button -->
-            <button @onclick="OpenWizardEdit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                </svg>
-                @L["EditMonth"]
-            </button>
-        }
-        else
-        {
-            <!-- Current month not closed - show Close button with month name -->
-            <button @onclick="OpenWizardNew" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 transition-all shadow-lg shadow-primary-500/30 hover:shadow-xl hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                @L["CloseMonth"] @nextMonthDate.ToString("MMM yyyy")
-            </button>
-        }
-        
-        <!-- Operative Month Badge (Link to Detail) -->
-        <a href="@(_latest != null ? $"/snapshots/{_latest.Id}/report" : "#")" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-            <svg class="w-4 h-4 text-primary-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
-            <span>@L["OperativeMonth"]: <strong class="group-hover:text-primary-600 transition-colors">@(_latest?.SnapshotDate.ToString("MMMM yyyy") ?? DateTime.Today.ToString("MMMM yyyy"))</strong></span>
-            @if (_usingLiveData)
-            {
-                <div class="ml-3 px-2 py-0.5 text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-full flex items-center gap-1.5 border border-amber-200 dark:border-amber-800 animate-in fade-in" title="@L["LiveDataDesc"]">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                    </span>
-                    @L["LiveData"]
-                </div>
-            }
-            @if (isCurrentMonthClosed)
-            {
-                <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">✓</span>
-            }
-            <svg class="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-        </a>
+    <!-- Command Center (Compact Bar) -->
+    <div class="mb-5 lg:mb-8 animate-in delay-1">
+        <FamilyFinance.Components.Dashboard.CommandCenter 
+            LatestSnapshot="_latest" 
+            InvestmentsLastUpdated="_investmentsLastUpdated"
+            OnCloseMonth="OpenWizardNew"
+            OnEditMonth="OpenWizardEdit" />
     </div>
-    
+
     <!-- Bento Grid Dashboard -->
-    <div class="grid grid-cols-12 gap-4 lg:gap-6">
+    <div class="grid grid-cols-12 gap-5 lg:gap-8">
         
         <!-- HERO: Net Worth Card (Large) -->
         <div id="tour-total" class="col-span-12 lg:col-span-5 bento-card hero-gradient glow-primary p-6 lg:p-8 text-white animate-in">
@@ -279,7 +222,22 @@ else
         <!-- Goals Widget -->
         @if (_goals != null && _goals.Any())
         {
-            <div id="tour-goals" class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
+            var hasPension = _t.PensionInsuranceValue > 0;
+            var hasInterests = _t.InterestLiquidity > 0;
+            var goalsColSpan = 12;
+            if (hasPension) goalsColSpan -= 3;
+            if (hasInterests) goalsColSpan -= 3;
+            if (goalsColSpan == 9 && !hasInterests) goalsColSpan = 9; // If only pension, 9+3=12
+            if (goalsColSpan == 9 && !hasPension) goalsColSpan = 9; // If only interests, 9+3=12
+            
+            // On mobile/tablet, full width or half. On Desktop, dynamic.
+            // If both pension & interests: Goals(6) + P(3) + I(3)
+            // If one: Goals(9) + One(3)
+            // If none: Goals(12)
+            
+            var goalsClass = $"col-span-12 lg:col-span-{goalsColSpan}";
+
+            <div id="tour-goals" class="@goalsClass bento-card p-5 lg:p-6 animate-in delay-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["Goals"]</h3>
                     <a href="/goals" class="text-xs font-medium text-primary-500 hover:text-primary-600 flex items-center gap-1">
@@ -320,44 +278,54 @@ else
             </div>
         }
 
-        <!-- Quick Actions -->
-        <div id="tour-actions" class="col-span-12 lg:col-span-6 bento-card p-5 lg:p-6 animate-in delay-5">
-            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">@L["Actions"]</h3>
-            <div class="grid grid-cols-2 gap-3">
-                <a href="/snapshots/new" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-primary-500/10 to-primary-600/10 hover:from-primary-500/20 hover:to-primary-600/20 transition-all group">
-                    <div class="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
+        <!-- Pension & Insurance Mini Card -->
+        @if (_t.PensionInsuranceValue > 0)
+        {
+            <div class="col-span-12 md:col-span-6 lg:col-span-3 bento-card p-5 animate-in delay-5 cursor-pointer hover:scale-[1.02] transition-transform" @onclick='() => Nav.NavigateTo("/pension")'>
+                <div class="flex flex-col h-full justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L["PensionInsurance"]</span>
+                            <p class="text-lg font-bold text-gray-900 dark:text-white money leading-tight">@_t.PensionInsuranceValue.ToString("N0") €</p>
+                        </div>
                     </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["NewSnapshot"]</span>
-                </a>
-                <a href="/investments" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 hover:from-cyan-500/20 hover:to-cyan-600/20 transition-all group">
-                    <div class="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <p class="text-xs font-medium text-gray-400">@L["GainLoss"]</p>
+                        <p class="text-xs @(_t.PensionInsuranceGainLoss >= 0 ? "text-emerald-500" : "text-red-500") font-bold">
+                            @(_t.PensionInsuranceGainLoss >= 0 ? "+" : "")@_t.PensionInsuranceGainLoss.ToString("N0") €
+                        </p>
                     </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Investments"]</span>
-                </a>
-                <a href="/goals" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 hover:from-emerald-500/20 hover:to-emerald-600/20 transition-all group">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Goals"]</span>
-                </a>
-                <a href="/compare" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/10 hover:from-amber-500/20 hover:to-amber-600/20 transition-all group">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">@L["Compare"]</span>
-                </a>
+                </div>
             </div>
-        </div>
+        }
+
+        <!-- Interests Mini Card -->
+        @if (_t.InterestLiquidity > 0)
+        {
+            <div class="col-span-12 md:col-span-6 lg:col-span-3 bento-card p-5 animate-in delay-5 cursor-pointer hover:scale-[1.02] transition-transform" @onclick='() => Nav.NavigateTo("/interests")'>
+                <div class="flex flex-col h-full justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">@L["AccumulatedInterests"]</span>
+                            <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400 money leading-tight">+@_t.InterestLiquidity.ToString("N0") €</p>
+                        </div>
+                    </div>
+                     <div class="flex items-center justify-end pt-2 border-t border-gray-100 dark:border-gray-800">
+                         <a href="/interests" class="text-xs text-primary-500 hover:text-primary-600 font-medium">@L["ViewDetails"] →</a>
+                    </div>
+                </div>
+            </div>
+        }
 
         <!-- Pending Credits -->
         @if (_latest!.Receivables.Any(x => x.Status == ReceivableStatus.Open))
@@ -392,54 +360,7 @@ else
             </div>
         }
 
-        <!-- Pension & Insurance Mini Card -->
-        @if (_t.PensionInsuranceValue > 0)
-        {
-            <div class="col-span-12 lg:col-span-6 bento-card p-5 animate-in delay-5 cursor-pointer hover:scale-[1.02] transition-transform" @onclick='() => Nav.NavigateTo("/pension")'>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-green-500 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["PensionInsurance"]</span>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white money">@_t.PensionInsuranceValue.ToString("N0") €</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm @(_t.PensionInsuranceGainLoss >= 0 ? "text-emerald-500" : "text-red-500") font-medium">
-                            @(_t.PensionInsuranceGainLoss >= 0 ? "+" : "")@_t.PensionInsuranceGainLoss.ToString("N0") €
-                        </p>
-                        <span class="text-xs text-gray-400">@(_t.PensionInsuranceGainLossPercent >= 0 ? "+" : "")@_t.PensionInsuranceGainLossPercent.ToString("N1")%</span>
-                    </div>
-                </div>
-            </div>
-        }
 
-        <!-- Interests Mini Card -->
-        @if (_t.InterestLiquidity > 0)
-        {
-            <div class="col-span-12 lg:col-span-6 bento-card p-5 animate-in delay-5 cursor-pointer hover:scale-[1.02] transition-transform" @onclick='() => Nav.NavigateTo("/interests")'>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">@L["AccumulatedInterests"]</span>
-                            <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400 money">+@_t.InterestLiquidity.ToString("N0") €</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </div>
-            </div>
-        }
     </div>
 }
 
@@ -493,6 +414,7 @@ else
     private bool _showCollectDialog = false;
     private Receivable? _selectedCredit;
     private List<AccountModel> _liquidityAccounts = new();
+    private DateTime? _investmentsLastUpdated;
 
     protected override async Task OnInitializedAsync()
     {
@@ -556,6 +478,13 @@ else
             
             // Build charts with the updated _t
             await BuildCharts();
+            
+            // Load investments last updated date for Command Center
+            var holdings = await AssetHoldingService.GetAllAsync(_familyId);
+            if (holdings.Any())
+            {
+                _investmentsLastUpdated = holdings.Max(h => h.LastUpdated);
+            }
         }
         
         _loading = false;
@@ -661,7 +590,16 @@ else
                 labels = new[] { L["ChartLiquidity"].Value, L["ChartInvestments"].Value, L["ChartCredits"].Value, L["ChartPension"].Value },
                 datasets = new[] { new { data = new[] { _t.Liquidity, _t.InvestmentsValue, _t.CreditsOpen, _t.PensionInsuranceValue }, backgroundColor = new[] { "#6366f1", "#06b6d4", "#f59e0b", "#10b981" } } }
             },
-            options = new { responsive = true, maintainAspectRatio = false, plugins = new { legend = new { position = "bottom" } } }
+            options = new { 
+                responsive = true, 
+                maintainAspectRatio = false, 
+                plugins = new { 
+                    legend = new { 
+                        position = "bottom",
+                        labels = new { font = new { size = 12 } } // Increased font size
+                    } 
+                } 
+            }
         };
 
         _cashFlowConfig = new

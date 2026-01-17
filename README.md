@@ -29,7 +29,7 @@
 |---------|-------------|
 | 📸 **Monthly Snapshots** | Capture financial state and compare over time |
 | 🎯 **Goal Tracking** | Set savings targets with progress visualization |
-| 📊 **Interactive Dashboard** | Trend charts, composition breakdowns, net worth cards |
+| 📊 **Dashboard 2.0** | Redesigned visual hierarchy, compact actions, & **Dynamic Grid** layout |
 | 💼 **Investment Portfolio** | **Live Holdings** architecture with real-time asset tracking & Directa integration |
 | 📅 **Monthly Wizard** | Guided 4-step closing workflow |
 | 🔄 **Import History (BETA)** | View import logs and smart revert changes |

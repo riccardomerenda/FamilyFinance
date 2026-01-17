@@ -3,76 +3,91 @@
 
 @if (Insights != null && Insights.Any())
 {
-    <div class="mb-6 animate-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            @foreach (var insight in Insights)
-            {
-                <div class="@GetCardClasses(insight.Type) rounded-xl p-4 flex items-start gap-3 transition-all hover:scale-[1.02]">
-                    <!-- Icon -->
-                    <div class="@GetIconBgClasses(insight.Type) rounded-lg p-2 flex-shrink-0">
-                        @((MarkupString)GetIcon(insight.Type))
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-semibold text-sm @GetTitleClasses(insight.Type)">
-                            @L[insight.TitleKey]
-                        </h4>
-                        <p class="text-sm mt-0.5 @GetTextClasses(insight.Type)">
-                            @(string.Format(L[insight.MessageKey].Value, insight.MessageArgs ?? Array.Empty<object>()))
-                        </p>
-                    </div>
-                    
-                    <!-- Action link -->
-                    @if (!string.IsNullOrEmpty(insight.ActionUrl))
-                    {
-                        <a href="@insight.ActionUrl" class="@GetLinkClasses(insight.Type) text-sm font-medium flex-shrink-0">
-                            →
-                        </a>
-                    }
+    <div class="space-y-2">
+        @foreach (var insight in _visibleInsights)
+        {
+            <div class="@GetCardClasses(insight.Type) rounded-lg px-3 py-2 flex items-center gap-2 transition-all text-sm">
+                <!-- Icon -->
+                <div class="@GetIconBgClasses(insight.Type) rounded p-1 flex-shrink-0">
+                    @((MarkupString)GetIcon(insight.Type))
                 </div>
-            }
-        </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <span class="font-medium @GetTitleClasses(insight.Type)">@L[insight.TitleKey]:</span>
+                    <span class="@GetTextClasses(insight.Type) ml-1">
+                        @(string.Format(L[insight.MessageKey].Value, insight.MessageArgs ?? Array.Empty<object>()))
+                    </span>
+                </div>
+                
+                <!-- Action link -->
+                @if (!string.IsNullOrEmpty(insight.ActionUrl))
+                {
+                    <a href="@insight.ActionUrl" class="@GetLinkClasses(insight.Type) font-medium flex-shrink-0">
+                        →
+                    </a>
+                }
+            </div>
+        }
+        
+        @if (Insights.Count > MaxVisible && !_showAll)
+        {
+            <button @onclick="() => _showAll = true" class="text-xs text-gray-500 dark:text-gray-400 hover:text-primary-500 font-medium">
+                + @(Insights.Count - MaxVisible) more...
+            </button>
+        }
+        else if (_showAll && Insights.Count > MaxVisible)
+        {
+            <button @onclick="() => _showAll = false" class="text-xs text-gray-500 dark:text-gray-400 hover:text-primary-500 font-medium">
+                Show less
+            </button>
+        }
     </div>
 }
 
 @code {
     [Parameter] public List<Insight>? Insights { get; set; }
+    
+    private const int MaxVisible = 2;
+    private bool _showAll = false;
+    
+    private IEnumerable<Insight> _visibleInsights => 
+        _showAll ? Insights! : Insights!.Take(MaxVisible);
 
     private string GetCardClasses(InsightType type) => type switch
     {
-        InsightType.Celebration => "bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800",
-        InsightType.Warning => "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800",
-        InsightType.Goal => "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800",
-        InsightType.Tip => "bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800",
-        _ => "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        InsightType.Celebration => "bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200/50 dark:border-emerald-800/30",
+        InsightType.Warning => "bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30",
+        InsightType.Goal => "bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200/50 dark:border-blue-800/30",
+        InsightType.Tip => "bg-purple-50/50 dark:bg-purple-900/10 border border-purple-200/50 dark:border-purple-800/30",
+        _ => "bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30"
     };
 
     private string GetIconBgClasses(InsightType type) => type switch
     {
-        InsightType.Celebration => "bg-emerald-100 dark:bg-emerald-800",
-        InsightType.Warning => "bg-amber-100 dark:bg-amber-800",
-        InsightType.Goal => "bg-blue-100 dark:bg-blue-800",
-        InsightType.Tip => "bg-purple-100 dark:bg-purple-800",
-        _ => "bg-gray-100 dark:bg-gray-700"
+        InsightType.Celebration => "bg-emerald-100 dark:bg-emerald-800/50",
+        InsightType.Warning => "bg-amber-100 dark:bg-amber-800/50",
+        InsightType.Goal => "bg-blue-100 dark:bg-blue-800/50",
+        InsightType.Tip => "bg-purple-100 dark:bg-purple-800/50",
+        _ => "bg-gray-100 dark:bg-gray-700/50"
     };
 
     private string GetTitleClasses(InsightType type) => type switch
     {
-        InsightType.Celebration => "text-emerald-800 dark:text-emerald-200",
-        InsightType.Warning => "text-amber-800 dark:text-amber-200",
-        InsightType.Goal => "text-blue-800 dark:text-blue-200",
-        InsightType.Tip => "text-purple-800 dark:text-purple-200",
-        _ => "text-gray-800 dark:text-gray-200"
+        InsightType.Celebration => "text-emerald-700 dark:text-emerald-300",
+        InsightType.Warning => "text-amber-700 dark:text-amber-300",
+        InsightType.Goal => "text-blue-700 dark:text-blue-300",
+        InsightType.Tip => "text-purple-700 dark:text-purple-300",
+        _ => "text-gray-700 dark:text-gray-300"
     };
 
     private string GetTextClasses(InsightType type) => type switch
     {
-        InsightType.Celebration => "text-emerald-600 dark:text-emerald-300",
-        InsightType.Warning => "text-amber-600 dark:text-amber-300",
-        InsightType.Goal => "text-blue-600 dark:text-blue-300",
-        InsightType.Tip => "text-purple-600 dark:text-purple-300",
-        _ => "text-gray-600 dark:text-gray-300"
+        InsightType.Celebration => "text-emerald-600 dark:text-emerald-400",
+        InsightType.Warning => "text-amber-600 dark:text-amber-400",
+        InsightType.Goal => "text-blue-600 dark:text-blue-400",
+        InsightType.Tip => "text-purple-600 dark:text-purple-400",
+        _ => "text-gray-600 dark:text-gray-400"
     };
 
     private string GetLinkClasses(InsightType type) => type switch
@@ -86,10 +101,11 @@
 
     private string GetIcon(InsightType type) => type switch
     {
-        InsightType.Celebration => """<svg class="w-5 h-5 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>""",
-        InsightType.Warning => """<svg class="w-5 h-5 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>""",
-        InsightType.Goal => """<svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>""",
-        InsightType.Tip => """<svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>""",
-        _ => """<svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>"""
+        InsightType.Celebration => """<svg class="w-4 h-4 text-emerald-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>""",
+        InsightType.Warning => """<svg class="w-4 h-4 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>""",
+        InsightType.Goal => """<svg class="w-4 h-4 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>""",
+        InsightType.Tip => """<svg class="w-4 h-4 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>""",
+        _ => """<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>"""
     };
 }
+

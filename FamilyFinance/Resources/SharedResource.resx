@@ -862,5 +862,17 @@
   <data name="ImportToAdd" xml:space="preserve"><value>Importa per aggiungere investimenti</value></data>
   <data name="ImportToStartTracking" xml:space="preserve"><value>Importa dal tuo broker per iniziare a tracciare gli investimenti</value></data>
   <data name="LastUpdated" xml:space="preserve"><value>Ultimo aggiornamento</value></data>
+
+  <!-- Command Center -->
+  <data name="CommandCenter" xml:space="preserve"><value>Centro Azioni</value></data>
+  <data name="ImportSection" xml:space="preserve"><value>Importa</value></data>
+  <data name="UpdateSection" xml:space="preserve"><value>Aggiorna</value></data>
+  <data name="ImportTransactionsBtn" xml:space="preserve"><value>Transazioni</value></data>
+  <data name="UpdateInvestments" xml:space="preserve"><value>Investimenti</value></data>
+  <data name="UpdateBalances" xml:space="preserve"><value>Saldi Conti</value></data>
+  <data name="InvestmentsOutdated" xml:space="preserve"><value>Investimenti aggiornati {0} giorni fa</value></data>
+  <data name="MonthNotClosed" xml:space="preserve"><value>Mese corrente non ancora chiuso</value></data>
+  <data name="UpdateNow" xml:space="preserve"><value>Aggiorna Ora</value></data>
+  <data name="ViewReport" xml:space="preserve"><value>Vedi Report</value></data>
 </root>
 
