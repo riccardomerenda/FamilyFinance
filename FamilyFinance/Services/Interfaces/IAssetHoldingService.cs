@@ -39,6 +39,12 @@ public interface IAssetHoldingService
     /// Gets a summary of holdings grouped by portfolio.
     /// </summary>
     Task<List<PortfolioHoldingSummary>> GetSummaryByPortfolioAsync(int familyId);
+    
+    /// <summary>
+    /// Adds a contribution to an asset holding (for PAC-style recurring investments).
+    /// Increases the cost basis by the contribution amount.
+    /// </summary>
+    Task<ServiceResult> AddContributionAsync(int assetHoldingId, decimal amount);
 }
 
 /// <summary>

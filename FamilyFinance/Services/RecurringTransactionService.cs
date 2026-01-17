@@ -85,6 +85,8 @@ public class RecurringTransactionService : IRecurringTransactionService
                 existing.AccountId = recurring.AccountId;
                 existing.NotifyBeforeDue = recurring.NotifyBeforeDue;
                 existing.NotifyDaysBefore = recurring.NotifyDaysBefore;
+                existing.TargetAssetHoldingId = recurring.TargetAssetHoldingId;
+                existing.TargetPensionAccountId = recurring.TargetPensionAccountId;
                 existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = recurring.UpdatedBy;
                 

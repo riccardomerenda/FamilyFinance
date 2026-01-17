@@ -4,6 +4,8 @@
 @using FamilyFinance.Services.Interfaces
 @inject IRecurringTransactionService RecurringService
 @inject IBudgetService BudgetService
+@inject IAssetHoldingService AssetHoldingService
+@inject IAccountService AccountService
 @inject FamilyFinance.Services.AuthService Auth
 @inject AuthenticationStateProvider AuthState
 @inject IStringLocalizer<SharedResource> L
@@ -209,6 +211,41 @@ else
                         }
                     </select>
                 </div>
+                
+                <!-- Investment Target Section -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">@L["InvestmentTarget"] <span class="text-xs text-gray-400">(@L["Optional"])</span></label>
+                    <select @bind="_investmentTargetType" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 mb-3">
+                        <option value="none">@L["NoInvestmentLink"]</option>
+                        <option value="asset">📈 @L["LinkToInvestment"] (PAC, ETF)</option>
+                        <option value="pension">🛡️ @L["LinkToPension"]</option>
+                    </select>
+                    
+                    @if (_investmentTargetType == "asset" && _assetHoldings.Any())
+                    {
+                        <select @bind="_editing.TargetAssetHoldingId" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                            <option value="">-- @L["SelectInvestment"] --</option>
+                            @foreach (var asset in _assetHoldings)
+                            {
+                                <option value="@asset.Id">@asset.Ticker - @(asset.Name ?? "N/A") (@asset.MarketValue.ToString("N0") €)</option>
+                            }
+                        </select>
+                    }
+                    else if (_investmentTargetType == "pension" && _pensionAccounts.Any())
+                    {
+                        <select @bind="_editing.TargetPensionAccountId" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                            <option value="">-- @L["SelectPensionAccount"] --</option>
+                            @foreach (var acc in _pensionAccounts)
+                            {
+                                <option value="@acc.Id">@acc.Name (@acc.CurrentBalance.ToString("N0") €)</option>
+                            }
+                        </select>
+                    }
+                    else if (_investmentTargetType != "none")
+                    {
+                        <p class="text-sm text-amber-600 dark:text-amber-400">@L["NoInvestmentsFound"]</p>
+                    }
+                </div>
             </div>
 
             <div class="flex gap-3 mt-6">
@@ -261,7 +298,10 @@ else
     List<RecurringTransaction> _recurring = new();
     List<UpcomingTransaction> _upcoming = new();
     List<BudgetCategory> _categories = new();
+    List<AssetHolding> _assetHoldings = new();
+    List<FamilyFinance.Models.Account> _pensionAccounts = new();
     RecurringTransaction? _editing;
+    string _investmentTargetType = "none";
     int _familyId;
     decimal _monthlyExpenses;
     decimal _monthlyIncome;
@@ -290,10 +330,16 @@ else
         _categories = await BudgetService.GetCategoriesAsync(_familyId);
         _monthlyExpenses = await RecurringService.GetMonthlyTotalAsync(_familyId, TransactionType.Expense);
         _monthlyIncome = await RecurringService.GetMonthlyTotalAsync(_familyId, TransactionType.Income);
+        
+        // Load investment targets
+        _assetHoldings = await AssetHoldingService.GetAllAsync(_familyId);
+        var allAccounts = await AccountService.GetAllAsync(_familyId);
+        _pensionAccounts = allAccounts.Where(a => a.IsActive && (a.Category == FamilyFinance.Models.AccountCategory.Pension || a.Category == FamilyFinance.Models.AccountCategory.Insurance)).ToList();
     }
 
     void NewRecurring()
     {
+        _investmentTargetType = "none";
         _editing = new RecurringTransaction
         {
             FamilyId = _familyId,
@@ -306,6 +352,14 @@ else
 
     void Edit(RecurringTransaction r)
     {
+        // Determine investment target type
+        if (r.TargetAssetHoldingId.HasValue)
+            _investmentTargetType = "asset";
+        else if (r.TargetPensionAccountId.HasValue)
+            _investmentTargetType = "pension";
+        else
+            _investmentTargetType = "none";
+            
         _editing = new RecurringTransaction
         {
             Id = r.Id,
@@ -317,13 +371,20 @@ else
             CategoryId = r.CategoryId,
             FamilyId = r.FamilyId,
             StartDate = r.StartDate,
-            IsActive = r.IsActive
+            IsActive = r.IsActive,
+            TargetAssetHoldingId = r.TargetAssetHoldingId,
+            TargetPensionAccountId = r.TargetPensionAccountId
         };
     }
 
     async Task Save()
     {
         if (_editing == null || string.IsNullOrWhiteSpace(_editing.Name)) return;
+        
+        // Clear investment targets based on type selection
+        if (_investmentTargetType != "asset") _editing.TargetAssetHoldingId = null;
+        if (_investmentTargetType != "pension") _editing.TargetPensionAccountId = null;
+        
         await RecurringService.SaveAsync(_editing);
         _editing = null;
         await LoadData();

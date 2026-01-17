@@ -227,4 +227,48 @@ public class AssetHoldingService : IAssetHoldingService
             .OrderBy(p => p.PortfolioName)
             .ToList();
     }
+    
+    public async Task<ServiceResult> AddContributionAsync(int assetHoldingId, decimal amount)
+    {
+        try
+        {
+            var holding = await _db.AssetHoldings.FindAsync(assetHoldingId);
+            if (holding == null)
+                return ServiceResult.Fail("Asset holding not found");
+            
+            if (amount <= 0)
+                return ServiceResult.Fail("Contribution amount must be positive");
+            
+            // For PAC-style contributions, we increase the total cost basis
+            // without changing quantity (we don't know price at contribution time)
+            // This effectively increases AverageCostBasis proportionally
+            var currentTotalCost = holding.TotalCostBasis;
+            var newTotalCost = currentTotalCost + amount;
+            
+            // If we have quantity, recalculate average cost
+            if (holding.Quantity > 0)
+            {
+                holding.AverageCostBasis = newTotalCost / holding.Quantity;
+            }
+            else
+            {
+                // No quantity yet, just set the cost basis directly
+                holding.AverageCostBasis = amount;
+                holding.Quantity = 1; // Placeholder until real import
+            }
+            
+            holding.LastUpdated = DateTime.UtcNow;
+            
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Added contribution of {Amount} to asset holding {Id} ({Ticker})", 
+                amount, assetHoldingId, holding.Ticker);
+            
+            return ServiceResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding contribution to asset holding {Id}", assetHoldingId);
+            return ServiceResult.Fail($"Error adding contribution: {ex.Message}");
+        }
+    }
 }

@@ -99,6 +99,28 @@
     {
         new ReleaseInfo
         {
+            Version = "4.6.0",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "📈",
+            IsMajor = false,
+            Title = "Contributi Investimento Ricorrenti",
+            Sections = new List<ReleaseSection>
+            {
+                new("💰", "Nuova Funzionalità", new List<string>
+                {
+                    "Le transazioni ricorrenti possono essere collegate a investimenti (PAC, ETF) o fondi pensione",
+                    "Durante l'import CSV, il sistema aggiorna automaticamente il valore dell'investimento collegato",
+                    "Feedback visivo nel wizard: mostra quando i contributi vengono registrati"
+                }),
+                new("⚙️", "Configurazione", new List<string>
+                {
+                    "Nuovo selettore 'Collega a Investimento' nella pagina Transazioni Ricorrenti",
+                    "Supporto per PAC/ETF e Fondi Pensione"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.5.0",
             Date = new DateTime(2026, 01, 17),
             Emoji = "✨",
@@ -469,6 +491,28 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+         new ReleaseInfo
+        {
+            Version = "4.6.0",
+            Date = new DateTime(2026, 01, 17),
+            Emoji = "📈",
+            IsMajor = false,
+            Title = "Recurring Investment Contributions",
+            Sections = new List<ReleaseSection>
+            {
+                new("💰", "New Feature", new List<string>
+                {
+                    "Recurring transactions can now be linked to investments (PAC, ETF) or pension funds",
+                    "During CSV import, the system automatically updates the linked investment value",
+                    "Visual feedback in the wizard shows when contributions are recorded"
+                }),
+                new("⚙️", "Configuration", new List<string>
+                {
+                    "New 'Link to Investment' selector in Recurring Transactions page",
+                    "Support for PAC/ETF and Pension Funds"
+                })
+            }
+        },
          new ReleaseInfo
         {
             Version = "4.5.0",

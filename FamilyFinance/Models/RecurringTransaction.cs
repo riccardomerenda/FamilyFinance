@@ -23,6 +23,14 @@ public class RecurringTransaction : IFamilyOwned
     public int? AccountId { get; set; }
     public Account? Account { get; set; }
     
+    // Investment Contribution Target (for PAC, pension contributions)
+    // Only one should be set: either AssetHolding (for investments) or PensionAccount (for pension funds)
+    public int? TargetAssetHoldingId { get; set; }
+    public AssetHolding? TargetAssetHolding { get; set; }
+    
+    public int? TargetPensionAccountId { get; set; }
+    public Account? TargetPensionAccount { get; set; }
+    
     // Notification settings
     public bool NotifyBeforeDue { get; set; } = false;
     public int NotifyDaysBefore { get; set; } = 3;

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.6.0] - 2026-01-17
+
+### Added
+- **Investment Recurring Contributions**: Le transazioni ricorrenti possono ora essere collegate a investimenti (PAC, ETF) o fondi pensione. Durante l'import CSV, il sistema aggiorna automaticamente il valore dell'investimento collegato.
+- **UI Investment Target Selector**: Nella pagina "Transazioni Ricorrenti" è ora possibile collegare una ricorrente a un investimento specifico.
+- **Auto-Update PAC/Pensione**: Import wizard mostra feedback quando contributi vengono registrati (es. "📈 PAC Mensile: +200€ investiti").
+
 ## [4.5.0] - 2026-01-17
 
 ### Changed

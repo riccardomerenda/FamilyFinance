@@ -15,6 +15,7 @@
 @inject IAccountService AccountService
 @inject ITransactionMatchingService MatchingService
 @inject IRecurringTransactionService RecurringService
+@inject IAssetHoldingService AssetHoldingService
 @attribute [Authorize]
 
 <PageTitle>@L["ImportTransactions"] - FamilyFinance</PageTitle>
@@ -857,6 +858,33 @@
                  
                  var accountName = _allAccounts.FirstOrDefault(a => a.Id == change.AccountId)?.Name ?? "Account";
                  _importMessages.Add($"💰 {accountName}: {(change.NetChange >= 0 ? "+" : "")}{change.NetChange:N2} €");
+             }
+             
+             // Handle Investment Contribution Updates (for recurring with investment targets)
+             foreach (var item in toImport.Where(t => t.IsMatchConfirmed && t.MatchType == TransactionMatchType.Recurring && t.MatchedRecurringId.HasValue))
+             {
+                 var recurring = await RecurringService.GetByIdAsync(item.MatchedRecurringId.Value);
+                 if (recurring != null)
+                 {
+                     var contributionAmount = Math.Abs(item.Amount);
+                     
+                     // Update AssetHolding if linked
+                     if (recurring.TargetAssetHoldingId.HasValue)
+                     {
+                         var contributionResult = await AssetHoldingService.AddContributionAsync(recurring.TargetAssetHoldingId.Value, contributionAmount);
+                         if (contributionResult.Success)
+                         {
+                             _importMessages.Add($"📈 PAC {recurring.Name}: +{contributionAmount:N2} € investiti");
+                         }
+                     }
+                     
+                     // Update Pension Account if linked
+                     if (recurring.TargetPensionAccountId.HasValue)
+                     {
+                         await AccountService.UpdateBalanceAsync(recurring.TargetPensionAccountId.Value, contributionAmount);
+                         _importMessages.Add($"🛡️ Fondo {recurring.Name}: +{contributionAmount:N2} € versato");
+                     }
+                 }
              }
              
              await Task.Delay(1000); 

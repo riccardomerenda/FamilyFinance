@@ -874,5 +874,14 @@
   <data name="MonthNotClosed" xml:space="preserve"><value>Mese corrente non ancora chiuso</value></data>
   <data name="UpdateNow" xml:space="preserve"><value>Aggiorna Ora</value></data>
   <data name="ViewReport" xml:space="preserve"><value>Vedi Report</value></data>
+  
+  <!-- Investment Recurring Contributions -->
+  <data name="InvestmentTarget" xml:space="preserve"><value>Collega a Investimento</value></data>
+  <data name="NoInvestmentLink" xml:space="preserve"><value>Nessun collegamento</value></data>
+  <data name="LinkToInvestment" xml:space="preserve"><value>Investimento</value></data>
+  <data name="LinkToPension" xml:space="preserve"><value>Fondo Pensione</value></data>
+  <data name="SelectInvestment" xml:space="preserve"><value>Seleziona Investimento</value></data>
+  <data name="SelectPensionAccount" xml:space="preserve"><value>Seleziona Fondo Pensione</value></data>
+  <data name="NoInvestmentsFound" xml:space="preserve"><value>Nessun investimento trovato. Crea prima un holding nella sezione Investimenti.</value></data>
 </root>
 
