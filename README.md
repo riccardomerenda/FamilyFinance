@@ -30,11 +30,11 @@
 | 📸 **Monthly Snapshots** | Capture financial state and compare over time |
 | 🎯 **Goal Tracking** | Set savings targets with progress visualization |
 | 📊 **Interactive Dashboard** | Trend charts, composition breakdowns, net worth cards |
-| 💼 **Investment Portfolio** | Live asset tracking with cost basis and gain/loss (Directa integration) |
+| 💼 **Investment Portfolio** | **Live Holdings** architecture with real-time asset tracking & Directa integration |
 | 📅 **Monthly Wizard** | Guided 4-step closing workflow |
 | 🔄 **Import History (BETA)** | View import logs and smart revert changes |
 | 💸 **Budget Tracking** | Expense categories with monthly limits |
-| 🧠 **Smart Matching** | Auto-detect recurring transactions & transfers, learn from manual links |
+| 🧠 **Smart Matching** | Auto-detect recurring transactions, **Balance Sync**, & smart transfers |
 | 🌍 **Multi-language** | Italian & English |
 | 👨‍👩‍👧 **Multi-user** | Family accounts with role-based access |
 | 🎭 **Demo Mode** | Try with sample data, no signup required |

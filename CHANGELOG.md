@@ -2,62 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.11] - 2026-01-17
+## [4.4.5] - 2026-01-17
 
 ### Added
 - **Live Holdings Architecture**: Investments are now managed in real-time (`Asset Holdings`) independent of monthly snapshots.
 - **Directa Integration**: Import wizard now updates live holdings directly.
 - **SnapshotEdit Update**: Read-only investment view with "Live Holdings" banner.
+- **Monthly Wizard UI**: Updated "Investments" step with read-only "Live Holdings" view and explanatory banner.
 - **MonthClose Integration**: Creating a monthly snapshot now automatically captures current live holdings.
 
-## [0.4.10] - 2026-01-16
+## [4.4.4] - 2026-01-16
 
 ### Improved
 - **Automatic Balance Sync**: Manually adding or deleting transactions now automatically updates the linked Account's balance by the corresponding amount (delta update).
-- **Import Wizard**: Added ability to Undo/Reject confirmed matches.
 
-## [0.4.9] - 2026-01-16
+## [4.4.3] - 2026-01-16
 
 ### Improved
 - **Import Wizard**: Added ability to **Undo** (reject) a confirmed match (recurring or transfer) directly from the badge.
 
-## [0.4.8] - 2026-01-16
+## [4.4.2] - 2026-01-16
 
 ### Fixed
 - **Import Wizard**: The "Import Selected" button now correctly shows the **Net Balance** (algebraic sum) instead of the total volume (absolute sum).
 
-## [0.4.7] - 2026-01-16
+## [4.4.1] - 2026-01-16
 
 ### Improved
 - **Wealth Insight**: "Wealth Growth" now compares your **current live total** against the last closed month, providing immediate feedback on recent changes (imports, transfers).
 
-## [0.4.6] - 2026-01-16
+## [4.4.0] - 2026-01-16
 
 ### Added
 - **Smart Transfers**: Intelligent handling of internal transfers during CSV import (creates withdrawal/deposit pair).
+- **Smart Transaction Matching**: Automatic detection of recurring transactions and open receivables during CSV import.
+- **Manual Match Learning**: Ability to manually link transactions to recurring templates with auto-learning for future imports.
+- **Dynamic Category Icons**: Expanded emoji set for categories and centralized management.
 - **Pension Page Live Data**: Pension & Insurance page now shows live account balances merged with historical contribution data.
 - **Bulk Delete**: Ability to select and delete multiple transactions at once.
+- **Credit Collection**: Added ability to mark credits as collected directly from the Dashboard
+- **Asset Transfer**: Optional transfer of collected credit amount to a liquidity account
+- **Dialog**: New UI component for handling credit collection with account selection
+- **Improved Import Experience**: Inline match badges, quick actions, and better visual feedback.
 
 ### Fixed
 - Fixed issue where Pension page showed stale snapshot data.
 - Fixed `FOREIGN KEY` constraint errors on recurring match rules.
 
-
-## [4.4.0] - 2026-01-16
-
-### Added
-- **Smart Transaction Matching**: Automatic detection of recurring transactions and open receivables during CSV import.
-- **Manual Match Learning**: Ability to manually link transactions to recurring templates with auto-learning for future imports.
-- **Dynamic Category Icons**: Expanded emoji set for categories and centralized management.
-- **Improved Import Experience**: Inline match badges, quick actions, and better visual feedback.
-
-
-### Added
-- **Credit Collection**: Added ability to mark credits as collected directly from the Dashboard
-- **Asset Transfer**: Optional transfer of collected credit amount to a liquidity account
-- **Dialog**: New UI component for handling credit collection with account selection
-
 ## [4.3.0] - 2025-12-26
 
 ### Added
-- Maintenance mode feature
+- **Privacy Mode**: Blur financial amounts with toggle
+- **Maintenance Mode**: Feature to lock access

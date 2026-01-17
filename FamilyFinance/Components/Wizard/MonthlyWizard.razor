@@ -14,6 +14,7 @@
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
 @inject FamilyFinance.Services.AuthService Auth
+@inject IAssetHoldingService HoldingService
 @implements IDisposable
 
 @if (WizardState.IsOpen)
@@ -144,42 +145,79 @@
                     case 1:
                         <!-- Step 2: Investments -->
                         <div class="space-y-4">
+                            <!-- Live Holdings Banner -->
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 mb-4 rounded-r-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">@L["LiveHoldingsMode"]</h3>
+                                        <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                                            <p>@L["LiveHoldingsModeDesc"]</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h3>
-                                <button @onclick="AddInvestment" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700">
-                                    + @L["AddAsset"]
-                                </button>
+                                <!-- Import button could go here, but wizard is modal so maybe just link/info is enough -->
                             </div>
                             
                             <div class="space-y-3">
-                                @foreach (var inv in WizardState.InvestmentRows)
+                                @if (!WizardState.InvestmentRows.Any())
                                 {
-                                    var gl = inv.Value - inv.CostBasis;
-                                    var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
-                                    
-                                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                                        <select @bind="inv.PortfolioId" class="w-32 px-2 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm">
-                                            <option value="">@L["NoPortfolio"]</option>
-                                            @foreach (var p in _portfolios)
-                                            {
-                                                <option value="@p.Id">@p.Name</option>
-                                            }
-                                        </select>
-                                        <InputText @bind-Value="inv.Name" placeholder="@L["AssetName"]" class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm" />
-                                        <InputNumber @bind-Value="inv.CostBasis" placeholder="@L["CostBasis"]" class="w-28 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm" />
-                                        <InputNumber @bind-Value="inv.Value" placeholder="@L["CurrentValue"]" class="w-28 px-3 py-2 text-right rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm" />
-                                        @if (inv.CostBasis > 0)
-                                        {
-                                            <span class="w-20 text-right text-sm font-medium @(gl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                                @(pct >= 0 ? "+" : "")@pct.ToString("N1")%
-                                            </span>
-                                        }
-                                        <button @onclick="() => WizardState.InvestmentRows.Remove(inv)" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </button>
+                                    <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                        <p class="text-gray-500 dark:text-gray-400">@L["NoInvestmentsInSnapshot"]</p>
                                     </div>
+                                }
+                                else
+                                {
+                                    @foreach (var inv in WizardState.InvestmentRows)
+                                    {
+                                        var gl = inv.Value - inv.CostBasis;
+                                        var pct = inv.CostBasis > 0 ? (gl / inv.CostBasis) * 100 : 0;
+                                        var portName = _portfolios.FirstOrDefault(p => p.Id == inv.PortfolioId)?.Name ?? L["NoPortfolio"];
+                                        
+                                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                                            <div class="flex-1 min-w-0 grid grid-cols-12 gap-4 items-center">
+                                                <!-- Portfolio -->
+                                                <div class="col-span-3">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                        @portName
+                                                    </span>
+                                                </div>
+                                                
+                                                <!-- Name -->
+                                                <div class="col-span-3">
+                                                    <span class="font-medium text-gray-900 dark:text-white truncate block">@inv.Name</span>
+                                                </div>
+                                                
+                                                <!-- Cost Basis -->
+                                                <div class="col-span-2 text-right">
+                                                    <span class="text-gray-500 dark:text-gray-400 text-sm">@inv.CostBasis.ToString("N0") €</span>
+                                                </div>
+                                                
+                                                <!-- Value -->
+                                                <div class="col-span-2 text-right">
+                                                    <span class="font-bold text-gray-900 dark:text-white">@inv.Value.ToString("N0") €</span>
+                                                </div>
+                                                
+                                                <!-- Gain/Loss -->
+                                                <div class="col-span-2 text-right">
+                                                    @if (inv.CostBasis > 0)
+                                                    {
+                                                        <span class="text-sm font-medium @(gl >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                                            @(pct >= 0 ? "+" : "")@pct.ToString("N1")%
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                 }
                             </div>
                             
@@ -449,29 +487,46 @@
                             ContributionBasis = Math.Round(line?.ContributionBasis ?? 0, 2)
                         };
                     }).ToList();
-                    
-                    WizardState.InvestmentRows = lastSnapshot.Investments.Select(i => 
-                        new WizardStateService.InvestmentRow { 
-                            Name = i.Name, 
-                            CostBasis = Math.Round(i.CostBasis, 2), 
-                            Value = Math.Round(i.Value, 2), 
-                            PortfolioId = i.PortfolioId 
-                        }
-                    ).ToList();
                 }
                 else
                 {
                     WizardState.AccountRows = accounts.Select(a => 
                         new WizardStateService.AccountRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, Amount = 0, ContributionBasis = 0 }
                     ).ToList();
-                    
-                    WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "VWCE", CostBasis = 0, Value = 0 });
-                    WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow { Name = "XEON", CostBasis = 0, Value = 0 });
                 }
+                
+                // ALWAYS load live holdings for investments, regardless of whether we have a previous snapshot or not
+                var holdings = await HoldingService.GetAllAsync(_familyId);
+                WizardState.InvestmentRows = holdings
+                    .Where(h => h.Quantity > 0)
+                    .Select(h => new WizardStateService.InvestmentRow { 
+                        Name = h.Ticker, 
+                        CostBasis = h.TotalCostBasis, 
+                        Value = h.MarketValue, 
+                        PortfolioId = h.PortfolioId 
+                    })
+                    .ToList();
                 
                 WizardState.ExpenseRows = expenseCategories.Select(c => 
                     new WizardStateService.ExpenseRow { CategoryId = c.Id, Name = c.Name, Icon = c.Icon, Color = c.Color, Budget = c.MonthlyBudget, Amount = 0 }
                 ).ToList();
+            }
+            
+            // Override investments even in Edit mode if we want to enforce Live Holdings consistency
+            // Strategy: For consistency with SnapshotEdit, in Edit mode we also show LIVE holdings
+            // This ensures saving the snapshot updates it with the latest data
+            if (WizardState.IsEditing)
+            {
+                var holdings = await HoldingService.GetAllAsync(_familyId);
+                WizardState.InvestmentRows = holdings
+                    .Where(h => h.Quantity > 0)
+                    .Select(h => new WizardStateService.InvestmentRow { 
+                        Name = h.Ticker, 
+                        CostBasis = h.TotalCostBasis, 
+                        Value = h.MarketValue, 
+                        PortfolioId = h.PortfolioId 
+                    })
+                    .ToList();
             }
         }
         catch (Exception ex)
@@ -485,10 +540,7 @@
         }
     }
     
-    private void AddInvestment()
-    {
-        WizardState.InvestmentRows.Add(new WizardStateService.InvestmentRow());
-    }
+
     
     private void Close()
     {
