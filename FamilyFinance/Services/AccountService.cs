@@ -117,6 +117,7 @@ public class AccountService : IAccountService
 
     /// <summary>
     /// Updates the account's current balance by adding a delta (can be negative for expenses)
+    /// For Pension/Insurance accounts, positive delta also updates PensionHolding.ContributionBasis
     /// </summary>
     public async Task<ServiceResult> UpdateBalanceAsync(int accountId, decimal delta)
     {
@@ -129,6 +130,23 @@ public class AccountService : IAccountService
 
         account.CurrentBalance += delta;
         account.UpdatedAt = DateTime.UtcNow;
+        
+        // If this is a pension/insurance account and money is coming IN (contribution),
+        // also update the PensionHolding.ContributionBasis
+        if (delta > 0 && (account.Category == AccountCategory.Pension || account.Category == AccountCategory.Insurance))
+        {
+            var pensionHolding = await _db.PensionHoldings
+                .FirstOrDefaultAsync(p => p.AccountId == accountId);
+            
+            if (pensionHolding != null)
+            {
+                pensionHolding.ContributionBasis += delta;
+                pensionHolding.CurrentValue = account.CurrentBalance;
+                pensionHolding.LastUpdated = DateTime.UtcNow;
+                _logger.LogInformation("Updated PensionHolding contribution for account {AccountId} by {Delta}. New contrib: {NewContrib}", 
+                    accountId, delta, pensionHolding.ContributionBasis);
+            }
+        }
         
         await _db.SaveChangesAsync();
         _logger.LogInformation("Updated balance for account {AccountId} by {Delta}. New balance: {NewBalance}", 

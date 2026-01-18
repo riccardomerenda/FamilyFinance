@@ -16,7 +16,7 @@
         <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 }
-else if (!_pensionLines.Any() && !_insuranceLines.Any())
+else if (!_pensionHoldings.Any() && !_insuranceHoldings.Any())
 {
     <!-- Empty State -->
     <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -135,31 +135,31 @@ else
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["PensionFunds"]</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">@_pensionLines.Count @L["Accounts"]</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@_pensionHoldings.Count @L["Accounts"]</p>
                     </div>
                 </div>
                 
-                @if (_pensionLines.Any())
+                @if (_pensionHoldings.Any())
                 {
                     <div class="space-y-3">
-                        @foreach (var l in _pensionLines)
+                        @foreach (var h in _pensionHoldings)
                         {
                             <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                 <div class="flex items-center justify-between mb-2">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
-                                            @l.Account.Name[..Math.Min(2, l.Account.Name.Length)]
+                                            @h.Account.Name[..Math.Min(2, h.Account.Name.Length)]
                                         </div>
-                                        <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">@h.Account.Name</span>
                                     </div>
-                                    <span class="font-bold text-purple-600 dark:text-purple-400 money">@l.Amount.ToString("N2") €</span>
+                                    <span class="font-bold text-purple-600 dark:text-purple-400 money">@h.CurrentValue.ToString("N2") €</span>
                                 </div>
-                                @if (l.ContributionBasis > 0)
+                                @if (h.ContributionBasis > 0)
                                 {
                                     <div class="flex items-center justify-between text-sm">
-                                        <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @l.ContributionBasis.ToString("N2") €</span>
-                                        <span class="font-medium @(l.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                            @(l.GainLoss >= 0 ? "+" : "")@l.GainLoss.ToString("N2") € (@(l.GainLossPercent >= 0 ? "+" : "")@l.GainLossPercent.ToString("N2")%)
+                                        <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @h.ContributionBasis.ToString("N2") €</span>
+                                        <span class="font-medium @(h.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.GainLossPercent >= 0 ? "+" : "")@h.GainLossPercent.ToString("N2")%)
                                         </span>
                                     </div>
                                 }
@@ -185,31 +185,31 @@ else
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["InsurancePolicies"]</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">@_insuranceLines.Count @L["Accounts"]</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">@_insuranceHoldings.Count @L["Accounts"]</p>
                     </div>
                 </div>
                 
-                @if (_insuranceLines.Any())
+                @if (_insuranceHoldings.Any())
                 {
                     <div class="space-y-3">
-                        @foreach (var l in _insuranceLines)
+                        @foreach (var h in _insuranceHoldings)
                         {
                             <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                 <div class="flex items-center justify-between mb-2">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
-                                            @l.Account.Name[..Math.Min(2, l.Account.Name.Length)]
+                                            @h.Account.Name[..Math.Min(2, h.Account.Name.Length)]
                                         </div>
-                                        <span class="font-medium text-gray-700 dark:text-gray-300">@l.Account.Name</span>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">@h.Account.Name</span>
                                     </div>
-                                    <span class="font-bold text-green-600 dark:text-green-400 money">@l.Amount.ToString("N2") €</span>
+                                    <span class="font-bold text-green-600 dark:text-green-400 money">@h.CurrentValue.ToString("N2") €</span>
                                 </div>
-                                @if (l.ContributionBasis > 0)
+                                @if (h.ContributionBasis > 0)
                                 {
                                     <div class="flex items-center justify-between text-sm">
-                                        <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @l.ContributionBasis.ToString("N2") €</span>
-                                        <span class="font-medium @(l.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                            @(l.GainLoss >= 0 ? "+" : "")@l.GainLoss.ToString("N2") € (@(l.GainLossPercent >= 0 ? "+" : "")@l.GainLossPercent.ToString("N2")%)
+                                        <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @h.ContributionBasis.ToString("N2") €</span>
+                                        <span class="font-medium @(h.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.GainLossPercent >= 0 ? "+" : "")@h.GainLossPercent.ToString("N2")%)
                                         </span>
                                     </div>
                                 }
@@ -236,13 +236,13 @@ else
     </div>
 }
 
-@inject IAccountService AccountService
+@inject IPensionHoldingService PensionHoldingService
 
 @code {
     private bool _loading = true;
     private FamilyFinance.Models.Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    private List<FamilyFinance.Models.SnapshotLine> _pensionLines = new();
-    private List<FamilyFinance.Models.SnapshotLine> _insuranceLines = new();
+    private List<FamilyFinance.Models.PensionHolding> _pensionHoldings = new();
+    private List<FamilyFinance.Models.PensionHolding> _insuranceHoldings = new();
     private object _chartConfig = new { };
     private int _familyId;
 
@@ -265,62 +265,43 @@ else
 
     async Task LoadData()
     {
-        // 1. Get Live Accounts (for current Value)
-        var allAccounts = await AccountService.GetActiveAsync(_familyId);
-        var pensionAccounts = allAccounts.Where(a => a.Category == FamilyFinance.Models.AccountCategory.Pension).ToList();
-        var insuranceAccounts = allAccounts.Where(a => a.Category == FamilyFinance.Models.AccountCategory.Insurance).ToList();
+        // Seed from snapshot if no holdings exist yet
+        await PensionHoldingService.SeedFromLatestSnapshotAsync(_familyId);
+        
+        // Get all pension/insurance holdings (fully live data)
+        var allHoldings = await PensionHoldingService.GetAllAsync(_familyId);
+        
+        _pensionHoldings = allHoldings
+            .Where(h => h.Account.Category == FamilyFinance.Models.AccountCategory.Pension)
+            .ToList();
+        
+        _insuranceHoldings = allHoldings
+            .Where(h => h.Account.Category == FamilyFinance.Models.AccountCategory.Insurance)
+            .ToList();
 
-        // 2. Get Statistics from latest snapshot (for Contribution Basis)
-        var latestSnapshot = await SnapshotService.GetLatestAsync(_familyId);
-        var snapshotLines = latestSnapshot?.Lines ?? new List<FamilyFinance.Models.SnapshotLine>();
-
-        // 3. Merge Data
-        _pensionLines = MapToLines(pensionAccounts, snapshotLines);
-        _insuranceLines = MapToLines(insuranceAccounts, snapshotLines);
-
-        // 4. Calculate Totals Live
+        // Calculate Totals from Live Holdings
         CalculateTotals();
         
-        // 5. Build Charts
+        // Build Charts
         BuildCharts();
-    }
-
-    List<FamilyFinance.Models.SnapshotLine> MapToLines(List<FamilyFinance.Models.Account> accounts, List<FamilyFinance.Models.SnapshotLine> snapshotLines)
-    {
-        var list = new List<FamilyFinance.Models.SnapshotLine>();
-        foreach (var acc in accounts)
-        {
-            var snapLine = snapshotLines.FirstOrDefault(l => l.AccountId == acc.Id);
-            list.Add(new FamilyFinance.Models.SnapshotLine
-            {
-                AccountId = acc.Id,
-                Account = acc,
-                Amount = acc.CurrentBalance, // LIVE Value
-                ContributionBasis = snapLine?.ContributionBasis ?? 0 // Historical Basis
-            });
-        }
-        return list;
     }
 
     void CalculateTotals()
     {
-        var pensionValue = _pensionLines.Sum(x => x.Amount);
-        var pensionContrib = _pensionLines.Sum(x => x.ContributionBasis);
+        var pensionValue = _pensionHoldings.Sum(x => x.CurrentValue);
+        var pensionContrib = _pensionHoldings.Sum(x => x.ContributionBasis);
         
-        var insuranceValue = _insuranceLines.Sum(x => x.Amount);
-        var insuranceContrib = _insuranceLines.Sum(x => x.ContributionBasis);
+        var insuranceValue = _insuranceHoldings.Sum(x => x.CurrentValue);
+        var insuranceContrib = _insuranceHoldings.Sum(x => x.ContributionBasis);
 
         var totalValue = pensionValue + insuranceValue;
         var totalContrib = pensionContrib + insuranceContrib;
-
-        var totalGain = totalValue - totalContrib;
-        var totalGainPercent = totalContrib > 0 ? (totalGain / totalContrib) * 100 : 0;
 
         _t = new FamilyFinance.Models.Totals(
             0, 0, 
             0, 0, 
             0,
-            totalValue, totalContrib, // Fixed order: Value (Amount), then Basis (Contrib)
+            totalValue, totalContrib,
             0, 0,
             0, 0, 0
         );
@@ -328,24 +309,24 @@ else
 
     void BuildCharts()
     {
-        var allLines = _pensionLines.Concat(_insuranceLines).ToList();
+        var allHoldings = _pensionHoldings.Concat(_insuranceHoldings).ToList();
         
         _chartConfig = new
         {
             type = "bar",
             data = new
             {
-                labels = allLines.Select(x => x.Account.Name),
+                labels = allHoldings.Select(x => x.Account.Name),
                 datasets = new[] { 
                     new { 
                         label = L["Contributions"].Value, 
-                        data = allLines.Select(x => x.ContributionBasis), 
+                        data = allHoldings.Select(x => x.ContributionBasis), 
                         backgroundColor = "#9ca3af",
                         borderRadius = 8
                     },
                     new { 
                         label = L["CurrentValue"].Value, 
-                        data = allLines.Select(x => x.Amount), 
+                        data = allHoldings.Select(x => x.CurrentValue), 
                         backgroundColor = "#10b981",
                         borderRadius = 8
                     }

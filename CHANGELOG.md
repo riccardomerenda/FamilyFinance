@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.7.0] - 2026-01-18
+
+### Added
+- **Pension Holdings Live Architecture**: Il tracking di previdenza e assicurazioni ora utilizza l'architettura live, analogamente agli investimenti (`AssetHolding`).
+- **PensionHolding Model**: Nuova entità che traccia `ContributionBasis` e `CurrentValue` in tempo reale.
+- **Auto-Sync Values**: I valori vengono sincronizzati automaticamente quando si visita la pagina Previdenza.
+- **Contribution Tracking**: I contributi verso conti pensione/assicurazione aggiornano automaticamente `ContributionBasis`.
+- **Seed from Snapshot**: Migrazione automatica dei dati dall'ultimo snapshot alla nuova architettura live.
+
 ## [4.6.0] - 2026-01-17
 
 ### Added

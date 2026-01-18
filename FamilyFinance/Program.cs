@@ -140,6 +140,7 @@ builder.Services.AddScoped<ITransactionMatchingService, TransactionMatchingServi
 builder.Services.AddScoped<IDirectaImportService, DirectaImportService>(); // Directa portfolio CSV import
 builder.Services.AddScoped<InvestmentImportStateService>(); // Investment import state transfer
 builder.Services.AddScoped<IAssetHoldingService, AssetHoldingService>(); // Live asset holdings
+builder.Services.AddScoped<IPensionHoldingService, PensionHoldingService>(); // Live pension holdings
 
 // Claims transformation - adds user's Role as a claim for [Authorize(Roles = "...")]
 builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, RoleClaimsTransformation>();

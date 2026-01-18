@@ -99,6 +99,25 @@
     {
         new ReleaseInfo
         {
+            Version = "4.7.0",
+            Date = new DateTime(2026, 01, 18),
+            Emoji = "🏗️",
+            IsMajor = false,
+            Title = "Architettura Live per Previdenza",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Live Holdings", new List<string>
+                {
+                    "Previdenza e Assicurazioni ora utilizzano l'architettura live come gli investimenti",
+                    "Nuovo modello PensionHolding per tracking ContributionBasis e CurrentValue in tempo reale",
+                    "Sincronizzazione automatica valori quando si visita la pagina Previdenza",
+                    "I contributi verso conti pensione aggiornano automaticamente il totale versato",
+                    "Migrazione automatica dati dall'ultimo snapshot alla nuova architettura"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.6.0",
             Date = new DateTime(2026, 01, 17),
             Emoji = "📈",
@@ -491,6 +510,25 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.7.0",
+            Date = new DateTime(2026, 01, 18),
+            Emoji = "🏗️",
+            IsMajor = false,
+            Title = "Live Pension Architecture",
+            Sections = new List<ReleaseSection>
+            {
+                new("⚡", "Live Holdings", new List<string>
+                {
+                    "Pension and Insurance now use live architecture like investments",
+                    "New PensionHolding model for real-time ContributionBasis and CurrentValue tracking",
+                    "Automatic value sync when visiting the Pension page",
+                    "Contributions to pension accounts automatically update total contributed",
+                    "Automatic data migration from latest snapshot to new live architecture"
+                })
+            }
+        },
          new ReleaseInfo
         {
             Version = "4.6.0",
