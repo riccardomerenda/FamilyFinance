@@ -99,6 +99,22 @@
     {
         new ReleaseInfo
         {
+            Version = "4.7.1",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "📊",
+            IsMajor = false,
+            Title = "Rendimento Annualizzato",
+            Sections = new List<ReleaseSection>
+            {
+                new("📈", "Miglioramento", new List<string>
+                {
+                    "La pagina Previdenza ora mostra il rendimento annualizzato (%/anno) invece del rendimento totale",
+                    "Calcolo basato sulla data di creazione del conto per risultati più accurati"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.7.0",
             Date = new DateTime(2026, 01, 18),
             Emoji = "🏗️",
@@ -510,6 +526,22 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.7.1",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "📊",
+            IsMajor = false,
+            Title = "Annualized Return",
+            Sections = new List<ReleaseSection>
+            {
+                new("📈", "Improvement", new List<string>
+                {
+                    "Pension page now shows annualized return (%/year) instead of total return",
+                    "Calculation based on account creation date for more accurate results"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "4.7.0",

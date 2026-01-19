@@ -28,4 +28,29 @@ public class PensionHolding : IFamilyOwned
     public decimal GainLoss => CurrentValue - ContributionBasis;
     public decimal GainLossPercent => ContributionBasis > 0 
         ? (GainLoss / ContributionBasis) * 100 : 0;
+    
+    /// <summary>
+    /// Annualized return percentage based on account creation date.
+    /// More accurate for products with periodic contributions (PAC, pension funds).
+    /// </summary>
+    public decimal AnnualizedReturnPercent
+    {
+        get
+        {
+            if (ContributionBasis <= 0 || Account == null)
+                return 0;
+                
+            // Calculate months since account creation
+            var monthsActive = ((DateTime.UtcNow.Year - Account.CreatedAt.Year) * 12) 
+                             + (DateTime.UtcNow.Month - Account.CreatedAt.Month);
+            
+            // Minimum 1 month to avoid division by zero
+            if (monthsActive < 1)
+                monthsActive = 1;
+            
+            // Simple annualized return: (TotalReturn / MonthsActive) * 12
+            var totalReturnPercent = GainLossPercent;
+            return (totalReturnPercent / monthsActive) * 12;
+        }
+    }
 }

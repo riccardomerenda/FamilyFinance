@@ -159,7 +159,7 @@ else
                                     <div class="flex items-center justify-between text-sm">
                                         <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @h.ContributionBasis.ToString("N2") €</span>
                                         <span class="font-medium @(h.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.GainLossPercent >= 0 ? "+" : "")@h.GainLossPercent.ToString("N2")%)
+                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.AnnualizedReturnPercent >= 0 ? "+" : "")@h.AnnualizedReturnPercent.ToString("N1")%/anno)
                                         </span>
                                     </div>
                                 }
@@ -209,7 +209,7 @@ else
                                     <div class="flex items-center justify-between text-sm">
                                         <span class="text-gray-500 dark:text-gray-400">@L["Contributions"]: @h.ContributionBasis.ToString("N2") €</span>
                                         <span class="font-medium @(h.GainLoss >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.GainLossPercent >= 0 ? "+" : "")@h.GainLossPercent.ToString("N2")%)
+                                            @(h.GainLoss >= 0 ? "+" : "")@h.GainLoss.ToString("N2") € (@(h.AnnualizedReturnPercent >= 0 ? "+" : "")@h.AnnualizedReturnPercent.ToString("N1")%/anno)
                                         </span>
                                     </div>
                                 }

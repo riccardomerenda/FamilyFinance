@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.7.1] - 2026-01-19
+
+### Improved
+- **Rendimento Annualizzato**: La pagina Previdenza ora mostra il rendimento annualizzato (`%/anno`) invece del rendimento totale, calcolato in base alla data di creazione del conto.
+
 ## [4.7.0] - 2026-01-18
 
 ### Added
