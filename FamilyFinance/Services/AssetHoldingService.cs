@@ -53,10 +53,14 @@ public class AssetHoldingService : IAssetHoldingService
     }
 
     public async Task<int> UpdateFromImportAsync(int familyId, List<DirectaAssetRow> importedAssets, 
-                                                  Dictionary<string, int> portfolioAssignments)
+                                                  Dictionary<string, int> portfolioAssignments,
+                                                  DateTime? extractionDate = null)
     {
-        _logger.LogInformation("Updating holdings for family {FamilyId} with {Count} imported assets", 
-            familyId, importedAssets.Count);
+        _logger.LogInformation("Updating holdings for family {FamilyId} with {Count} imported assets (extraction: {Date})", 
+            familyId, importedAssets.Count, extractionDate?.ToString("g") ?? "now");
+
+        // Use extraction date from CSV if provided, otherwise use current time
+        var updateTimestamp = extractionDate ?? DateTime.UtcNow;
 
         var existingHoldings = await _db.AssetHoldings
             .Where(a => a.FamilyId == familyId)
@@ -88,7 +92,7 @@ public class AssetHoldingService : IAssetHoldingService
                 existing.PortfolioId = portfolioId;
                 existing.Name = asset.FullName;
                 existing.ISIN = asset.ISIN;
-                existing.LastUpdated = DateTime.UtcNow;
+                existing.LastUpdated = updateTimestamp;
                 
                 _logger.LogDebug("Updated holding {Ticker}: Qty={Qty}, Cost={Cost}, Value={Value}", 
                     asset.Ticker, asset.Quantity, asset.CostBasis, asset.CurrentValue);
@@ -107,7 +111,7 @@ public class AssetHoldingService : IAssetHoldingService
                     Quantity = asset.Quantity,
                     AverageCostBasis = asset.Quantity > 0 ? asset.CostBasis / asset.Quantity : 0,
                     CurrentPrice = asset.Quantity > 0 ? asset.CurrentValue / asset.Quantity : 0,
-                    LastUpdated = DateTime.UtcNow
+                    LastUpdated = updateTimestamp
                 };
 
                 _db.AssetHoldings.Add(newHolding);
@@ -127,7 +131,7 @@ public class AssetHoldingService : IAssetHoldingService
                 // This asset was not in the import - might be sold
                 // For now, we'll keep it but set quantity to 0
                 holding.Quantity = 0;
-                holding.LastUpdated = DateTime.UtcNow;
+                holding.LastUpdated = updateTimestamp;
                 _logger.LogInformation("Asset {Ticker} not in import, setting quantity to 0", holding.Ticker);
             }
         }

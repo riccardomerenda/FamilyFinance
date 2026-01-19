@@ -326,8 +326,9 @@
                 Price = r.Quantity > 0 ? r.CurrentValue / r.Quantity : 0
             }).ToList();
             
-            // Save directly to database
-            _importedCount = await HoldingService.UpdateFromImportAsync(_familyId, assets, assignments);
+            // Save directly to database with extraction date from CSV
+            _importedCount = await HoldingService.UpdateFromImportAsync(
+                _familyId, assets, assignments, _importResult!.ExtractionDate);
             
             _currentStep = 3;
             Toast.ShowSuccess($"{_importedCount} {L["AssetsImported"]}");

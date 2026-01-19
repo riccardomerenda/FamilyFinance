@@ -99,6 +99,22 @@
     {
         new ReleaseInfo
         {
+            Version = "4.8.2",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "📅",
+            IsMajor = false,
+            Title = "Data Estrazione Import",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "Miglioramento", new List<string>
+                {
+                    "L'import investimenti da CSV Directa ora utilizza la data di estrazione del file come timestamp",
+                    "Il campo 'LastUpdated' riflette quando i dati sono stati rilevati, non quando il file è stato caricato"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.8.1",
             Date = new DateTime(2026, 01, 19),
             Emoji = "📚",
@@ -560,6 +576,22 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.8.2",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "📅",
+            IsMajor = false,
+            Title = "Import Extraction Date",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "Improvement", new List<string>
+                {
+                    "Investment CSV import from Directa now uses the file extraction date as timestamp",
+                    "The 'LastUpdated' field reflects when data was extracted, not when file was uploaded"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "4.8.1",

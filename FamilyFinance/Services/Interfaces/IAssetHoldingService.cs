@@ -28,7 +28,8 @@ public interface IAssetHoldingService
     /// Creates new holdings or updates existing ones based on ticker match.
     /// </summary>
     Task<int> UpdateFromImportAsync(int familyId, List<DirectaAssetRow> importedAssets, 
-                                    Dictionary<string, int> portfolioAssignments);
+                                    Dictionary<string, int> portfolioAssignments,
+                                    DateTime? extractionDate = null);
     
     /// <summary>
     /// Seeds holdings from the latest snapshot (for initial migration).

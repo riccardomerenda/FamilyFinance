@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [4.8.2] - 2026-01-19
+
+### Changed
+- **Investment Import Date**: L'import investimenti da CSV Directa ora utilizza la data di estrazione del file (`Data estrazione`) come timestamp, invece della data di caricamento.
+
 ## [4.8.1] - 2026-01-19
 
 ### Changed
