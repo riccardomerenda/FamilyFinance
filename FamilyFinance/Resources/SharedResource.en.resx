@@ -897,4 +897,40 @@
   <data name="SelectInvestment" xml:space="preserve"><value>Select Investment</value></data>
   <data name="SelectPensionAccount" xml:space="preserve"><value>Select Pension Account</value></data>
   <data name="NoInvestmentsFound" xml:space="preserve"><value>No investments found. Create a holding first in the Investments section.</value></data>
+  <!-- Documentation Tabs -->
+  <data name="Help_Tab_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Help_Tab_Concepts" xml:space="preserve"><value>Core Concepts</value></data>
+  <data name="Help_Tab_Guides" xml:space="preserve"><value>Guides</value></data>
+  <data name="Help_Tab_FAQ" xml:space="preserve"><value>FAQ</value></data>
+
+  <!-- Docs Home -->
+  <data name="Help_Home_Title" xml:space="preserve"><value>Documentation Hub</value></data>
+  <data name="Help_Home_Subtitle" xml:space="preserve"><value>Your complete guide to managing wealth with FamilyFinance</value></data>
+  <data name="Help_Home_QuickLinks" xml:space="preserve"><value>Quick Links</value></data>
+  <data name="Help_Home_NewUser" xml:space="preserve"><value>New User?</value></data>
+  <data name="Help_Home_NewUserDesc" xml:space="preserve"><value>Start by setting up your accounts and creating the first snapshot.</value></data>
+  <data name="Help_Home_WhatsNew" xml:space="preserve"><value>What's New</value></data>
+  <data name="Help_Home_WhatsNewDesc" xml:space="preserve"><value>Discover the latest features and updates.</value></data>
+  
+  <!-- Docs Concepts -->
+  <data name="Help_Concepts_Snapshot_Title" xml:space="preserve"><value>The Snapshot System</value></data>
+  <data name="Help_Concepts_Snapshot_Desc" xml:space="preserve"><value>FamilyFinance is built on "Snapshots". Instead of tracking every single coffee, we focus on your total wealth once a month. It's a "Big Picture" approach that helps you see the forest, not just the trees.</value></data>
+  <data name="Help_Concepts_Live_Title" xml:space="preserve"><value>Live Balances vs Snapshots</value></data>
+  <data name="Help_Concepts_Live_Desc" xml:space="preserve"><value>Accounts have a "Live" balance that changes daily. When you close the month, the system "freezes" these values into a Snapshot. Historical charts use Snapshots, while the Dashboard shows Live data.</value></data>
+  <data name="Help_Concepts_investments_Title" xml:space="preserve"><value>Investment Management</value></data>
+  <data name="Help_Concepts_investments_Desc" xml:space="preserve"><value>Investments (PAC, ETF) are managed separately from liquidity. You can import them automatically from Directa or update them manually.</value></data>
+
+  <!-- Docs Guides -->
+  <data name="Help_Guide_FirstMonth_Title" xml:space="preserve"><value>Closing the Month</value></data>
+  <data name="Help_Guide_FirstMonth_Desc" xml:space="preserve"><value>Step-by-step guide to recording your monthly wealth.</value></data>
+  <data name="Help_Guide_Import_Title" xml:space="preserve"><value>Data Import</value></data>
+  <data name="Help_Guide_Import_Desc" xml:space="preserve"><value>How to import bank statements and CSV files.</value></data>
+  <data name="Help_Guide_Investments_Title" xml:space="preserve"><value>Investment Setup</value></data>
+  <data name="Help_Guide_Investments_Desc" xml:space="preserve"><value>How to setup your first portfolio and link assets.</value></data>
+
+  <!-- Docs FAQ -->
+  <data name="Help_FAQ_Backup_Q" xml:space="preserve"><value>How do I backup?</value></data>
+  <data name="Help_FAQ_Backup_A" xml:space="preserve"><value>Go to 'Data Management' and click 'Download JSON Backup'. This file contains all your data.</value></data>
+  <data name="Help_FAQ_Reset_Q" xml:space="preserve"><value>Can I reset everything?</value></data>
+  <data name="Help_FAQ_Reset_A" xml:space="preserve"><value>Yes, by deleting the local database or deleting all snapshots and accounts manually.</value></data>
 </root>

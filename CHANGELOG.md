@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [4.8.1] - 2026-01-19
+
+### Changed
+- **Documentation UI**: Nuova interfaccia a tab per la pagina di aiuto (`/help`).
+- **Docs Content**: Aggiunta documentazione completa per Concetti Chiave, Guide e FAQ.
+
 ## [4.8.0] - 2026-01-19
 
 ### Changed

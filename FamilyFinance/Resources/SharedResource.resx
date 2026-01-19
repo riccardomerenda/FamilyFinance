@@ -883,5 +883,41 @@
   <data name="SelectInvestment" xml:space="preserve"><value>Seleziona Investimento</value></data>
   <data name="SelectPensionAccount" xml:space="preserve"><value>Seleziona Fondo Pensione</value></data>
   <data name="NoInvestmentsFound" xml:space="preserve"><value>Nessun investimento trovato. Crea prima un holding nella sezione Investimenti.</value></data>
+  <!-- Documentation Tabs -->
+  <data name="Help_Tab_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Help_Tab_Concepts" xml:space="preserve"><value>Concetti Chiave</value></data>
+  <data name="Help_Tab_Guides" xml:space="preserve"><value>Guide</value></data>
+  <data name="Help_Tab_FAQ" xml:space="preserve"><value>FAQ</value></data>
+
+  <!-- Docs Home -->
+  <data name="Help_Home_Title" xml:space="preserve"><value>Benvenuto nella Documentazione</value></data>
+  <data name="Help_Home_Subtitle" xml:space="preserve"><value>La tua guida completa per gestire il patrimonio con FamilyFinance</value></data>
+  <data name="Help_Home_QuickLinks" xml:space="preserve"><value>Link Rapidi</value></data>
+  <data name="Help_Home_NewUser" xml:space="preserve"><value>Nuovo Utente?</value></data>
+  <data name="Help_Home_NewUserDesc" xml:space="preserve"><value>Inizia configurando i tuoi conti e creando il primo snapshot.</value></data>
+  <data name="Help_Home_WhatsNew" xml:space="preserve"><value>Novità</value></data>
+  <data name="Help_Home_WhatsNewDesc" xml:space="preserve"><value>Scopri le ultime funzionalità rilasciate.</value></data>
+  
+  <!-- Docs Concepts -->
+  <data name="Help_Concepts_Snapshot_Title" xml:space="preserve"><value>Il Sistema a Snapshot</value></data>
+  <data name="Help_Concepts_Snapshot_Desc" xml:space="preserve"><value>FamilyFinance si basa sul principio degli "Snapshot" (fotografie). Invece di tracciare ogni singolo caffè, ci concentriamo sul patrimonio totale una volta al mese. È un approccio "Big Picture" che ti aiuta a vedere la foresta, non solo gli alberi.</value></data>
+  <data name="Help_Concepts_Live_Title" xml:space="preserve"><value>Saldi Live vs Snapshot</value></data>
+  <data name="Help_Concepts_Live_Desc" xml:space="preserve"><value>I conti hanno un saldo "Live" che cambia ogni giorno. Quando chiudi il mese, il sistema "congela" questi valori nello Snapshot. I grafici storici usano gli Snapshot, mentre la Dashboard mostra i dati Live.</value></data>
+  <data name="Help_Concepts_investments_Title" xml:space="preserve"><value>Gestione Investimenti</value></data>
+  <data name="Help_Concepts_investments_Desc" xml:space="preserve"><value>Gli investimenti (PAC, ETF) sono gestiti separatamente dalla liquidità. Puoi importarli automaticamente da Directa o aggiornarli manualmente.</value></data>
+
+  <!-- Docs Guides -->
+  <data name="Help_Guide_FirstMonth_Title" xml:space="preserve"><value>Chiudere il Mese</value></data>
+  <data name="Help_Guide_FirstMonth_Desc" xml:space="preserve"><value>Guida passo-passo per registrare il tuo patrimonio mensile.</value></data>
+  <data name="Help_Guide_Import_Title" xml:space="preserve"><value>Importazione Dati</value></data>
+  <data name="Help_Guide_Import_Desc" xml:space="preserve"><value>Come importare estratti conto e file CSV.</value></data>
+  <data name="Help_Guide_Investments_Title" xml:space="preserve"><value>Setup Investimenti</value></data>
+  <data name="Help_Guide_Investments_Desc" xml:space="preserve"><value>Come configurare il tuo primo portafoglio e collegare i titoli.</value></data>
+
+  <!-- Docs FAQ -->
+  <data name="Help_FAQ_Backup_Q" xml:space="preserve"><value>Come faccio il backup?</value></data>
+  <data name="Help_FAQ_Backup_A" xml:space="preserve"><value>Vai su 'Gestione Dati' e clicca su 'Scarica Backup JSON'. Questo file contiene tutti i tuoi dati.</value></data>
+  <data name="Help_FAQ_Reset_Q" xml:space="preserve"><value>Posso resettare tutto?</value></data>
+  <data name="Help_FAQ_Reset_A" xml:space="preserve"><value>Sì, cancellando il database locale o eliminando tutti gli snapshot e conti manualmente.</value></data>
 </root>
 
