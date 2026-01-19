@@ -202,7 +202,6 @@
 @code {
     int _currentStep = 1;
     bool _loading = false;
-    bool _saving = false;
     int _familyId;
     int _importedCount = 0;
     
@@ -308,9 +307,6 @@
             return;
         }
         
-        _saving = true;
-        StateHasChanged();
-        
         try
         {
             // Build portfolio assignments dictionary
@@ -339,10 +335,6 @@
         catch (Exception ex)
         {
             Toast.ShowError($"Error: {ex.Message}");
-        }
-        finally
-        {
-            _saving = false;
         }
     }
     

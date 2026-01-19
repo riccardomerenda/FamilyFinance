@@ -67,7 +67,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 // Database SQLite
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+    opt.UseSqlite(builder.Configuration.GetConnectionString("Default"),
+        sqliteOpt => sqliteOpt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 // Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -233,9 +234,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseRateLimiter();

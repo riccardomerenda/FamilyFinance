@@ -842,7 +842,7 @@
              // Group transactions by AccountId to handle transfers correctly
              var accountChanges = newTransactions
                  .Where(t => t.AccountId.HasValue)
-                 .GroupBy(t => t.AccountId.Value)
+                 .GroupBy(t => t.AccountId!.Value)
                  .Select(g => new 
                  { 
                      AccountId = g.Key, 
@@ -863,7 +863,7 @@
              // Handle Investment Contribution Updates (for recurring with investment targets)
              foreach (var item in toImport.Where(t => t.IsMatchConfirmed && t.MatchType == TransactionMatchType.Recurring && t.MatchedRecurringId.HasValue))
              {
-                 var recurring = await RecurringService.GetByIdAsync(item.MatchedRecurringId.Value);
+                 var recurring = await RecurringService.GetByIdAsync(item.MatchedRecurringId!.Value);
                  if (recurring != null)
                  {
                      var contributionAmount = Math.Abs(item.Amount);

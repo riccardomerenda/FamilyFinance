@@ -367,7 +367,6 @@ else
 @code {
     private bool _loading = true;
     private bool _initialized = false; // Prevents double loading during prerendering
-    private bool _usingLiveData = false; // Live Balance feature
     private Snapshot? _latest;
     private Totals _t = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     private DateTime? _monthToClose;
@@ -469,8 +468,6 @@ else
                     ProjectedTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen,
                     GrandTotal = liveLiquidity + _t.InvestmentsValue + _t.CreditsOpen + livePension
                 };
-                
-                _usingLiveData = true;
             }
 
             _goals = (await GoalService.GetAllAsync(_familyId)).OrderByDescending(g => g.Priority).ThenBy(g => g.ProgressPercent).ToList();
