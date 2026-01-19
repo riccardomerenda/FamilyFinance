@@ -46,6 +46,12 @@ public interface IAssetHoldingService
     /// Increases the cost basis by the contribution amount.
     /// </summary>
     Task<ServiceResult> AddContributionAsync(int assetHoldingId, decimal amount);
+    
+    /// <summary>
+    /// Gets the most recent LastUpdated date from all holdings for a family.
+    /// Returns null if there are no holdings.
+    /// </summary>
+    Task<DateTime?> GetLatestUpdateDateAsync(int familyId);
 }
 
 /// <summary>

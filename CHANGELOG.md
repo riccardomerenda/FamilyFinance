@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [4.8.3] - 2026-01-19
+
+### Added
+- **Investment Update Warning**: Nel wizard di chiusura mese, se gli investimenti non sono stati aggiornati nel mese corrente, appare un warning con link diretto all'import.
+
 ## [4.8.2] - 2026-01-19
 
 ### Changed

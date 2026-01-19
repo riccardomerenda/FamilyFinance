@@ -275,4 +275,11 @@ public class AssetHoldingService : IAssetHoldingService
             return ServiceResult.Fail($"Error adding contribution: {ex.Message}");
         }
     }
+    
+    public async Task<DateTime?> GetLatestUpdateDateAsync(int familyId)
+    {
+        return await _db.AssetHoldings
+            .Where(a => a.FamilyId == familyId && a.Quantity > 0)
+            .MaxAsync(a => (DateTime?)a.LastUpdated);
+    }
 }

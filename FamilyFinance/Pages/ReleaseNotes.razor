@@ -99,6 +99,22 @@
     {
         new ReleaseInfo
         {
+            Version = "4.8.3",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "⚠️",
+            IsMajor = false,
+            Title = "Avviso Aggiornamento Investimenti",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "Nuovo", new List<string>
+                {
+                    "Nel wizard di chiusura mese, se gli investimenti non sono stati aggiornati nel mese corrente, appare un warning",
+                    "Link diretto all'importazione investimenti dal banner di avviso"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.8.2",
             Date = new DateTime(2026, 01, 19),
             Emoji = "📅",
@@ -576,6 +592,22 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.8.3",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "⚠️",
+            IsMajor = false,
+            Title = "Investment Update Warning",
+            Sections = new List<ReleaseSection>
+            {
+                new("📊", "New", new List<string>
+                {
+                    "In the month close wizard, a warning appears if investments haven't been updated in the current month",
+                    "Direct link to investment import from the warning banner"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "4.8.2",

@@ -162,6 +162,41 @@
                                 </div>
                             </div>
                             
+                            @* Warning banner if investments haven't been updated this month *@
+                            @if (_lastHoldingUpdate.HasValue && !WizardState.IsEditing)
+                            {
+                                var snapshotMonth = new DateOnly(WizardState.SnapshotDate.Year, WizardState.SnapshotDate.Month, 1);
+                                var updateMonth = new DateOnly(_lastHoldingUpdate.Value.Year, _lastHoldingUpdate.Value.Month, 1);
+                                if (updateMonth < snapshotMonth)
+                                {
+                                    var daysAgo = (int)(DateTime.UtcNow - _lastHoldingUpdate.Value).TotalDays;
+                                    <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 mb-4 rounded-r-lg">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h3 class="text-sm font-medium text-amber-800 dark:text-amber-200">Dati non aggiornati</h3>
+                                                <div class="mt-2 text-sm text-amber-700 dark:text-amber-300">
+                                                    <p>L'ultimo aggiornamento risale a <strong>@_lastHoldingUpdate.Value.ToString("dd MMM yyyy")</strong> (@daysAgo giorni fa).</p>
+                                                    <p class="mt-1">Vuoi importare i dati aggiornati prima di chiudere il mese?</p>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <a href="/import-investments" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium bg-amber-100 dark:bg-amber-800 text-amber-800 dark:text-amber-100 hover:bg-amber-200 dark:hover:bg-amber-700 rounded-lg transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                                        </svg>
+                                                        @L["ImportInvestments"]
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">@L["InvestmentsDirecta"]</h3>
                                 <!-- Import button could go here, but wizard is modal so maybe just link/info is enough -->
@@ -394,6 +429,7 @@
     private bool _saving = false;
     private int _familyId;
     private List<Portfolio> _portfolios = new();
+    private DateTime? _lastHoldingUpdate;
     
     protected override void OnInitialized()
     {
@@ -528,6 +564,9 @@
                     })
                     .ToList();
             }
+            
+            // Load last holding update date for warning
+            _lastHoldingUpdate = await HoldingService.GetLatestUpdateDateAsync(_familyId);
         }
         catch (Exception ex)
         {
