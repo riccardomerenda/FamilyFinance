@@ -99,6 +99,23 @@
     {
         new ReleaseInfo
         {
+            Version = "4.8.0",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "🔗",
+            IsMajor = false,
+            Title = "Allineamento Architettura Previdenza",
+            Sections = new List<ReleaseSection>
+            {
+                new("🏗️", "Architettura Live-First", new List<string>
+                {
+                    "PensionHolding è ora la singola fonte di verità per ContributionBasis",
+                    "SnapshotEdit legge i contributi dai dati live e sincronizza le modifiche",
+                    "Nuovo metodo UpdateContributionBasisAsync per aggiornamenti diretti"
+                })
+            }
+        },
+        new ReleaseInfo
+        {
             Version = "4.7.1",
             Date = new DateTime(2026, 01, 19),
             Emoji = "📊",
@@ -526,6 +543,23 @@
 
     List<ReleaseInfo> GetEnglishReleases() => new()
     {
+        new ReleaseInfo
+        {
+            Version = "4.8.0",
+            Date = new DateTime(2026, 01, 19),
+            Emoji = "🔗",
+            IsMajor = false,
+            Title = "Pension Architecture Alignment",
+            Sections = new List<ReleaseSection>
+            {
+                new("🏗️", "Live-First Architecture", new List<string>
+                {
+                    "PensionHolding is now the single source of truth for ContributionBasis",
+                    "SnapshotEdit reads contributions from live data and syncs changes",
+                    "New UpdateContributionBasisAsync method for direct updates"
+                })
+            }
+        },
         new ReleaseInfo
         {
             Version = "4.7.1",

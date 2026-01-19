@@ -36,4 +36,10 @@ public interface IPensionHoldingService
     /// Ensures a PensionHolding exists for the given account, creating one if needed.
     /// </summary>
     Task<PensionHolding> EnsureHoldingExistsAsync(int familyId, int accountId);
+    
+    /// <summary>
+    /// Sets the contribution basis to a specific value (used by SnapshotEdit for sync).
+    /// Unlike AddContributionAsync which adds incrementally, this sets the absolute value.
+    /// </summary>
+    Task<ServiceResult> UpdateContributionBasisAsync(int accountId, decimal newBasis);
 }

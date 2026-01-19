@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.8.0] - 2026-01-19
+
+### Changed
+- **Live-First Pension Architecture**: L'architettura delle pensioni è stata allineata a quella degli investimenti. `PensionHolding` è ora la singola fonte di verità per `ContributionBasis`.
+- **SnapshotEdit Sync**: La creazione/modifica di snapshot ora legge `ContributionBasis` dai dati live e sincronizza le modifiche a `PensionHolding`.
+
+### Added
+- **UpdateContributionBasisAsync**: Nuovo metodo in `IPensionHoldingService` per aggiornare direttamente i contributi.
+
 ## [4.7.1] - 2026-01-19
 
 ### Improved

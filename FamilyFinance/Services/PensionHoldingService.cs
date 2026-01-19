@@ -203,4 +203,28 @@ public class PensionHoldingService : IPensionHoldingService
 
         return seededCount;
     }
+
+    public async Task<ServiceResult> UpdateContributionBasisAsync(int accountId, decimal newBasis)
+    {
+        try
+        {
+            var holding = await EnsureHoldingExistsAsync(0, accountId);
+            
+            if (holding.ContributionBasis != newBasis)
+            {
+                _logger.LogInformation("Updating ContributionBasis for account {Id} from {Old} to {New}", 
+                    accountId, holding.ContributionBasis, newBasis);
+                holding.ContributionBasis = newBasis;
+                holding.LastUpdated = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
+            
+            return ServiceResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating contribution basis for account {Id}", accountId);
+            return ServiceResult.Fail($"Error updating contribution basis: {ex.Message}");
+        }
+    }
 }

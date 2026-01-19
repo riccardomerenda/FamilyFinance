@@ -8,6 +8,7 @@
 @inject IBudgetService BudgetService
 @inject ITransactionService TransactionService
 @inject IAssetHoldingService HoldingService
+@inject IPensionHoldingService PensionHoldingService
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResource> L
 @inject AuthenticationStateProvider AuthState
@@ -666,22 +667,39 @@
         }
         else
         {
+            // NEW SNAPSHOT: Load live pension ContributionBasis, but amounts from last snapshot
             var last = await SnapshotService.GetLatestAsync(_familyId);
+            var pensionHoldings = await PensionHoldingService.GetAllAsync(_familyId);
+            
             if (last != null)
             {
                 _accRows = accounts.Select(a => {
                     var line = last.Lines.FirstOrDefault(l => l.AccountId == a.Id);
+                    // For pension/insurance: use live ContributionBasis
+                    var isPensionOrInsurance = a.Category is AccountCategory.Pension or AccountCategory.Insurance;
+                    var liveHolding = pensionHoldings.FirstOrDefault(h => h.AccountId == a.Id);
+                    
                     return new AccRow { 
                         Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, 
                         Amount = line?.Amount ?? 0, 
-                        ContributionBasis = line?.ContributionBasis ?? 0 
+                        ContributionBasis = isPensionOrInsurance && liveHolding != null 
+                            ? liveHolding.ContributionBasis 
+                            : (line?.ContributionBasis ?? 0)
                     };
                 }).ToList();
                 _recRows = last.Receivables.Where(r => r.Status == ReceivableStatus.Open).Select(r => new RecRow { Desc = r.Description, Amount = r.Amount, Status = r.Status }).ToList();
             }
             else
             {
-                _accRows = accounts.Select(a => new AccRow { Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, Amount = 0, ContributionBasis = 0 }).ToList();
+                // No previous snapshot: use live data for pensions
+                _accRows = accounts.Select(a => {
+                    var liveHolding = pensionHoldings.FirstOrDefault(h => h.AccountId == a.Id);
+                    return new AccRow { 
+                        Id = a.Id, Name = a.Name, IsInterest = a.IsInterest, Category = a.Category, 
+                        Amount = 0, 
+                        ContributionBasis = liveHolding?.ContributionBasis ?? 0 
+                    };
+                }).ToList();
             }
         }
         
@@ -771,6 +789,12 @@
             {
                 var incomes = _incomeRows.Select(i => (i.CategoryId, i.Amount, i.Notes)).ToList();
                 await SnapshotService.SaveIncomesAsync(snapshotId, incomes);
+            }
+            
+            // Sync ContributionBasis to live PensionHolding for pension/insurance accounts
+            foreach (var acc in PensionAccounts)
+            {
+                await PensionHoldingService.UpdateContributionBasisAsync(acc.Id, acc.ContributionBasis);
             }
             
             Nav.NavigateTo("/dashboard?saved=true", forceLoad: true);
