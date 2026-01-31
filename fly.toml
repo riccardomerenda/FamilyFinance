@@ -31,14 +31,14 @@ primary_region = "fra"  # Frankfurt - vicino all'Italia
 
 # Health check
 [[http_service.checks]]
-  grace_period = "10s"
+  grace_period = "60s"
   interval = "30s"
   method = "GET"
-  timeout = "5s"
+  timeout = "10s"
   path = "/health"
 
 [[vm]]
-  memory = "256mb"
+  memory = "512mb"
   cpu_kind = "shared"
   cpus = 1
 
